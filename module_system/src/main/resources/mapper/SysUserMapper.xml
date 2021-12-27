@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mornd.system.mapper.SysUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.mornd.system.entity.po.SysUser">
+        <id column="id" property="id"/>
+        <result column="login_name" property="loginName"/>
+        <result column="password" property="password"/>
+        <result column="real_name" property="realName"/>
+        <result column="gender" property="gender"/>
+        <result column="age" property="age"/>
+        <result column="phone" property="phone"/>
+        <result column="status" property="status"/>
+        <result column="avatar" property="avatar"/>
+        <result column="email" property="email"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="create_by" property="createBy"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="modified_by" property="modifiedBy"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+    <!--返回的所有列-->
+    <sql id="baseResultColumns">
+        id,
+        login_name,
+        password,
+        real_name,
+        gender,
+        age,
+        phone,
+        status,
+        account_locked,
+        avatar,
+        email,
+        gmt_create,
+        create_by,
+        gmt_modified,
+        modified_by,
+        del_flag,
+        version
+    </sql>
+
+</mapper>

@@ -1,0 +1,137 @@
+server:
+  port: 1001
+  servlet:
+    context-path: /dataView
+
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/db_autumn?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      username: root
+      password: 123456
+      # 初始化大小，最小空闲连接数，最大连接池数量
+      initialSize: 5
+      minIdle: 5
+      maxActive: 20
+      # 获取连接时最大等待时间，单位毫秒。配置了maxWait之后，缺省启用公平锁，并发效率会有所下降，如果需要可以通过配置useUnfairLock属性为true使用非公平锁。
+      maxWait: 60000
+      # 每过多少秒运行一次空闲连接回收器，这里设置的是60秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 连接保持空闲而不被驱逐的最长时间
+      minEvictableIdleTimeMillis: 300000
+      # 用来检测连接是否有效的sql
+      validationQuery: SELECT 1 FROM DUAL
+      # 指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除
+      testWhileIdle: true
+      # 申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      testOnBorrow: false
+      # 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+      testOnReturn: false
+      # #是否缓存preparedStatement，即PSCache。PSCache对支持游标的数据库性能提升巨大
+      poolPreparedStatements: true
+      # 最大启用PSCache的数量
+      maxPoolPreparedStatementPerConnectionSize: 20
+      # 合并多个DruidDataSource的监控数据
+      useGlobalDataSourceStat: true
+      # 配置监控统计拦截的filters stat(sql监控) wall（防火墙）
+      filters: stat,wall
+      # SpringAOP监控
+      #aop-patterns: com.mornd.*
+      stat-view-servlet:
+        # 开启druid的监控页功能，默认false
+        enabled: true
+        # 请求页面路径
+        url-pattern: /druid/*
+        # 监控页用户名
+        #login-username: admin
+        # 登录页密码
+        #login-password: admin
+        # 是否开启重置按钮
+        reset-enable: true
+        # ip黑名单
+        deny:
+        # ip白名单（没有配置或者为空，则允许所有访问）
+        allow:
+
+      web-stat-filter:
+        # 开启web应用监控功能，默认false
+        enabled: true
+        # 添加过滤规则
+        url-pattern: /*
+        # 忽略过滤格式
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+
+      # 对上面filter的详细配置
+      filter:
+        stat:
+          enabled: true
+          db-type: mysql
+          # 慢sql记录 单位毫秒
+          log-slow-sql: true
+          slow-sql-millis: 2000
+          # 打开mergeSql功能
+          merge-sql: true
+
+        wall:
+          enabled: true
+          db-type: mysql
+          config:
+            # 不允许删表
+            drop-table-allow: false
+            # 不允许删除表记录
+            #delete-allow: false
+
+  #页面提交给控制器的日期格式化
+  mvc:
+    format:
+      date: yyyy-MM-dd HH:mm:ss
+  #将json返回的日期格式化
+  jackson:
+    date-format: yyyy-MM-dd
+    #东八区，比格林威治时间早8个小时
+    time-zone: GMT+8
+  # redis配置
+  redis:
+    # 服务器地址
+    host: localhost
+    # 端口
+    port: 6379
+    # 数据库
+    database: 9
+    # 超时时间：毫秒
+    timeout: 5000ms
+    # 密码
+    password: 123456
+    # 配置lettuce连接池
+    lettuce:
+      pool:
+        # 最大连接数，默认8
+        max-active: 5
+        # 最大连接阻塞等待时间，（默认-1 没有限制）
+        max-wait: 10000ms
+        # 最大空闲连接，默认8
+        max-idle: 10
+        # 最小空闲连接，默认0
+        min-idle: 5
+
+# mybatis-plus 配置
+mybatis-plus:
+  # 配 置 扫 描
+  mapper-locations: classpath:/mapper/**/*.xml
+  configuration:
+    # 打 印 SQL 语 句
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 是 否 开 启 驼 峰 命 名 转 换
+    map-underscore-to-camel-case: true
+
+# jwt属性配置
+jwt:
+  # JWT存储的请求头
+  tokenHeader: Authorization
+  # JWT 加解密使用的密钥(盐)
+  secret: mornd-secret
+  # JWT负载拿到开头
+  tokenHead: 'Bearer '
+  #JWT的超期限时间 (单位：s)
+  expiration: 1800
