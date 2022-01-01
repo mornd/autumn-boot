@@ -1,4 +1,4 @@
-package com.mornd.system.constants;
+package com.mornd.system.constant;
 
 /**
  * @author mornd

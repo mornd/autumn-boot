@@ -1,4 +1,4 @@
-package com.mornd.system.constants;
+package com.mornd.system.constant;
 
 /**
  * redis前缀常量

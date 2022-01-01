@@ -1,10 +1,12 @@
 package com.mornd.system.controller;
 
+import com.mornd.system.constant.GlobalConstant;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.SysPermissionService;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,7 @@ import javax.validation.constraints.NotBlank;
  * @author mornd
  * @dateTime 2021/8/11 - 16:55
  */
+@Validated
 @RestController
 @RequestMapping("/permission")
 public class PermissionController {
@@ -45,16 +48,22 @@ public class PermissionController {
         return permissionService.findCatalogueAndMenu();
     }
 
+    @ApiOperation("查询目录集合")
+    @GetMapping("/findCatalogues")
+    public JsonResult findCatalogues() {
+        return permissionService.findCatalogues();
+    }
+    
     @ApiOperation("查询菜单标题是否重复(true:重复,false:不重复)")
     @GetMapping("/queryTitleRepeated")
     public JsonResult queryTitleRepeated(@NotBlank(message = "标题不能为空") String title, String id) {
-        return permissionService.queryTitleRepeated(title, id);
+        return JsonResult.successData(permissionService.queryTitleRepeated(title, id));
     }
 
     @ApiOperation("查询编码是否重复(true:重复,false:不重复)")
     @GetMapping("/queryCodeRepeated")
     public JsonResult queryCodeRepeated(@NotBlank(message = "标题不能为空") String code, String id) {
-        return permissionService.queryCodeRepeated(code, id);
+        return JsonResult.successData(permissionService.queryCodeRepeated(code, id));
     }
 
     @ApiOperation("查询目录是否包含子集")
@@ -65,6 +74,13 @@ public class PermissionController {
         } catch (Exception e) {
             return JsonResult.failure("服务器异常，操作失败！");
         }
+    }
+
+    @ApiOperation("更改状态")
+    @GetMapping("/changeState")
+    public JsonResult changeStatus(@NotBlank(message = "id不能为空") String id, 
+                                   @Range(min = 0, max = 1, message = "修改的状态值不正确") Integer state) {
+        return permissionService.changeStatus(id, state);
     }
 
     @ApiOperation("新增菜单数据")

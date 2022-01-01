@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mornd.system.constants.SpringSecurityConstant;
+import com.mornd.system.constant.SpringSecurityConstant;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.ApiModel;

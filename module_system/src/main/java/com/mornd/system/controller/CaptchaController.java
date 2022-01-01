@@ -1,7 +1,8 @@
 package com.mornd.system.controller;
 
-import com.mornd.system.constants.GlobalConstants;
-import com.mornd.system.constants.RedisKey;
+import com.mornd.system.annotation.LogStar;
+import com.mornd.system.constant.GlobalConstant;
+import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.utils.RedisUtil;
 import com.wf.captcha.ArithmeticCaptcha;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,23 +31,20 @@ public class CaptchaController {
     @Resource
     private RedisUtil redisUtil;
 
-    private static final Integer CAPTCHA_WIDTH = 115;
-    private static final Integer CAPTCHA_HEIGHT = 40;
-    private static final Integer CAPTCHA_OPERATION_BITS = 2;
-
     /**
      * 获取登录验证码
-     * @param request
+     * @param response
      * @param response
      * @return
      */
+    @LogStar("获取验证码")
     @ApiOperation("获取验证码")
     @GetMapping("/captcha")
-    public JsonResult getCaptcha(HttpServletRequest request, HttpServletResponse response){
+    public JsonResult getCaptcha(HttpServletResponse response){
         //使用算数验证码
-        ArithmeticCaptcha arithmeticCaptcha = new ArithmeticCaptcha(CAPTCHA_WIDTH, CAPTCHA_HEIGHT);
+        ArithmeticCaptcha arithmeticCaptcha = new ArithmeticCaptcha(115, 40);
         //运算位数为2
-        arithmeticCaptcha.setLen(CAPTCHA_OPERATION_BITS);
+        arithmeticCaptcha.setLen(2);
         //验证码结果
         String captchaResult = arithmeticCaptcha.text();
         String uuid = UUID.randomUUID().toString().replace("-","");
@@ -56,7 +53,7 @@ public class CaptchaController {
         //存入redis，并设置过期时间
         redisUtil.setValue(RedisKey.LOGIN_CAPTCHA_KEY,
                 captchaResult,
-                GlobalConstants.CAPTCHA_EXPIRATION,
+                GlobalConstant.CAPTCHA_EXPIRATION,
                 TimeUnit.MINUTES);
 
         Map<String, Object> resultData = new HashMap<>();

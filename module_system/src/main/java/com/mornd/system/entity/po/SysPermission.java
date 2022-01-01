@@ -32,14 +32,12 @@ public class SysPermission implements Serializable {
     private String id;
 
     //父id
+    @NotBlank(message = "菜单父级ID不能为空")
     private String parentId;
 
     //菜单标题
     @NotBlank(message = "标题不能为空")
     private String title;
-
-    //前端路由对象name值
-    private String name;
 
     //前端路由对象path值
     private String path;
@@ -75,9 +73,6 @@ public class SysPermission implements Serializable {
     //菜单类型(0:一级菜单;1:子菜单;2:按钮权限)
     @NotNull(message = "菜单类型不能为空")
     private Integer menuType;
-
-    //是否路由菜单: 0:不是  1:是（默认值1）
-    private Integer isRoute;
 
     //创建时间
     @JsonFormat(pattern = "yyyy-MM-dd")

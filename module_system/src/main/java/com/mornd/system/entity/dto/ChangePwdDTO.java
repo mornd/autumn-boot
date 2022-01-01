@@ -15,8 +15,8 @@ import java.io.Serializable;
 @Data
 public class ChangePwdDTO implements Serializable {
 
-    @Size(min = 3, max = 20, message = "原密码长度须在3-20之间")
+    @Size(min = 3, max = 60, message = "加密的原密码长度须在3-60之间")
     private String oldPwd;
-    @Size(min = 3, max = 20, message = "新密码须在3-20之间")
+    @Size(min = 3, max = 60, message = "加密的新密码长度须在3-60之间")
     private String newPwd;
 }

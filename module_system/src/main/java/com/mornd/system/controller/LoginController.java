@@ -1,5 +1,6 @@
 package com.mornd.system.controller;
 
+import com.mornd.system.annotation.LogStar;
 import com.mornd.system.entity.dto.LoginUserDTO;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.LoginService;
@@ -34,12 +35,14 @@ public class LoginController {
      * @param loginUserDTO
      * @return
      */
+    @LogStar("用户登录")
     @ApiOperation("用户登录")
     @PostMapping("/userLogin")
     public JsonResult userLogin(@RequestBody @Validated LoginUserDTO loginUserDTO){
         return loginService.userLogin(loginUserDTO);
     }
 
+    @LogStar("用户注销")
     @ApiOperation("用户注销")
     @PostMapping("/userLogout")
     public JsonResult userLogout(HttpServletRequest request, HttpServletResponse response){

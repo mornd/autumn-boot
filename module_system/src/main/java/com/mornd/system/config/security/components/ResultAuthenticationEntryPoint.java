@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 /**
  * @author mornd
  * @dateTime 2021/9/6 - 12:28
- * 当用户未登录、未携带token或token过期情况下访问资源时的处理
+ * 当用户未登录、未携带token或token过期情况下访问资源时的处理 401
  */
 @Component
 public class ResultAuthenticationEntryPoint implements AuthenticationEntryPoint {

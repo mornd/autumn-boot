@@ -3,6 +3,7 @@ package com.mornd.system.controller;
 import com.mornd.system.entity.dto.ChangePwdDTO;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.SysUserService;
+import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,13 +36,13 @@ public class SysUserController {
     @ApiOperation("匹配当前密码")
     @GetMapping("/verifyCurrentPassword/{oldPwd}")
     public JsonResult verifyCurrentPassword(@PathVariable String oldPwd) {
-        boolean matches = userService.verifyCurrentPassword(oldPwd);
+        boolean matches = userService.verifyCurrentPassword(SecretUtil.desEncrypt(oldPwd));
         return JsonResult.successData(matches);
     }
 
     @ApiOperation("修改密码")
     @PostMapping("/changePwd")
     public JsonResult changePwd(@RequestBody @Validated ChangePwdDTO pwd) {
-        return userService.changePwd(pwd.getOldPwd(), pwd.getNewPwd());
+        return userService.changePwd(SecretUtil.desEncrypt(pwd.getOldPwd()), SecretUtil.desEncrypt(pwd.getNewPwd()));
     }
 }

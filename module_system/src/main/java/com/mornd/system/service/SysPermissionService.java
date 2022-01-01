@@ -22,13 +22,17 @@ public interface SysPermissionService extends IService<SysPermission> {
 
     JsonResult findCatalogueAndMenu();
 
-    JsonResult queryTitleRepeated(String title, String id);
+    boolean queryTitleRepeated(String title, String id);
 
-    JsonResult queryCodeRepeated(String code, String id);
+    boolean queryCodeRepeated(String code, String id);
 
     JsonResult insert(SysPermission sysPermission);
 
     JsonResult update(SysPermission sysPermission);
 
     boolean queryHasChildren(String id);
+
+    JsonResult changeStatus(String id, Integer state);
+
+    JsonResult findCatalogues();
 }

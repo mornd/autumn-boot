@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mornd.system.constants.RedisKey;
-import com.mornd.system.constants.ResultMessage;
+import com.mornd.system.constant.RedisKey;
+import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.SysUser;
@@ -16,9 +16,9 @@ import com.mornd.system.service.SysPermissionService;
 import com.mornd.system.service.SysRoleService;
 import com.mornd.system.service.SysUserService;
 import com.mornd.system.utils.RedisUtil;
+import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,6 +47,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private long expiration;
     @Resource
     private BCryptPasswordEncoder passwordEncoder;
+    private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
+    private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
     /**
      * 根据用户username查询所属用户、角色、权限信息
@@ -66,14 +68,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 throw new UsernameNotFoundException(ResultMessage.USER_NOTFOUND);
             } else {
                 //设置角色、权限
-                Set<SysRole> roles = roleService.findByUserId(sysUser.getId(),
-                        BaseEntity.EnableState.ENABLE.getCode());
+                Set<SysRole> roles = roleService.findByUserId(sysUser.getId(), enabled);
                 if(ObjectUtils.isNotEmpty(roles)) {
                     sysUser.setRoles(roles);
                     List<String> ids = new ArrayList<>();
                     roles.forEach(i -> ids.add(i.getId()));
                     SysPermission sysPermission = new SysPermission();
-                    sysPermission.setEnabled(BaseEntity.EnableState.ENABLE.getCode());
+                    sysPermission.setEnabled(enabled);
                     sysUser.setPermissions(permissionService.findByRoleIds(ids, sysPermission));
                 }
                 redisUtil.setValue(RedisKey.CURRENT_USER_INFO_KEY + username,
@@ -96,8 +97,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             SysUser user = new SysUser();
             user.setId(SecurityUtil.getLoginUserId());
             //加密新密码
-            //user.setPassword(passwordEncoder.encode(newPwd));
-            //int i = baseMapper.updateById(user);
+            user.setPassword(passwordEncoder.encode(newPwd));
+            baseMapper.updateById(user);
             return JsonResult.success("修改成功");
         }
         return JsonResult.failure("原密码不匹配");

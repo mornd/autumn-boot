@@ -2,12 +2,13 @@ package com.mornd.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.mornd.system.config.security.components.JwtTokenUtil;
-import com.mornd.system.constants.RedisKey;
-import com.mornd.system.constants.ResultMessage;
+import com.mornd.system.constant.RedisKey;
+import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.entity.dto.LoginUserDTO;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.LoginService;
 import com.mornd.system.utils.RedisUtil;
+import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,9 +59,10 @@ public class LoginServiceImpl implements LoginService {
         if(!captcha.equalsIgnoreCase(loginUserDTO.getCode().trim())){
             return JsonResult.failure("验证码错误！");
         }
-
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserDTO.getUsername());
-        if(userDetails == null || !passwordEncoder.matches(loginUserDTO.getPassword(),userDetails.getPassword())){
+        //密码解密
+        String password = SecretUtil.desEncrypt(loginUserDTO.getPassword());
+        if(userDetails == null || !passwordEncoder.matches(password,userDetails.getPassword())){
             return JsonResult.failure(ResultMessage.USER_NOTFOUND);
         }
         if(!userDetails.isEnabled()){

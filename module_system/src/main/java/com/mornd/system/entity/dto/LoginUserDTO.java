@@ -25,7 +25,7 @@ public class LoginUserDTO implements Serializable {
 
     @ApiModelProperty(value = "密码",required = true)
     @NotBlank(message = "密码不能为空")
-    @Size(min = 3, max = 20, message = "密码长度须在3-20之间")
+    @Size(min = 3, max = 100, message = "加密后的密码长度须在3-60之间")
     private String password;
 
     @ApiModelProperty(value = "验证码",required = true)

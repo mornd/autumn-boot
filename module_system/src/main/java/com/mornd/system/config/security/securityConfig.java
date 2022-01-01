@@ -3,7 +3,7 @@ package com.mornd.system.config.security;
 import com.mornd.system.config.security.components.JwtAuthorizationTokenFilter;
 import com.mornd.system.config.security.components.ResultAccessDeniedHandler;
 import com.mornd.system.config.security.components.ResultAuthenticationEntryPoint;
-import com.mornd.system.constants.SpringSecurityConstant;
+import com.mornd.system.constant.SpringSecurityConstant;
 import com.mornd.system.service.SysUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

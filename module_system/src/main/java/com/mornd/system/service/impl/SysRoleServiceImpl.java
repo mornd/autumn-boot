@@ -22,7 +22,9 @@ import java.util.Set;
 @Service
 @Transactional
 public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> implements SysRoleService {
-
+    private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
+    private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
+    
     @Override
     public Set<SysRole> findByUserId(String userId, Integer enabled) {
         return baseMapper.findByUserId(userId, enabled);
@@ -33,12 +35,11 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
      * @return
      */
     public Set<SysRole> getCurrentRoles() {
-        return  findByUserId( SecurityUtil.getLoginUserId(),
-                BaseEntity.EnableState.ENABLE.getCode());
+        return  findByUserId( SecurityUtil.getLoginUserId(), enabled);
     }
 
     /**
-     * 工具方法获取当前用户的角色id集合
+     * 工具方法：获取当前用户的角色id集合
      * @return
      */
     public List<String> getCurrentRoleIds() {

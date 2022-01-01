@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 /**
  * @author mornd
  * @dateTime 2021/9/6 - 12:36
- * 用户没有权限(403)访问时处理
+ * 用户没有权限(403)访问时处理 403
  */
 @Component
 public class ResultAccessDeniedHandler implements AccessDeniedHandler {

@@ -17,4 +17,6 @@ public interface SysPermissionMapper extends BaseMapper<SysPermission> {
     Set<SysPermission> findByRoleIds(@Param("roles") List<String> roles, @Param("sysPermission") SysPermission sysPermission);
 
     Set<SysPermission> findCatalogueAndMenu(@Param("roles") List<String> currentRoleIds, @Param("catalogue") Integer catalogue, @Param("menu") Integer menu, @Param("hidden") Integer hidden);
+
+    Set<SysPermission> findCatalogues(@Param("roles") List<String> currentRoleIds, @Param("menu") Integer menu, @Param("hidden") Integer hidden);
 }

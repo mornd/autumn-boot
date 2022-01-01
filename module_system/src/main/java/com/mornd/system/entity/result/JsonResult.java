@@ -3,7 +3,10 @@ package com.mornd.system.entity.result;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 
 /**
@@ -24,7 +27,7 @@ public class JsonResult<T> implements Serializable {
     private Long timestamp = System.currentTimeMillis();
 
     public static JsonResult<Object> success(){
-        return success("成功");
+        return success(defaultSuccessMessage());
     }
 
     public static JsonResult<Object> success(String message){
@@ -59,7 +62,7 @@ public class JsonResult<T> implements Serializable {
 
 
     public static JsonResult<Object> failure(){
-        return failure("失败");
+        return failure(defaultFailureMessage());
     }
 
     public static JsonResult<Object> failure(String message){
@@ -77,5 +80,55 @@ public class JsonResult<T> implements Serializable {
         jsonResult.setMessage(message);
         jsonResult.setData(data);
         return jsonResult;
+    }
+
+    private static String defaultSuccessMessage() {
+        String message = "成功";
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        assert attributes != null;
+        HttpServletRequest request = attributes.getRequest();
+        String method = request.getMethod();
+        switch (method.toUpperCase()) {
+            case "GET":
+                message = "获取数据成功";
+                break;
+            case "POST":
+                message = "提交数据成功";
+                break;
+            case "PUT":
+                message = "更新数据成功";
+                break;
+            case "DELETE":
+                message = "删除数据成功";
+                break;
+            default:
+                break;
+        }
+        return message;
+    }
+
+    private static String defaultFailureMessage() {
+        String message = "失败";
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        assert attributes != null;
+        HttpServletRequest request = attributes.getRequest();
+        String method = request.getMethod();
+        switch (method.toUpperCase()) {
+            case "GET":
+                message = "获取数据失败";
+                break;
+            case "POST":
+                message = "提交数据失败";
+                break;
+            case "PUT":
+                message = "更新数据失败";
+                break;
+            case "DELETE":
+                message = "删除数据失败";
+                break;
+            default:
+                break;
+        }
+        return message;
     }
 }

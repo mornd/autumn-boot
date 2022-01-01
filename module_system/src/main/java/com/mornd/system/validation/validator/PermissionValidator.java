@@ -17,17 +17,26 @@ public class PermissionValidator implements ConstraintValidator<PermissionValida
 
     @Override
     public boolean isValid(SysPermission sysPermission, ConstraintValidatorContext constraintValidatorContext) {
-        if(sysPermission.getMenuType() == null) return false;
-        if(sysPermission.getMenuType().equals(EnumPermissionType.CATALOGUE.getCode())) {
+        Integer menuType = sysPermission.getMenuType();
+        if(menuType == null) return false;
+        //验证菜单类型是否合法
+        if(!menuType.equals(EnumPermissionType.CATALOGUE.getCode())
+            && !menuType.equals(EnumPermissionType.MENU.getCode())
+            && !menuType.equals(EnumPermissionType.BUTTON.getCode())) {
+            return false;
+        }
+        if(menuType.equals(EnumPermissionType.CATALOGUE.getCode())) {
+            //目录
             return !StringUtils.isBlank(sysPermission.getIcon());
-        } else if(sysPermission.getMenuType().equals(EnumPermissionType.MENU.getCode())) {
+        } else if(menuType.equals(EnumPermissionType.MENU.getCode())) {
+            //菜单
             if(StringUtils.isBlank(sysPermission.getParentId())) return false;
             if(StringUtils.isBlank(sysPermission.getPath())) return false;
             if(StringUtils.isBlank(sysPermission.getIcon())) return false;
             return !StringUtils.isBlank(sysPermission.getComponent());
-        } else if(sysPermission.getMenuType().equals(EnumPermissionType.BUTTON.getCode())) {
+        } else {
+            //权限
             return !StringUtils.isBlank(sysPermission.getParentId());
         }
-        return true;
     }
 }
