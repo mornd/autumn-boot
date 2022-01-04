@@ -1,7 +1,7 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.LogStar;
-import com.mornd.system.constant.GlobalConstant;
+import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.utils.RedisUtil;
@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -50,10 +51,13 @@ public class CaptchaController {
         String uuid = UUID.randomUUID().toString().replace("-","");
         log.info("登录验证码为：{}", captchaResult);
         log.info("登录uuid为：{}", uuid);
+
+        Set<String> keys = redisUtil.keys(RedisKey.LOGIN_CAPTCHA_KEY + "*");
+        redisUtil.delete(keys);
         //存入redis，并设置过期时间
-        redisUtil.setValue(RedisKey.LOGIN_CAPTCHA_KEY,
+        redisUtil.setValue(RedisKey.LOGIN_CAPTCHA_KEY + uuid,
                 captchaResult,
-                GlobalConstant.CAPTCHA_EXPIRATION,
+                GlobalConst.CAPTCHA_EXPIRATION,
                 TimeUnit.MINUTES);
 
         Map<String, Object> resultData = new HashMap<>();

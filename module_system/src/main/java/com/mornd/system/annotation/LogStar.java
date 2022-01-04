@@ -1,5 +1,7 @@
 package com.mornd.system.annotation;
 
+import com.mornd.system.entity.enums.LogType;
+
 import java.lang.annotation.*;
 
 /**
@@ -11,5 +13,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface LogStar {
+    //日志主题
     String value() default "";
+    //日志操作类型
+    LogType BusinessType() default LogType.SERVICE;
 }

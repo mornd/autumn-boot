@@ -3,7 +3,7 @@ package com.mornd.system.config.security;
 import com.mornd.system.config.security.components.JwtAuthorizationTokenFilter;
 import com.mornd.system.config.security.components.ResultAccessDeniedHandler;
 import com.mornd.system.config.security.components.ResultAuthenticationEntryPoint;
-import com.mornd.system.constant.SpringSecurityConstant;
+import com.mornd.system.constant.SpringSecurityConst;
 import com.mornd.system.service.SysUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +46,7 @@ public class securityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(SpringSecurityConstant.NONE_SECURITY_URL_PATTERNS);
+        web.ignoring().antMatchers(SpringSecurityConst.NONE_SECURITY_URL_PATTERNS);
     }
 
     /**

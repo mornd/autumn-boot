@@ -1,4 +1,4 @@
-package com.mornd.system.validation.annotation;
+package com.mornd.system.annotation;
 
 import com.mornd.system.validation.validator.PermissionValidator;
 

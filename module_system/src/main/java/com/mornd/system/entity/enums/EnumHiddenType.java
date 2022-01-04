@@ -1,4 +1,4 @@
-package com.mornd.system.entity.type;
+package com.mornd.system.entity.enums;
 
 import lombok.Getter;
 

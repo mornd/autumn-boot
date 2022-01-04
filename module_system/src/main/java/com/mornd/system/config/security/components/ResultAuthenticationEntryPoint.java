@@ -25,7 +25,7 @@ public class ResultAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
-        JsonResult<Object> jsonResult = JsonResult.failure("尚未登录，请先登录！");
+        JsonResult<Object> jsonResult = JsonResult.failure("尚未登录，请先登录");
         jsonResult.setCode(HttpServletResponse.SC_UNAUTHORIZED);
         writer.write(new ObjectMapper().writeValueAsString(jsonResult));
         writer.flush();

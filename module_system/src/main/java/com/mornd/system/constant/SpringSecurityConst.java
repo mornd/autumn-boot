@@ -4,7 +4,7 @@ package com.mornd.system.constant;
  * @author mornd
  * @dateTime 2021/11/8 - 10:55
  */
-public interface SpringSecurityConstant {
+public interface SpringSecurityConst {
     //springSecurity的URL白名单
     String[] NONE_SECURITY_URL_PATTERNS = {
         //图标

@@ -24,7 +24,7 @@ public class SecurityUtil {
             return principal;
         } catch (Exception e) {
             log.error("获取当前登录用户信息发生异常！{}", e.getMessage());
-            throw new RuntimeException("用户未登录！");
+            return null;
         }
     }
 

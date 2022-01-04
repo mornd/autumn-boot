@@ -25,7 +25,7 @@ public class ResultAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
-        JsonResult<Object> jsonResult = JsonResult.failure("权限不足！");
+        JsonResult<Object> jsonResult = JsonResult.failure("权限不足");
         jsonResult.setCode(HttpServletResponse.SC_FORBIDDEN);
         writer.write(new ObjectMapper().writeValueAsString(jsonResult));
         writer.flush();

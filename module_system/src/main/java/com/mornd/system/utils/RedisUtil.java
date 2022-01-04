@@ -5,6 +5,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -91,7 +93,7 @@ public class RedisUtil {
      * 根据key删除value
      * @param keys
      */
-    public void deleteKey(String... keys){
+    public void delete(String... keys){
         if(keys != null && keys.length > 0){
             if(keys.length == 1){
                 redisTemplate.delete(keys[0]);
@@ -101,6 +103,15 @@ public class RedisUtil {
                 }
             }
         }
+    }
+
+    /**
+     * 删除
+     * @param keys
+     * @return
+     */
+    public Long delete(Collection<String> keys) {
+        return redisTemplate.delete(keys);
     }
 
     /**
@@ -127,6 +138,15 @@ public class RedisUtil {
             throw new RuntimeException("递减因子必须大于0");
         }
         return redisTemplate.opsForValue().increment(key, -factor);
+    }
+
+    /**
+     * 模糊匹配key
+     * @param pattern
+     * @return
+     */
+    public Set<String> keys(String pattern) {
+         return redisTemplate.keys(pattern);
     }
 
 }

@@ -9,7 +9,7 @@ public interface RedisKey {
     /**
      * 验证码key
      */
-    String LOGIN_CAPTCHA_KEY = "login_captcha_value";
+    String LOGIN_CAPTCHA_KEY = "login_captcha_value_";
 
     /**
      * 当前登录用户信息

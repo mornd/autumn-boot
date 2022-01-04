@@ -46,7 +46,7 @@ public class TestController {
 
     @GetMapping("/valid2")
     //NotEmpty 数组不能为空，并且数组长度大于等于1
-    public JsonResult valid2(@NotEmpty(message = "集合不能为空！") Integer[] list){
+    public JsonResult valid2(@NotEmpty(message = "集合不能为空") Integer[] list){
         System.out.println(list);
         return JsonResult.success("200");
     }

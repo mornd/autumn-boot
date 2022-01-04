@@ -1,6 +1,5 @@
 package com.mornd.system.controller;
 
-import com.mornd.system.constant.GlobalConstant;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.SysPermissionService;
@@ -69,11 +68,7 @@ public class PermissionController {
     @ApiOperation("查询目录是否包含子集")
     @GetMapping("/queryHasChildren/{id}")
     public JsonResult queryHasChildren(@PathVariable("id") String id) {
-        try {
-            return JsonResult.successData(permissionService.queryHasChildren(id));
-        } catch (Exception e) {
-            return JsonResult.failure("服务器异常，操作失败！");
-        }
+        return JsonResult.successData(permissionService.queryHasChildren(id));
     }
 
     @ApiOperation("更改状态")

@@ -112,7 +112,7 @@
             <version>1.6.2</version>
         </dependency>
 
-        <!--springboot版本在2.3.0以上需导入以下参数校验依赖，否则验证不起作用-->
+        <!--springboot版本在2.3.0以下会自动传入hibernate-validator依赖，springboot版本在2.3.0以上需导入以下参数校验依赖，否则验证不起作用-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>

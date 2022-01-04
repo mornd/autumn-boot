@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mornd.system.validation.UpdateValidGroup;
-import com.mornd.system.validation.annotation.PermissionValidated;
+import com.mornd.system.annotation.PermissionValidated;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

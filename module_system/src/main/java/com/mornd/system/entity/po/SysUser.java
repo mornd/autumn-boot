@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mornd.system.constant.SpringSecurityConstant;
+import com.mornd.system.constant.SpringSecurityConst;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.ApiModel;
@@ -92,7 +92,7 @@ public class SysUser extends BaseEntity implements UserDetails {
             return null;
         }
         List<SimpleGrantedAuthority> authorities = this.roles.stream().map(role ->
-                new SimpleGrantedAuthority(SpringSecurityConstant.ROLE_PREFIX + role.getCode()))
+                new SimpleGrantedAuthority(SpringSecurityConst.ROLE_PREFIX + role.getCode()))
                 .collect(Collectors.toList());
         if(!ObjectUtils.isEmpty(authorities)){
             this.permissions.forEach(item -> {

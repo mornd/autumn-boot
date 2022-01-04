@@ -1,4 +1,4 @@
-package com.mornd.system.entity.result;
+package com.mornd.system.constant;
 
 /**
  * @author mornd

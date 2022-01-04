@@ -1,5 +1,6 @@
 package com.mornd.system.entity.result;
 
+import com.mornd.system.constant.JsonResultCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

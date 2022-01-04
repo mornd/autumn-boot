@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author mornd
@@ -50,14 +51,16 @@ public class LoginServiceImpl implements LoginService {
     public JsonResult userLogin(LoginUserDTO loginUserDTO) {
         log.info("正在执行登录操作，用户名：{}", loginUserDTO.getUsername());
         //验证码校验
-        //String uuid = loginUserDTO.getUuid();
-        String captcha = (String) redisUtil.getValue(RedisKey.LOGIN_CAPTCHA_KEY);
-        redisUtil.deleteKey(RedisKey.LOGIN_CAPTCHA_KEY);
+        String uuid = loginUserDTO.getUuid();
+        String captcha = (String) redisUtil.getValue(RedisKey.LOGIN_CAPTCHA_KEY + uuid);
+        //模糊匹配删除key
+        Set<String> keys = redisUtil.keys(RedisKey.LOGIN_CAPTCHA_KEY + "*");
+        redisUtil.delete(keys);
         if(StringUtils.isBlank(captcha)){
-            return JsonResult.failure("验证码不存在或已过期！");
+            return JsonResult.failure("验证码不存在或已过期");
         }
         if(!captcha.equalsIgnoreCase(loginUserDTO.getCode().trim())){
-            return JsonResult.failure("验证码错误！");
+            return JsonResult.failure("验证码错误");
         }
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserDTO.getUsername());
         //密码解密
@@ -66,17 +69,17 @@ public class LoginServiceImpl implements LoginService {
             return JsonResult.failure(ResultMessage.USER_NOTFOUND);
         }
         if(!userDetails.isEnabled()){
-            return JsonResult.failure("该账号已被禁用！");
+            return JsonResult.failure("该账号已被禁用");
         }
         //本项目未使用以下验证，所以会一直为true
         if(!userDetails.isAccountNonLocked()){
-            return JsonResult.failure("该账号已被锁定！");
+            return JsonResult.failure("该账号已被锁定");
         }
         if(!userDetails.isAccountNonExpired()){
-           return JsonResult.failure("该账号已过期！");
+           return JsonResult.failure("该账号已过期");
         }
         if(!userDetails.isCredentialsNonExpired()){
-            return JsonResult.failure("该账号凭证已过期！");
+            return JsonResult.failure("该账号凭证已过期");
         }
 
         //将登录用户信息存入security上下文对象中
@@ -92,7 +95,7 @@ public class LoginServiceImpl implements LoginService {
         tokenMap.put("token", token);
 
         log.info("登录成功，当前登录用户：{}", userDetails.getUsername());
-        return JsonResult.success("登录成功！", tokenMap);
+        return JsonResult.success("登录成功", tokenMap);
     }
 
     /**
@@ -115,8 +118,8 @@ public class LoginServiceImpl implements LoginService {
             //SecurityContextHolder.clearContext();
         }
 
-        redisUtil.deleteKey(RedisKey.CURRENT_USER_INFO_KEY + username);
+        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + username);
         log.info("用户{}执行注销操作成功！",username);
-        return JsonResult.success("注销成功！");
+        return JsonResult.success("注销成功");
     }
 }

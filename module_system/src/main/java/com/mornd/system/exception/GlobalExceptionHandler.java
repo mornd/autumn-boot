@@ -1,7 +1,7 @@
 package com.mornd.system.exception;
 
 import com.mornd.system.entity.result.JsonResult;
-import com.mornd.system.entity.result.JsonResultCode;
+import com.mornd.system.constant.JsonResultCode;
 import io.lettuce.core.RedisCommandTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -34,8 +34,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public JsonResult exception(AccessDeniedException e){
         e.printStackTrace();
-        log.info("权限不足！");
-        JsonResult<Object> failure = JsonResult.failure("权限不足！");
+        log.info("权限不足");
+        JsonResult<Object> failure = JsonResult.failure("权限不足");
         failure.setCode(403);
         return failure;
     }
@@ -44,21 +44,21 @@ public class GlobalExceptionHandler {
     public JsonResult exception(DataAccessException e){
         e.printStackTrace();
         log.info("数据访问异常：{}",e.getMessage());
-        return JsonResult.failure("数据访问异常！");
+        return JsonResult.failure("数据访问异常");
     }
 
     @ExceptionHandler(RedisCommandTimeoutException.class)
     public JsonResult exception(RedisCommandTimeoutException e){
-        log.error("RedisCommandTimeoutException: redis服务连接异常！");
+        log.error("RedisCommandTimeoutException: redis服务连接异常");
         log.error(e.getMessage());
-        return JsonResult.failure("redis服务异常，请稍后再重试！");
+        return JsonResult.failure("redis服务异常，请稍后再重试");
     }
 
     @ExceptionHandler(QueryTimeoutException.class)
     public JsonResult exception(QueryTimeoutException e) {
-        log.error("QueryTimeoutException: redis服务连接异常！");
+        log.error("QueryTimeoutException: redis服务连接异常");
         log.error(e.getMessage());
-        return JsonResult.failure("redis服务异常，请稍后再重试！");
+        return JsonResult.failure("redis服务异常，请稍后再重试");
     }
 
     /**
