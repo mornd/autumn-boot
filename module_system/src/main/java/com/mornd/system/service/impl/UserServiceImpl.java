@@ -12,11 +12,10 @@ import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.mapper.SysUserMapper;
-import com.mornd.system.service.SysPermissionService;
-import com.mornd.system.service.SysRoleService;
-import com.mornd.system.service.SysUserService;
+import com.mornd.system.service.PermissionService;
+import com.mornd.system.service.RoleService;
+import com.mornd.system.service.UserService;
 import com.mornd.system.utils.RedisUtil;
-import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,11 +35,11 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @Transactional
-public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
+public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements UserService {
     @Resource
-    private SysRoleService roleService;
+    private RoleService roleService;
     @Resource
-    private SysPermissionService permissionService;
+    private PermissionService permissionService;
     @Resource
     private RedisUtil redisUtil;
     @Value("${jwt.expiration}")

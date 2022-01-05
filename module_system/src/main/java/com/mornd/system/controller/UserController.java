@@ -2,7 +2,7 @@ package com.mornd.system.controller;
 
 import com.mornd.system.entity.dto.ChangePwdDTO;
 import com.mornd.system.entity.result.JsonResult;
-import com.mornd.system.service.SysUserService;
+import com.mornd.system.service.UserService;
 import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
 import io.swagger.annotations.Api;
@@ -11,9 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 
 /**
  * @author mornd
@@ -23,9 +20,9 @@ import javax.validation.constraints.Size;
 @RestController
 @RequestMapping("/sysUser")
 @Api("系统用户接口")
-public class SysUserController {
+public class UserController {
     @Resource
-    private SysUserService userService;
+    private UserService userService;
 
     @ApiOperation("获取当前登录用户信息")
     @GetMapping("/getLoginUser")

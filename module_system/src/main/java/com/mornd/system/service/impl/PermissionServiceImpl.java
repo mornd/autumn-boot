@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
+import com.mornd.system.constant.SpringSecurityConst;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.RoleWithPermission;
@@ -15,14 +16,15 @@ import com.mornd.system.entity.enums.EnumHiddenType;
 import com.mornd.system.entity.enums.EnumPermissionType;
 import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.SysPermissionMapper;
-import com.mornd.system.service.SysPermissionService;
-import com.mornd.system.service.SysRoleService;
+import com.mornd.system.service.PermissionService;
+import com.mornd.system.service.RoleService;
 import com.mornd.system.utils.MenuUtil;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecurityUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import sun.security.util.SecurityConstants;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -35,9 +37,9 @@ import java.util.Set;
  */
 @Service
 @Transactional
-public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper,SysPermission> implements SysPermissionService {
+public class PermissionServiceImpl extends ServiceImpl<SysPermissionMapper,SysPermission> implements PermissionService {
     @Resource
-    private SysRoleService roleService;
+    private RoleService roleService;
     @Resource
     private RoleWithPermissionMapper roleWithPermissionMapper;
     @Resource
@@ -165,6 +167,10 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper,Sy
     public JsonResult insert(SysPermission sysPermission) {
         if(queryTitleRepeated(sysPermission.getTitle(), null)) return JsonResult.failure("标题已存在");
         if(queryCodeRepeated(sysPermission.getCode(), null)) return JsonResult.failure("编码已存在");
+        if(sysPermission.getCode().startsWith(SpringSecurityConst.ROLE_PREFIX)) {
+            return JsonResult.failure("不可使用" + SpringSecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
+        }
+        
         if(!GlobalConst.MENU_PARENT_ID.equals(sysPermission.getParentId())) {//如果菜单的父级不是是根节点
             //验证父级是否可用
             LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
@@ -203,7 +209,9 @@ public class SysPermissionServiceImpl extends ServiceImpl<SysPermissionMapper,Sy
     public JsonResult update(SysPermission sysPermission) {
         if(queryTitleRepeated(sysPermission.getTitle(), sysPermission.getId())) return JsonResult.failure("标题已存在");
         if(queryCodeRepeated(sysPermission.getCode(), sysPermission.getId())) return JsonResult.failure("编码已存在");
-
+        if(sysPermission.getCode().startsWith(SpringSecurityConst.ROLE_PREFIX)) {
+            return JsonResult.failure("不可使用" + SpringSecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
+        }
         if(!GlobalConst.MENU_PARENT_ID.equals(sysPermission.getParentId())) {
             //验证父级是否符合规则
             LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();

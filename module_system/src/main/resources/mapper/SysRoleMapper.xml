@@ -48,4 +48,32 @@
             user_id = #{userId}
         )
     </select>
+    
+    <select id="pageList" resultType="com.mornd.system.entity.po.SysRole">
+        select
+            id,
+            code,
+            name,
+            enabled,
+            sort,
+            gmt_create
+        from
+            sys_role sr
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="role.name != null and role.name != ''">
+                and name like concat('%',#{role.name},'%')
+            </if>
+            <if test="role.enabled != null and role.enabled != ''">
+                and enabled = #{role.enabled}
+            </if>
+                and id in(
+            select
+                role_id
+            from
+                sys_user_role sur
+            where
+                sur.user_id = #{userId})    
+        </trim>
+        order by sort
+    </select>   
 </mapper>

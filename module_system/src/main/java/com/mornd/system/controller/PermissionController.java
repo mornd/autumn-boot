@@ -2,7 +2,7 @@ package com.mornd.system.controller;
 
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.result.JsonResult;
-import com.mornd.system.service.SysPermissionService;
+import com.mornd.system.service.PermissionService;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Range;
@@ -21,7 +21,7 @@ import javax.validation.constraints.NotBlank;
 @RequestMapping("/permission")
 public class PermissionController {
     @Resource
-    private SysPermissionService permissionService;
+    private PermissionService permissionService;
 
     @ApiOperation("获取当前登录用户左侧菜单树")
     @GetMapping("/leftTree")
@@ -78,19 +78,19 @@ public class PermissionController {
         return permissionService.changeStatus(id, state);
     }
 
-    @ApiOperation("新增菜单数据")
-    @PostMapping("/")
+    @ApiOperation("新增菜单")
+    @PostMapping
     public JsonResult insert(@RequestBody @Validated SysPermission sysPermission) {
         return permissionService.insert(sysPermission);
     }
 
-    @ApiOperation("编辑菜单数据")
-    @PutMapping("/")
+    @ApiOperation("编辑菜单")
+    @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysPermission sysPermission) {
         return permissionService.update(sysPermission);
     }
 
-    @ApiOperation("删除操作")
+    @ApiOperation("删除菜单")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id){
         return permissionService.delete(id);

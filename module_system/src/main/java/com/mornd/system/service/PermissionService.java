@@ -11,7 +11,7 @@ import java.util.Set;
  * @author mornd
  * @dateTime 2021/8/11 - 16:53
  */
-public interface SysPermissionService extends IService<SysPermission> {
+public interface PermissionService extends IService<SysPermission> {
     Set<SysPermission> findByRoleIds(List<String> roles, SysPermission sysPermission);
 
     JsonResult getTree(boolean filterPermission);

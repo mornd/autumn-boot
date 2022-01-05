@@ -9,7 +9,7 @@ import com.mornd.system.entity.result.JsonResult;
  * @author mornd
  * @dateTime 2021/8/10 - 15:55
  */
-public interface SysUserService extends IService<SysUser> {
+public interface UserService extends IService<SysUser> {
     SysUser findByUsername(String username);
 
     boolean verifyCurrentPassword(String oldPwd);

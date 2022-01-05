@@ -1,8 +1,9 @@
 HELP.md
 target/
+test/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
-!**/src/test/**/target/
+!**/src/test/
 
 ### STS ###
 .apt_generated
@@ -18,19 +19,6 @@ target/
 *.iws
 *.iml
 *.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
 
 ### add ###
 /test/

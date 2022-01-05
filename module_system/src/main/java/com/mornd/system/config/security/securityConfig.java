@@ -4,7 +4,7 @@ import com.mornd.system.config.security.components.JwtAuthorizationTokenFilter;
 import com.mornd.system.config.security.components.ResultAccessDeniedHandler;
 import com.mornd.system.config.security.components.ResultAuthenticationEntryPoint;
 import com.mornd.system.constant.SpringSecurityConst;
-import com.mornd.system.service.SysUserService;
+import com.mornd.system.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -31,7 +31,7 @@ import javax.annotation.Resource;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class securityConfig extends WebSecurityConfigurerAdapter {
     @Resource
-    private SysUserService sysUserService;
+    private UserService userService;
     @Resource
     private ResultAccessDeniedHandler accessDeniedHandler;
     @Resource
@@ -97,7 +97,7 @@ public class securityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected UserDetailsService userDetailsService() {
         //重写loadUserByUsername(username)方法
-        return username -> sysUserService.findByUsername(username);
+        return username -> userService.findByUsername(username);
     }
 
     /**
