@@ -27,4 +27,8 @@ public interface RoleService extends IService<SysRole> {
     JsonResult update(SysRole role);
 
     JsonResult delete(String id);
+
+    boolean queryNameRepeated(String name, String id);
+
+    boolean queryCodeRepeated(String code, String id);
 }

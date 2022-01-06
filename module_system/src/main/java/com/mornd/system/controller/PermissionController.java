@@ -4,6 +4,7 @@ import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.PermissionService;
 import com.mornd.system.validation.UpdateValidGroup;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +17,7 @@ import javax.validation.constraints.NotBlank;
  * @author mornd
  * @dateTime 2021/8/11 - 16:55
  */
+@Api("菜单权限接口")
 @Validated
 @RestController
 @RequestMapping("/permission")
@@ -61,7 +63,7 @@ public class PermissionController {
 
     @ApiOperation("查询编码是否重复(true:重复,false:不重复)")
     @GetMapping("/queryCodeRepeated")
-    public JsonResult queryCodeRepeated(@NotBlank(message = "标题不能为空") String code, String id) {
+    public JsonResult queryCodeRepeated(@NotBlank(message = "编码不能为空") String code, String id) {
         return JsonResult.successData(permissionService.queryCodeRepeated(code, id));
     }
 

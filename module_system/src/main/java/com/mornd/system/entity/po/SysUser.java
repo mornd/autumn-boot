@@ -40,8 +40,8 @@ public class SysUser extends BaseEntity implements UserDetails {
     @NotBlank(message = "ID不能为空",groups = {UpdateValidGroup.class})
     private String id;
 
-    @ApiModelProperty("用户登录名称")
     @NotBlank(message = "用户名不能为空")
+    @ApiModelProperty("用户登录名称")
     private String loginName;
 
     @ApiModelProperty("密码")

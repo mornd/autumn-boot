@@ -1,8 +1,12 @@
 package com.mornd.system.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.result.JsonResult;
@@ -104,5 +108,27 @@ public class RoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impleme
         userWithRoleMapper.deleteById(id);
         roleWithPermissionMapper.deleteById(id);
         return JsonResult.success();
+    }
+
+    @Override
+    public boolean queryNameRepeated(String name, String id) {
+        LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery();
+        qw.eq(SysRole::getName, name);
+        if(StrUtil.isNotBlank(id)) {
+            qw.ne(SysRole::getId, id);
+        }
+        Integer count = baseMapper.selectCount(qw);
+        return count > 0;
+    }
+
+    @Override
+    public boolean queryCodeRepeated(String code, String id) {
+        LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery();
+        qw.eq(SysRole::getCode, code);
+        if(StrUtil.isNotBlank(id)) {
+            qw.ne(SysRole::getId, id);
+        }
+        Integer count = baseMapper.selectCount(qw);
+        return count > 0;
     }
 }

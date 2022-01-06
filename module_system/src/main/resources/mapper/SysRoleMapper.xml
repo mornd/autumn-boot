@@ -63,7 +63,10 @@
             <if test="role.name != null and role.name != ''">
                 and name like concat('%',#{role.name},'%')
             </if>
-            <if test="role.enabled != null and role.enabled != ''">
+            <if test="role.code != null and role.code != ''">
+                and code like concat('%',#{role.code},'%')
+            </if>
+            <if test="role.enabled != null">
                 and enabled = #{role.enabled}
             </if>
                 and id in(

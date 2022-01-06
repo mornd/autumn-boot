@@ -1,5 +1,6 @@
 package com.mornd.system.service.impl;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.mornd.system.config.security.components.JwtTokenUtil;
 import com.mornd.system.constant.RedisKey;
@@ -62,10 +63,14 @@ public class LoginServiceImpl implements LoginService {
         if(!captcha.equalsIgnoreCase(loginUserDTO.getCode().trim())){
             return JsonResult.failure("验证码错误");
         }
+        if(loginUserDTO.getDesEncrypt() != null && loginUserDTO.getDesEncrypt()) {
+            //密码解密
+            String inputPwd = SecretUtil.desEncrypt(loginUserDTO.getPassword());
+            loginUserDTO.setPassword(inputPwd);
+        }
+        
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserDTO.getUsername());
-        //密码解密
-        String password = SecretUtil.desEncrypt(loginUserDTO.getPassword());
-        if(userDetails == null || !passwordEncoder.matches(password,userDetails.getPassword())){
+        if(userDetails == null || !passwordEncoder.matches(loginUserDTO.getPassword(), userDetails.getPassword())){
             return JsonResult.failure(ResultMessage.USER_NOTFOUND);
         }
         if(!userDetails.isEnabled()){

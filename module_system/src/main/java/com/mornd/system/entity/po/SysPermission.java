@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mornd.system.validation.UpdateValidGroup;
 import com.mornd.system.validation.PermissionValidated;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -23,6 +25,7 @@ import java.util.Set;
 @Data
 @TableName("sys_permission")
 @PermissionValidated
+@ApiModel("权限实体")
 public class SysPermission implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,61 +34,61 @@ public class SysPermission implements Serializable {
     @NotBlank(message = "菜单ID不能为空", groups = UpdateValidGroup.class)
     private String id;
 
-    //父id
     @NotBlank(message = "菜单父级ID不能为空")
+    @ApiModelProperty("父id")
     private String parentId;
 
-    //菜单标题
     @NotBlank(message = "标题不能为空")
+    @ApiModelProperty("标题")
     private String title;
 
-    //前端路由对象path值
+    @ApiModelProperty("前端路由对象path值")
     private String path;
 
-    //前端路由对象component组件路径
+    @ApiModelProperty("前端路由对象component组件路径")
     private String component;
 
-    //权限编码
     @NotNull(message = "菜单权限编码不能为空")
+    @ApiModelProperty("权限编码")
     private String code;
 
-    //图标
+    @ApiModelProperty("图标")
     private String icon;
 
-    //排序
     @NotNull(message = "菜单排序不能为空")
+    @ApiModelProperty("排序")
     private Double sort;
 
-    //是否保持激活(0：否 1：是)
+    @ApiModelProperty("是否保持激活(0：否 1：是)")
     private Integer keepAlive;
 
-    //是否要求权限
+    @ApiModelProperty("是否要求权限")
     private Integer requireAuth;
 
-    //是否启用(1：启用0：禁用)
     @NotNull(message = "菜单状态不能为空")
+    @ApiModelProperty("是否启用(1：启用0：禁用)")
     private Integer enabled;
 
-    //是否隐藏菜单(0：隐藏，1：显示)
     @NotNull(message = "显隐状态不能为空")
+    @ApiModelProperty("是否隐藏菜单(0：隐藏，1：显示)")
     private Integer hidden;
 
-    //菜单类型(0:一级菜单;1:子菜单;2:按钮权限)
     @NotNull(message = "菜单类型不能为空")
+    @ApiModelProperty("菜单类型(0:一级菜单;1:子菜单;2:按钮权限)")
     private Integer menuType;
 
-    //创建时间
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @ApiModelProperty("创建时间")
     private Date gmtCreate;
 
-    //创建人
+    @ApiModelProperty("创建人id")
     private String createBy;
 
-    //修改时间
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @ApiModelProperty("修改时间")
     private Date gmtModified;
 
-    //修改人
+    @ApiModelProperty("修改人id")
     private String modifiedBy;
 
     //子菜单

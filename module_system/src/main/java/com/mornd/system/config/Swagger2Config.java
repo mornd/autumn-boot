@@ -1,5 +1,6 @@
 package com.mornd.system.config;
 
+import com.mornd.system.entity.po.SysUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,7 @@ import java.util.List;
 public class Swagger2Config {
     @Value("${jwt.tokenHeader}")
     private String tokenHeader;
+    private final String project = "autumn";
     @Bean
     public Docket createApi(){
         return new Docket(DocumentationType.SWAGGER_2)
@@ -42,9 +44,9 @@ public class Swagger2Config {
 
     private ApiInfo apiInfo(){
         return new ApiInfoBuilder()
-                .title("book项目接口文档")
+                .title(project + "项目接口文档")
                 .version("1.1")
-                .description("book项目swagger接口文档")
+                .description(project + "项目swagger接口文档")
                 .contact(new Contact("mornd","http://localhost:1001/dataView/doc.html","1152229579@qq.com"))
                 .build();
     }
