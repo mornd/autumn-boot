@@ -3,16 +3,20 @@ package com.mornd.system.controller;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysRoleVO;
+import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
+import com.mornd.system.validation.BindValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * @author mornd
@@ -26,6 +30,8 @@ import javax.validation.constraints.NotBlank;
 public class RoleController {
     @Resource
     private RoleService roleService;
+    @Resource
+    private PermissionService permissionService;
 
     @ApiOperation("分页查询")
     @GetMapping
@@ -34,15 +40,15 @@ public class RoleController {
     }
 
     @ApiOperation("查询名称是否重复")
-    @GetMapping("/queryNameRepeated")
-    public JsonResult queryNameRepeated(@NotBlank(message = "名称不能为空") String name, String id) {
-        return JsonResult.successData(roleService.queryNameRepeated(name, id));
+    @GetMapping("/queryNameExists")
+    public JsonResult queryNameExists(@NotBlank(message = "名称不能为空") String name, String id) {
+        return JsonResult.successData(roleService.queryNameExists(name, id));
     }
 
     @ApiOperation("查询编码是否重复")
-    @GetMapping("/queryCodeRepeated")
-    public JsonResult queryCodeRepeated(@NotBlank(message = "编码不能为空") String code, String id) {
-        return JsonResult.successData(roleService.queryCodeRepeated(code, id));
+    @GetMapping("/queryCodeExists")
+    public JsonResult queryCodeExists(@NotBlank(message = "编码不能为空") String code, String id) {
+        return JsonResult.successData(roleService.queryCodeExists(code, id));
     }
     
     @ApiOperation("添加角色")
@@ -61,5 +67,30 @@ public class RoleController {
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id) {
         return roleService.delete(id);
+    }
+
+    @ApiOperation("更改状态")
+    @GetMapping("/changeState")
+    public JsonResult changeStatus(@NotBlank(message = "id不能为空") String id,
+                                   @Range(min = 0, max = 1, message = "修改的状态值不正确") Integer state) {
+        return roleService.changeStatus(id, state);
+    }
+    
+    @ApiOperation("查询所有权限")
+    @GetMapping("/getAllPers")
+    public  JsonResult getAllPers() {
+        return JsonResult.successData(permissionService.findAllPers());
+    }
+    
+    @ApiOperation("根据角色id查询所属的权限")
+    @GetMapping("/getPersById/{id}")
+    public JsonResult getPersById(@PathVariable String id) {
+        return roleService.getPersById(id);
+    }
+    
+    @ApiOperation("绑定角色对应的权限")
+    @PutMapping("/bindPersById")
+    public JsonResult bindPersById(@RequestBody @Validated(BindValidGroup.class) SysRoleVO role) {
+        return roleService.bindPersById(role.getId(), role.getPerIds());
     }
 }

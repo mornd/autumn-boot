@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mornd.system.entity.po.base.BaseEntity;
+import com.mornd.system.validation.BindValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -28,7 +29,7 @@ import java.util.Set;
 public class SysRole extends BaseEntity {
 
     @TableId(type = IdType.ASSIGN_ID)
-    @NotBlank(message = "角色ID不能为空",groups = {UpdateValidGroup.class})
+    @NotBlank(message = "角色ID不能为空",groups = {UpdateValidGroup.class, BindValidGroup.class})
     private String id;
     
     @NotBlank(message = "角色名称不能为空")

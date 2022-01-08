@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mornd.system.mapper.SysUserMapper">
+<mapper namespace="com.mornd.system.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.mornd.system.entity.po.SysUser">
         <id column="id" property="id"/>

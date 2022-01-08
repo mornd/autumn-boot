@@ -10,5 +10,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @dateTime 2021/8/10 - 15:55
  */
 @Mapper
-public interface SysUserMapper extends BaseMapper<SysUser> {
+public interface UserMapper extends BaseMapper<SysUser> {
 }

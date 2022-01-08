@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mornd.system.mapper.SysPermissionMapper">
+<mapper namespace="com.mornd.system.mapper.PermissionMapper">
     <sql id="resultColumns">
         id,
         parent_id,
@@ -87,5 +87,18 @@
         sp.hidden = #{hidden}
         AND sp.menu_type = #{menu}
         <include refid="findByRoleIdsCommonSql"/>
+    </select>
+    
+    <select id="findAllPers" resultType="com.mornd.system.entity.po.SysPermission">
+        SELECT
+            id,
+            parent_id,
+            title,
+            sort,
+            enabled
+        FROM
+            sys_permission
+        WHERE
+            hidden = #{hidden}
     </select>
 </mapper>

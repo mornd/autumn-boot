@@ -14,6 +14,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SysRoleVO extends SysRole {
+    Set<String> perIds;
     @NotNull(message = "分页信息的起始页不能为空")
     private Integer pageNo;
     @NotNull(message = "分页信息的每页个数不能为空")

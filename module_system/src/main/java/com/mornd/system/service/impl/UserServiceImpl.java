@@ -11,7 +11,7 @@ import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.result.JsonResult;
-import com.mornd.system.mapper.SysUserMapper;
+import com.mornd.system.mapper.UserMapper;
 import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
 import com.mornd.system.service.UserService;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @Transactional
-public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements UserService {
     @Resource
     private RoleService roleService;
     @Resource

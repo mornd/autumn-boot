@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mornd.system.mapper.SysRoleMapper">
+<mapper namespace="com.mornd.system.mapper.RoleMapper">
     <resultMap id="baseResultMap" type="com.mornd.system.entity.po.SysRole">
         <id column="id" property="id"/>
         <result column="code" property="code"/>
@@ -21,7 +21,7 @@
         <collection property="permissions"
                     column="{roleId = id,delFlag = del_flag,enabled = enabled}"
                     ofType="com.mornd.system.entity.po.SysPermission"
-                    select="com.mornd.system.mapper.SysPermissionMapper.findByRoleId">
+                    select="com.mornd.system.mapper.PermissionMapperndByRoleId">
             <id column="id" property="id"/>
             <result column="parent_id" property="parentId"/>
             <result column="title" property="title"/>
@@ -50,33 +50,50 @@
     </select>
     
     <select id="pageList" resultType="com.mornd.system.entity.po.SysRole">
-        select
+        SELECT
             id,
             code,
             name,
             enabled,
             sort,
             gmt_create
-        from
+        FROM
             sys_role sr
         <trim prefix="where" prefixOverrides="and | or">
             <if test="role.name != null and role.name != ''">
-                and name like concat('%',#{role.name},'%')
+                AND name LIKE concat('%',#{role.name},'%')
             </if>
             <if test="role.code != null and role.code != ''">
-                and code like concat('%',#{role.code},'%')
+                AND code LIKE concat('%',#{role.code},'%')
             </if>
             <if test="role.enabled != null">
-                and enabled = #{role.enabled}
+                AND enabled = #{role.enabled}
             </if>
-                and id in(
-            select
+                AND id IN(
+            SELECT
                 role_id
-            from
+            FROM
                 sys_user_role sur
-            where
+            WHERE
                 sur.user_id = #{userId})    
         </trim>
-        order by sort
-    </select>   
+        ORDER BY sort
+    </select>
+    
+    <select id="getPersById" resultType="java.lang.String">
+        SELECT
+            srp.per_id
+        FROM
+            sys_role_permission srp
+        WHERE
+            role_id = #{id}
+            AND (
+            SELECT
+                count(1)
+            FROM
+                sys_permission sp
+            WHERE
+                sp.id = srp.per_id
+                AND sp.hidden = #{hidden}) > 0
+    </select>
 </mapper>

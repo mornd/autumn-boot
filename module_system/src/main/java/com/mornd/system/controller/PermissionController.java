@@ -56,15 +56,15 @@ public class PermissionController {
     }
     
     @ApiOperation("查询菜单标题是否重复(true:重复,false:不重复)")
-    @GetMapping("/queryTitleRepeated")
-    public JsonResult queryTitleRepeated(@NotBlank(message = "标题不能为空") String title, String id) {
-        return JsonResult.successData(permissionService.queryTitleRepeated(title, id));
+    @GetMapping("/queryTitleExists")
+    public JsonResult queryTitleExists(@NotBlank(message = "标题不能为空") String title, String id) {
+        return JsonResult.successData(permissionService.queryTitleExists(title, id));
     }
 
     @ApiOperation("查询编码是否重复(true:重复,false:不重复)")
-    @GetMapping("/queryCodeRepeated")
-    public JsonResult queryCodeRepeated(@NotBlank(message = "编码不能为空") String code, String id) {
-        return JsonResult.successData(permissionService.queryCodeRepeated(code, id));
+    @GetMapping("/queryCodeExists")
+    public JsonResult queryCodeExists(@NotBlank(message = "编码不能为空") String code, String id) {
+        return JsonResult.successData(permissionService.queryCodeExists(code, id));
     }
 
     @ApiOperation("查询目录是否包含子集")

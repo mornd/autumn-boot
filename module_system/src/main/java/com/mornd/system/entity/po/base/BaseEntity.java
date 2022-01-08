@@ -1,6 +1,7 @@
 package com.mornd.system.entity.po.base;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -33,6 +34,7 @@ public class BaseEntity implements Serializable {
     /**
      * 删除字段枚举
      */
+    @AllArgsConstructor
     public enum Delete {
         /**
          * 删除字段枚举
@@ -42,28 +44,12 @@ public class BaseEntity implements Serializable {
         private final Integer code;
         @Getter
         private final String name;
-
-        Delete(Integer code, String name) {
-            this.code = code;
-            this.name = name;
-        }
-
-        private static Map<Integer, Delete> KEY_MAP = new HashMap<>();
-
-        static {
-            for (Delete value : Delete.values()) {
-                KEY_MAP.put(value.getCode(), value);
-            }
-        }
-
-        public static Delete getType(Integer code) {
-            return KEY_MAP.get(code);
-        }
     }
 
     /**
      * 启用字段枚举
      */
+    @AllArgsConstructor
     public enum EnableState {
         /**
          * 启用字段枚举
@@ -74,27 +60,12 @@ public class BaseEntity implements Serializable {
         private final Integer code;
         @Getter
         private final String name;
-
-        EnableState(Integer code, String name) {
-            this.code = code;
-            this.name = name;
-        }
-
-        private static Map<Integer, EnableState> KEY_MAP = new HashMap<>();
-
-        static {
-            for (EnableState value : EnableState.values()) {
-                KEY_MAP.put(value.getCode(), value);
-            }
-        }
-
-        public static EnableState getType(Integer code) {
-            return KEY_MAP.get(code);
-        }
     }
 
     public enum BooleanLogic {
-        // 布尔量
+        /**
+         * 布尔量
+         */
         TRUE(1, "是"),
         FALSE(0, "否");
 

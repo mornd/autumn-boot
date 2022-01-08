@@ -15,7 +15,7 @@ import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.enums.EnumHiddenType;
 import com.mornd.system.entity.enums.EnumPermissionType;
 import com.mornd.system.mapper.RoleWithPermissionMapper;
-import com.mornd.system.mapper.SysPermissionMapper;
+import com.mornd.system.mapper.PermissionMapper;
 import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
 import com.mornd.system.utils.MenuUtil;
@@ -24,7 +24,6 @@ import com.mornd.system.utils.SecurityUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import sun.security.util.SecurityConstants;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -37,7 +36,7 @@ import java.util.Set;
  */
 @Service
 @Transactional
-public class PermissionServiceImpl extends ServiceImpl<SysPermissionMapper,SysPermission> implements PermissionService {
+public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermission> implements PermissionService {
     @Resource
     private RoleService roleService;
     @Resource
@@ -125,13 +124,23 @@ public class PermissionServiceImpl extends ServiceImpl<SysPermissionMapper,SysPe
     }
 
     /**
+     * 查询所有显示的权限
+     * @return
+     */
+    @Override
+    public Set<SysPermission> findAllPers() {
+        Set<SysPermission> allPers = baseMapper.findAllPers(EnumHiddenType.DISPLAY.getCode());
+        return MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, allPers);
+    }
+
+    /**
      * 验证菜单标题是否重复(id为空是添加时验证，id有值是编辑时验证)
      * @param title
      * @param id
      * @return
      */
     @Override
-    public boolean queryTitleRepeated(String title, String id) {
+    public boolean queryTitleExists(String title, String id) {
         LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
         qw.eq(SysPermission::getTitle, title);
         if(StrUtil.isNotBlank(id)) {
@@ -148,7 +157,7 @@ public class PermissionServiceImpl extends ServiceImpl<SysPermissionMapper,SysPe
      * @return
      */
     @Override
-    public boolean queryCodeRepeated(String code, String id) {
+    public boolean queryCodeExists(String code, String id) {
         LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
         qw.eq(SysPermission::getCode, code);
         if(StrUtil.isNotBlank(id)) {
@@ -165,8 +174,8 @@ public class PermissionServiceImpl extends ServiceImpl<SysPermissionMapper,SysPe
      */
     @Override
     public JsonResult insert(SysPermission sysPermission) {
-        if(queryTitleRepeated(sysPermission.getTitle(), null)) return JsonResult.failure("标题已存在");
-        if(queryCodeRepeated(sysPermission.getCode(), null)) return JsonResult.failure("编码已存在");
+        if(queryTitleExists(sysPermission.getTitle(), null)) return JsonResult.failure("标题已存在");
+        if(queryCodeExists(sysPermission.getCode(), null)) return JsonResult.failure("编码已存在");
         if(sysPermission.getCode().startsWith(SpringSecurityConst.ROLE_PREFIX)) {
             return JsonResult.failure("不可使用" + SpringSecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
         }
@@ -193,6 +202,7 @@ public class PermissionServiceImpl extends ServiceImpl<SysPermissionMapper,SysPe
                 }
             }
         }
+        sysPermission.setId(null);
         sysPermission.setCreateBy(SecurityUtil.getLoginUserId());
         sysPermission.setGmtCreate(new Date());
         baseMapper.insert(sysPermission);
@@ -207,8 +217,8 @@ public class PermissionServiceImpl extends ServiceImpl<SysPermissionMapper,SysPe
      */
     @Override
     public JsonResult update(SysPermission sysPermission) {
-        if(queryTitleRepeated(sysPermission.getTitle(), sysPermission.getId())) return JsonResult.failure("标题已存在");
-        if(queryCodeRepeated(sysPermission.getCode(), sysPermission.getId())) return JsonResult.failure("编码已存在");
+        if(queryTitleExists(sysPermission.getTitle(), sysPermission.getId())) return JsonResult.failure("标题已存在");
+        if(queryCodeExists(sysPermission.getCode(), sysPermission.getId())) return JsonResult.failure("编码已存在");
         if(sysPermission.getCode().startsWith(SpringSecurityConst.ROLE_PREFIX)) {
             return JsonResult.failure("不可使用" + SpringSecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
         }

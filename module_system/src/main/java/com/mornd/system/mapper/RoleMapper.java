@@ -14,8 +14,10 @@ import java.util.Set;
  * @dateTime 2021/8/10 - 16:26
  */
 @Mapper
-public interface SysRoleMapper extends BaseMapper<SysRole> {
+public interface RoleMapper extends BaseMapper<SysRole> {
     Set<SysRole> findByUserId(@Param("userId") String userId, @Param("enableState") Integer enableState);
 
     IPage<SysRole> pageList(@Param("page") IPage<SysRole> page, @Param("userId") String userId, @Param("role") SysRoleVO role);
+
+    Set<String> getPersById(@Param("id") String id, @Param("hidden") Integer hidden);
 }
