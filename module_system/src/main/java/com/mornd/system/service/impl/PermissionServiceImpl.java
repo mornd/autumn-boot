@@ -96,22 +96,21 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     public JsonResult filterTableTree(SysPermission sysPermission) {
         //查询所有菜单再过滤筛选符合条件的值
         List<SysPermission> all = this.tableTree();
-        
         //查询符合过滤条件的集合
         if(ObjectUtils.isEmpty(all)) {
             return JsonResult.successEmpty();
         }
-        Set<SysPermission> filter = new HashSet<>();
+        Set<SysPermission> filter = null;
         for (SysPermission per : all) {
+            //是否包含搜索的关键字
             if(per.getTitle().contains(sysPermission.getTitle())) {
+                if(filter == null) {
+                    filter = new HashSet<>();
+                }
                 filter.add(per);
             }
         }
-        /*LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
-        qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
-        qw.like(SysPermission::getTitle, sysPermission.getTitle());
-        List<SysPermission> filter = baseMapper.selectList(qw);*/
-        Set<SysPermission> result = MenuUtil.filterTree(GlobalConst.MENU_PARENT_ID, new HashSet<>(all), new HashSet<>(filter));
+        Set<SysPermission> result = MenuUtil.filterTree(GlobalConst.MENU_PARENT_ID, new HashSet<>(all), filter);
         return JsonResult.successData(result);
     }
 
@@ -140,9 +139,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      * @return
      */
     @Override
-    public Set<SysPermission> findAllPers() {
-        Set<SysPermission> allPers = baseMapper.findAllPers(EnumHiddenType.DISPLAY.getCode());
-        return MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, allPers);
+    public Set<SysPermission> getAllPers() {
+        return baseMapper.getAllPers(EnumHiddenType.DISPLAY.getCode());
     }
 
     /**

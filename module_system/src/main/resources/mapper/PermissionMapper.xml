@@ -73,7 +73,7 @@
         AND sp.menu_type = #{menu}
     </select>
     
-    <select id="findAllPers" resultType="com.mornd.system.entity.po.SysPermission">
+    <select id="getAllPers" resultType="com.mornd.system.entity.po.SysPermission">
         SELECT
             id,
             parent_id,

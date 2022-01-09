@@ -20,5 +20,5 @@ public interface PermissionMapper extends BaseMapper<SysPermission> {
 
     Set<SysPermission> findCatalogues(@Param("menu") Integer menu, @Param("hidden") Integer hidden);
 
-    Set<SysPermission> findAllPers(@Param("hidden") Integer hidden);
+    Set<SysPermission> getAllPers(@Param("hidden") Integer hidden);
 }

@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.enums.EnumHiddenType;
+import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.RoleWithPermission;
@@ -18,6 +20,7 @@ import com.mornd.system.entity.vo.SysRoleVO;
 import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.RoleMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
+import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecurityUtil;
@@ -36,6 +39,8 @@ import java.util.*;
 @Service
 @Transactional
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements RoleService {
+    @Resource
+    private PermissionService permissionService;
     @Resource
     private RoleWithPermissionMapper roleWithPermissionMapper;
     @Resource
@@ -197,16 +202,43 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         //先删除所有关联的数据
         this.deletePerAssociated(id);
         //处理前端传过来的id集合
-        
-        for (String perId : perIds) {
-            RoleWithPermission rwp = new RoleWithPermission();
-            rwp.setRoleId(id);
-            rwp.setPerId(perId);
-            rwp.setGmtCreate(new Date());
-            roleWithPermissionMapper.insert(rwp);    
-        }
+        if(!ObjectUtils.isEmpty(perIds)) {
+            Set<SysPermission> allPers = permissionService.getAllPers();
+            //保存最终要删除的id集合
+            Set<String> result = new HashSet<>();
+            //生成父id
+            for (String perId : perIds) {
+                findParentId(perId, allPers, result);
+            }
+            //绑定角色与权限之间的关系
+            for (String updateId : result) {
+                RoleWithPermission rwp = new RoleWithPermission();
+                rwp.setRoleId(id);
+                rwp.setPerId(updateId);
+                rwp.setGmtCreate(new Date());
+                roleWithPermissionMapper.insert(rwp);
+            }
+        }        
         redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
         return JsonResult.success();
+    }
+
+    /**
+     * （工具方法）前端tree组件如果子集没有全部选中，那么传过来的id集合就不包括父级id，此方法生成父id
+     * @param id
+     * @param allPers
+     * @param result
+     */
+    private void findParentId(String id, Set<SysPermission> allPers, Set<String> result) {
+        for (SysPermission per : allPers) {
+            if(id.equals(per.getId())) {
+                result.add(id);
+                if(!GlobalConst.MENU_PARENT_ID.equals(per.getParentId())) {
+                    //如果父不是根节点，继续查找
+                    this.findParentId(per.getParentId(), allPers, result);
+                }
+            }
+        }
     }
 
     /**

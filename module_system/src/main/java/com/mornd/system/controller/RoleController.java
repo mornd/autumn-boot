@@ -1,10 +1,13 @@
 package com.mornd.system.controller;
 
+import com.mornd.system.constant.GlobalConst;
+import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysRoleVO;
 import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
+import com.mornd.system.utils.MenuUtil;
 import com.mornd.system.validation.BindValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.Api;
@@ -14,9 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author mornd
@@ -79,7 +81,8 @@ public class RoleController {
     @ApiOperation("查询所有权限")
     @GetMapping("/getAllPers")
     public  JsonResult getAllPers() {
-        return JsonResult.successData(permissionService.findAllPers());
+        Set<SysPermission> allPers = permissionService.getAllPers();
+        return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, allPers));
     }
     
     @ApiOperation("根据角色id查询所属的权限")

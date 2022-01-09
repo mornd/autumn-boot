@@ -26,7 +26,7 @@ public interface PermissionService extends IService<SysPermission> {
 
     JsonResult delete(String id);
 
-    Set<SysPermission> findAllPers();
+    Set<SysPermission> getAllPers();
 
     boolean queryTitleExists(String title, String id);
 
