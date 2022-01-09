@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -67,14 +68,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 throw new UsernameNotFoundException(ResultMessage.USER_NOTFOUND);
             } else {
                 //设置角色、权限
-                Set<SysRole> roles = roleService.findByUserId(sysUser.getId(), enabled);
+                Set<SysRole> roles = roleService.findByUserId(sysUser.getId());
                 if(ObjectUtils.isNotEmpty(roles)) {
                     sysUser.setRoles(roles);
                     List<String> ids = new ArrayList<>();
                     roles.forEach(i -> ids.add(i.getId()));
-                    SysPermission sysPermission = new SysPermission();
-                    sysPermission.setEnabled(enabled);
-                    sysUser.setPermissions(permissionService.findByRoleIds(ids, sysPermission));
+                    Set<SysPermission> pers = permissionService.getPersByRoleIds(ids, enabled);
+                    sysUser.setPermissions(pers);
                 }
                 redisUtil.setValue(RedisKey.CURRENT_USER_INFO_KEY + username,
                         sysUser,

@@ -27,6 +27,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,33 +49,42 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
     /**
-     * 根据角色id查询权限
-     * @param roles
-     * @param sysPermission
+     * 根据角色id集合获取对应的权限集合(不包括按钮权限类型)
+     * @param ids 角色集合
+     * @param enabledState 状态
      * @return
      */
     @Override
-    public Set<SysPermission> findByRoleIds(List<String> roles, SysPermission sysPermission) {
-        //默认查询非隐藏的菜单信息
-        sysPermission.setHidden(EnumHiddenType.DISPLAY.getCode());
-        if(ObjectUtils.isEmpty(roles)) return null;
-        return baseMapper.findByRoleIds(roles, sysPermission);
+    public Set<SysPermission> getPersByRoleIds(List<String> ids, Integer enabledState) {
+        if(ObjectUtils.isEmpty(ids)) {
+            return null;
+        }
+        return baseMapper.getPersByRoleIds(ids, 
+                enabledState, 
+                EnumPermissionType.BUTTON.getCode(), 
+                EnumHiddenType.DISPLAY.getCode());
     }
 
     /**
      * 展示页面左侧菜单树
-     * @param filterPermission 是否筛选掉权限按钮
-     * @return List || null
+     * @return
      */
     @Override
-    public JsonResult getTree(boolean filterPermission) {
-        List<String> currentRoleIds = roleService.getCurrentRoleIds();
-        SysPermission sysPermission = new SysPermission();
-        //排除按钮权限
-        if(filterPermission) sysPermission.setMenuType(EnumPermissionType.BUTTON.getCode());
-        Set<SysPermission> pers = this.findByRoleIds(currentRoleIds, sysPermission);
-        Set<SysPermission> sortPers = MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers);
-        return JsonResult.successData(sortPers);
+    public Set<SysPermission> leftTree() {
+        Set<SysPermission> pers = this.getPersByRoleIds(roleService.getCurrentRoleIds(), null);
+        return MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers);
+    }
+
+    /**
+     * 查询页面表格数据(未去重、排序)
+     * @return
+     */
+    @Override
+    public List<SysPermission> tableTree() {
+        LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
+        qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
+        List<SysPermission> pers = baseMapper.selectList(qw);
+        return pers;
     }
 
     /**
@@ -83,15 +93,16 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      * @return
      */
     @Override
-    public JsonResult filterTree(SysPermission sysPermission) {
+    public JsonResult filterTableTree(SysPermission sysPermission) {
         //查询所有菜单再过滤筛选符合条件的值
-        Set<SysPermission> all = this.findByRoleIds(roleService.getCurrentRoleIds(), new SysPermission());
-        if(ObjectUtils.isEmpty(all)) return JsonResult.successEmpty();
-        //符合条件的数据
-        //确定不能把按钮权限筛选掉
-        sysPermission.setMenuType(null);
-        Set<SysPermission> filterList = this.findByRoleIds(roleService.getCurrentRoleIds(), sysPermission);
-        Set<SysPermission> result = MenuUtil.filterTree(GlobalConst.MENU_PARENT_ID, all, filterList);
+        List<SysPermission> all = this.tableTree();
+        
+        //查询符合过滤条件的集合
+        LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
+        qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
+        qw.like(SysPermission::getTitle, sysPermission.getTitle());
+        List<SysPermission> filter = baseMapper.selectList(qw);
+        Set<SysPermission> result = MenuUtil.filterTree(GlobalConst.MENU_PARENT_ID, new HashSet<>(all), new HashSet<>(filter));
         return JsonResult.successData(result);
     }
 
@@ -100,12 +111,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      * @return
      */
     @Override
-    public JsonResult findCatalogueAndMenu() {
-        List<String> currentRoleIds = roleService.getCurrentRoleIds();
-        if(ObjectUtils.isEmpty(currentRoleIds)) {
-            return JsonResult.successEmpty();
-        }
-        Set<SysPermission> pers = baseMapper.findCatalogueAndMenu(currentRoleIds, EnumPermissionType.CATALOGUE.getCode(), EnumPermissionType.MENU.getCode(), EnumHiddenType.DISPLAY.getCode());
+    public JsonResult getCatalogueAndMenu() {
+        Set<SysPermission> pers = baseMapper.findCatalogueAndMenu(EnumPermissionType.CATALOGUE.getCode(), EnumPermissionType.MENU.getCode(), EnumHiddenType.DISPLAY.getCode());
         return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers));
     }
 
@@ -114,12 +121,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      * @return
      */
     @Override
-    public JsonResult findCatalogues() {
-        List<String> currentRoleIds = roleService.getCurrentRoleIds();
-        if(ObjectUtils.isEmpty(currentRoleIds)) {
-            return JsonResult.successEmpty();
-        }
-        Set<SysPermission> pers = baseMapper.findCatalogues(currentRoleIds, EnumPermissionType.CATALOGUE.getCode(), EnumHiddenType.DISPLAY.getCode());
+    public JsonResult getCatalogues() {
+        Set<SysPermission> pers = baseMapper.findCatalogues(EnumPermissionType.CATALOGUE.getCode(), EnumHiddenType.DISPLAY.getCode());
         return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers));
     }
 
@@ -245,7 +248,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         }
         //如果此节点为隐藏状态(并且该类型不是按钮类型)，则连同它的子节点都要隐藏
         if(EnumHiddenType.HIDDEN.getCode().equals(sysPermission.getHidden()) && !sysPermission.getMenuType().equals(EnumPermissionType.BUTTON.getCode())) {
-            changeChildrenHidden(sysPermission.getId(), EnumHiddenType.HIDDEN.getCode());
+            changeChildrenHiddenState(sysPermission.getId(), EnumHiddenType.HIDDEN.getCode());
         }
         //按钮类型和启用状态不可在这一步修改
         sysPermission.setMenuType(null);
@@ -271,7 +274,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         }
         if(disabled.equals(state)) {
             //如果修改为禁用状态则连同所有子节点一起禁用
-            this.changeChildrenState(id, state);
+            this.changeChildrenEnabledState(id, state);
         } else {
             //如果该节点的父级不是根节点，那么禁用时需再判断其父级的状态，如果父级是禁用状态则不可启用该节点
             LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
@@ -301,7 +304,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      * @param id 要修改子集节点的id
      * @param state 修改后的状态
      */
-    private void changeChildrenState(String id, Integer state) {
+    private void changeChildrenEnabledState(String id, Integer state) {
         LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
         qw.eq(SysPermission::getParentId, id);
         qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
@@ -315,17 +318,17 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
                 uw.set(SysPermission::getEnabled, state);
                 uw.eq(SysPermission::getId, item.getId());
                 baseMapper.update(null, uw);
-                changeChildrenState(item.getId(), state);
+                changeChildrenEnabledState(item.getId(), state);
             });
         }
     }
 
     /**
-     * （工具方法）递归修改子集的显示隐藏
+     * （工具方法）递归修改子集的显示状态
      * @param id 要修改子集节点的id
      * @param state 修改后的状态
      */
-    private void changeChildrenHidden(String id, Integer state) {
+    private void changeChildrenHiddenState(String id, Integer state) {
         LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
         qw.eq(SysPermission::getParentId, id);
         qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
@@ -339,7 +342,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
                 uw.set(SysPermission::getHidden, state);
                 uw.eq(SysPermission::getId, item.getId());
                 baseMapper.update(null, uw);
-                changeChildrenState(item.getId(), state);
+                changeChildrenHiddenState(item.getId(), state);
             });
         }
     }

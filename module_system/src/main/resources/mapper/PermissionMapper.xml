@@ -3,23 +3,6 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mornd.system.mapper.PermissionMapper">
-    <sql id="resultColumns">
-        id,
-        parent_id,
-        title,
-        path,
-        component,
-        code,
-        icon,
-        sort,
-        keep_alive,
-        require_auth,
-        enabled,
-        menu_type,
-        hidden,
-        gmt_create
-    </sql>
-
     <!--展示较少的列-->
     <sql id="simpleResultColumns">
         id,
@@ -29,29 +12,6 @@
         sort,
         enabled
     </sql>
-
-    <!--*-->
-    <select id="findByRoleIds" resultType="com.mornd.system.entity.po.SysPermission">
-        SELECT
-            <include refid="resultColumns"/>
-        FROM
-            sys_permission sp
-        WHERE
-            sp.hidden = #{sysPermission.hidden}
-        <if test="sysPermission.menuType != null">
-            AND sp.menu_type != #{sysPermission.menuType}
-        </if>
-        <if test="sysPermission.title != null and sysPermission.title != ''">
-            AND sp.title LIKE concat('%',#{sysPermission.title},'%')
-        </if>
-        <if test="sysPermission.enabled != null">
-            AND sp.enabled = #{sysPermission.enabled}
-        </if>
-        <if test="sysPermission.parentId != null and sysPermission.parentId != ''">
-            AND sp.parent_id = #{sysPermission.parentId}
-        </if>
-        <include refid="findByRoleIdsCommonSql"/>
-    </select>
 
     <!--通用sql-->
     <sql id="findByRoleIdsCommonSql">
@@ -67,6 +27,32 @@
         )
     </sql>
 
+    <select id="getPersByRoleIds" resultType="com.mornd.system.entity.po.SysPermission">
+        SELECT
+            id,
+            parent_id,
+            title,
+            path,
+            component,
+            code,
+            icon,
+            sort,
+            keep_alive,
+            enabled,
+            menu_type
+        FROM
+            sys_permission sp
+        WHERE
+            sp.hidden = #{hidden}
+        AND 
+            sp.menu_type != #{excludeMenuType}
+        <if test="enabledState != null">
+            AND 
+                sp.enabled = #{enabledState}
+        </if>
+        <include refid="findByRoleIdsCommonSql"/>
+    </select>
+
     <select id="findCatalogueAndMenu" resultType="com.mornd.system.entity.po.SysPermission">
         SELECT
         <include refid="simpleResultColumns"/>
@@ -75,7 +61,6 @@
         WHERE
         sp.hidden = #{hidden}
         AND (sp.menu_type = #{catalogue} OR sp.menu_type = #{menu})
-        <include refid="findByRoleIdsCommonSql"/>
     </select>
     
     <select id="findCatalogues" resultType="com.mornd.system.entity.po.SysPermission">
@@ -86,7 +71,6 @@
         WHERE
         sp.hidden = #{hidden}
         AND sp.menu_type = #{menu}
-        <include refid="findByRoleIdsCommonSql"/>
     </select>
     
     <select id="findAllPers" resultType="com.mornd.system.entity.po.SysPermission">

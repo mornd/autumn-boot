@@ -1,8 +1,11 @@
 package com.mornd.system.controller;
 
+import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.entity.po.SysPermission;
+import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.PermissionService;
+import com.mornd.system.utils.MenuUtil;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author mornd
@@ -25,34 +30,35 @@ public class PermissionController {
     @Resource
     private PermissionService permissionService;
 
-    @ApiOperation("获取当前登录用户左侧菜单树")
+    @ApiOperation("获取当前登录用户左侧菜单树(包含启用、禁用状态)")
     @GetMapping("/leftTree")
     public JsonResult getLeftTree(){
-        return permissionService.getTree(true);
+        return JsonResult.successData(permissionService.leftTree());
     }
 
-    @ApiOperation("获取当前登录用户菜单管理的菜单表格")
+    @ApiOperation("获取菜单管理的菜单表格")
     @GetMapping("/tableTree")
-    public JsonResult getTableTree(){
-        return permissionService.getTree(false);
+    public JsonResult tableTree(){
+        List<SysPermission> pers = permissionService.tableTree();
+        return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers));
     }
 
     @ApiOperation("根据条件筛选菜单数据")
-    @GetMapping("/filterTree")
-    public JsonResult filterTree(SysPermission sysPermission) {
-        return permissionService.filterTree(sysPermission);
+    @GetMapping("/filterTableTree")
+    public JsonResult filterTableTree(SysPermission sysPermission) {
+        return permissionService.filterTableTree(sysPermission);
     }
 
-    @ApiOperation("查询当前用户的目录和菜单集合")
-    @GetMapping("/findCatalogueAndMenu")
-    public JsonResult findCatalogueAndMenu() {
-        return permissionService.findCatalogueAndMenu();
+    @ApiOperation("查询目录和菜单集合")
+    @GetMapping("/getCatalogueAndMenu")
+    public JsonResult getCatalogueAndMenu() {
+        return permissionService.getCatalogueAndMenu();
     }
 
     @ApiOperation("查询目录集合")
-    @GetMapping("/findCatalogues")
+    @GetMapping("/getCatalogues")
     public JsonResult findCatalogues() {
-        return permissionService.findCatalogues();
+        return permissionService.getCatalogues();
     }
     
     @ApiOperation("查询菜单标题是否重复(true:重复,false:不重复)")

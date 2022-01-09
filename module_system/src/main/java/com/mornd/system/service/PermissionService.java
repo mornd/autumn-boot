@@ -12,15 +12,19 @@ import java.util.Set;
  * @dateTime 2021/8/11 - 16:53
  */
 public interface PermissionService extends IService<SysPermission> {
-    Set<SysPermission> findByRoleIds(List<String> roles, SysPermission sysPermission);
+    Set<SysPermission> getPersByRoleIds(List<String> ids, Integer enabledState);
 
-    JsonResult getTree(boolean filterPermission);
+    Set<SysPermission> leftTree();
+
+    List<SysPermission> tableTree();
+
+    JsonResult filterTableTree(SysPermission sysPermission);
+
+    JsonResult getCatalogueAndMenu();
+
+    JsonResult getCatalogues();
 
     JsonResult delete(String id);
-
-    JsonResult filterTree(SysPermission sysPermission);
-
-    JsonResult findCatalogueAndMenu();
 
     Set<SysPermission> findAllPers();
 
@@ -35,6 +39,4 @@ public interface PermissionService extends IService<SysPermission> {
     boolean queryHasChildren(String id);
 
     JsonResult changeStatus(String id, Integer state);
-
-    JsonResult findCatalogues();
 }

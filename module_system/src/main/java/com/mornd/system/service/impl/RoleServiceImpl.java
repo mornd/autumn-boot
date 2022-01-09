@@ -26,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -51,11 +48,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     /**
      * 根据用户id查询其对应的角色信息
      * @param userId
-     * @param enabled
      * @return
      */
     @Override
-    public Set<SysRole> findByUserId(String userId, Integer enabled) {
+    public Set<SysRole> findByUserId(String userId) {
         return baseMapper.findByUserId(userId, enabled);
     }
 
@@ -64,7 +60,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      * @return
      */
     public Set<SysRole> getCurrentRoles() {
-        return  findByUserId( SecurityUtil.getLoginUserId(), enabled);
+        return  findByUserId( SecurityUtil.getLoginUserId());
     }
 
     /**
@@ -200,6 +196,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     public JsonResult bindPersById(String id, Set<String> perIds) {
         //先删除所有关联的数据
         this.deletePerAssociated(id);
+        //处理前端传过来的id集合
         for (String perId : perIds) {
             RoleWithPermission rwp = new RoleWithPermission();
             rwp.setRoleId(id);

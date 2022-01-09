@@ -13,12 +13,11 @@ import java.util.Set;
  * @dateTime 2021/8/10 - 16:27
  */
 public interface RoleService extends IService<SysRole> {
-    Set<SysRole> findByUserId(String userId, Integer enabled);
+    Set<SysRole> findByUserId(String userId);
 
     Set<SysRole> getCurrentRoles();
 
     List<String> getCurrentRoleIds();
-
 
     JsonResult pageList(SysRoleVO role);
 

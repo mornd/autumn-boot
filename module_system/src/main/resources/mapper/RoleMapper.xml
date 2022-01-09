@@ -56,6 +56,7 @@
             name,
             enabled,
             sort,
+            remark,
             gmt_create
         FROM
             sys_role sr
