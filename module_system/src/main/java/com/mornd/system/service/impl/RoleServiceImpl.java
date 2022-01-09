@@ -197,6 +197,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         //先删除所有关联的数据
         this.deletePerAssociated(id);
         //处理前端传过来的id集合
+        
         for (String perId : perIds) {
             RoleWithPermission rwp = new RoleWithPermission();
             rwp.setRoleId(id);

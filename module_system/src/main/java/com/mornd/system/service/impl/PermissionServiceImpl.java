@@ -98,10 +98,19 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         List<SysPermission> all = this.tableTree();
         
         //查询符合过滤条件的集合
-        LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
+        if(ObjectUtils.isEmpty(all)) {
+            return JsonResult.successEmpty();
+        }
+        Set<SysPermission> filter = new HashSet<>();
+        for (SysPermission per : all) {
+            if(per.getTitle().contains(sysPermission.getTitle())) {
+                filter.add(per);
+            }
+        }
+        /*LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
         qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
         qw.like(SysPermission::getTitle, sysPermission.getTitle());
-        List<SysPermission> filter = baseMapper.selectList(qw);
+        List<SysPermission> filter = baseMapper.selectList(qw);*/
         Set<SysPermission> result = MenuUtil.filterTree(GlobalConst.MENU_PARENT_ID, new HashSet<>(all), new HashSet<>(filter));
         return JsonResult.successData(result);
     }
