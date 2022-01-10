@@ -49,38 +49,6 @@
         )
     </select>
     
-    <select id="pageList" resultType="com.mornd.system.entity.po.SysRole">
-        SELECT
-            id,
-            code,
-            name,
-            enabled,
-            sort,
-            remark,
-            gmt_create
-        FROM
-            sys_role sr
-        <trim prefix="where" prefixOverrides="and | or">
-            <if test="role.name != null and role.name != ''">
-                AND name LIKE concat('%',#{role.name},'%')
-            </if>
-            <if test="role.code != null and role.code != ''">
-                AND code LIKE concat('%',#{role.code},'%')
-            </if>
-            <if test="role.enabled != null">
-                AND enabled = #{role.enabled}
-            </if>
-                AND id IN(
-            SELECT
-                role_id
-            FROM
-                sys_user_role sur
-            WHERE
-                sur.user_id = #{userId})    
-        </trim>
-        ORDER BY sort
-    </select>
-    
     <select id="getPersById" resultType="java.lang.String">
         SELECT
             srp.per_id

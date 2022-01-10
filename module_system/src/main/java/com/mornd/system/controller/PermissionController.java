@@ -2,7 +2,6 @@ package com.mornd.system.controller;
 
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.entity.po.SysPermission;
-import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.PermissionService;
 import com.mornd.system.utils.MenuUtil;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author mornd
@@ -61,13 +59,13 @@ public class PermissionController {
         return permissionService.getCatalogues();
     }
     
-    @ApiOperation("查询菜单标题是否重复(true:重复,false:不重复)")
+    @ApiOperation("查询标题是否重复")
     @GetMapping("/queryTitleExists")
     public JsonResult queryTitleExists(@NotBlank(message = "标题不能为空") String title, String id) {
         return JsonResult.successData(permissionService.queryTitleExists(title, id));
     }
 
-    @ApiOperation("查询编码是否重复(true:重复,false:不重复)")
+    @ApiOperation("查询编码是否重复")
     @GetMapping("/queryCodeExists")
     public JsonResult queryCodeExists(@NotBlank(message = "编码不能为空") String code, String id) {
         return JsonResult.successData(permissionService.queryCodeExists(code, id));

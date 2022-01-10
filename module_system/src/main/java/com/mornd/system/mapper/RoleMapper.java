@@ -17,7 +17,5 @@ import java.util.Set;
 public interface RoleMapper extends BaseMapper<SysRole> {
     Set<SysRole> findByUserId(@Param("userId") String userId, @Param("enableState") Integer enableState);
 
-    IPage<SysRole> pageList(@Param("page") IPage<SysRole> page, @Param("userId") String userId, @Param("role") SysRoleVO role);
-
     Set<String> getPersById(@Param("id") String id, @Param("hidden") Integer hidden);
 }

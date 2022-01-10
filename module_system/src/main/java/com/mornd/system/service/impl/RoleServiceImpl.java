@@ -7,10 +7,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.enums.EnumHiddenType;
-import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.RoleWithPermission;
@@ -20,7 +18,6 @@ import com.mornd.system.entity.vo.SysRoleVO;
 import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.RoleMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
-import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecurityUtil;
@@ -39,8 +36,6 @@ import java.util.*;
 @Service
 @Transactional
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements RoleService {
-    @Resource
-    private PermissionService permissionService;
     @Resource
     private RoleWithPermissionMapper roleWithPermissionMapper;
     @Resource
@@ -90,8 +85,15 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     @Override
     public JsonResult pageList(SysRoleVO role) {
         IPage<SysRole> page = new Page<>(role.getPageNo(),role.getPageSize());
-        page = baseMapper.pageList(page, SecurityUtil.getLoginUserId(), role);
-        return JsonResult.successData(page);
+        LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery();
+        //筛选条件
+        qw.like(StrUtil.isNotBlank(role.getName()), SysRole::getName, role.getName());
+        qw.like(StrUtil.isNotBlank(role.getCode()), SysRole::getCode, role.getCode());
+        qw.eq(!ObjectUtils.isEmpty(role.getEnabled()), SysRole::getEnabled, role.getEnabled());
+        //排序
+        qw.orderByAsc(SysRole::getSort);
+        IPage<SysRole> pageResult = baseMapper.selectPage(page, qw);
+        return JsonResult.successData(pageResult);
     }
 
     /**
@@ -147,6 +149,61 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     }
 
     /**
+     * 获取角色对应的权限id集合
+     * @param id
+     * @return
+     */
+    @Override
+    public JsonResult getPersById(String id) {
+        Set<String> perIds = baseMapper.getPersById(id, EnumHiddenType.DISPLAY.getCode());
+        return JsonResult.successData(perIds);
+    }
+
+    /**
+     * 角色绑定权限
+     * @param id
+     * @param perIds
+     * @return
+     */
+    @Override
+    public JsonResult bindPersById(String id, Set<String> perIds) {
+        //先删除所有关联的数据
+        this.deletePerAssociated(id);
+        if(!ObjectUtils.isEmpty(perIds)) {
+            //绑定角色与权限之间的关系
+            for (String updateId : perIds) {
+                RoleWithPermission rwp = new RoleWithPermission();
+                rwp.setRoleId(id);
+                rwp.setPerId(updateId);
+                rwp.setGmtCreate(new Date());
+                roleWithPermissionMapper.insert(rwp);
+            }    
+        }
+        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        return JsonResult.success();
+    }
+
+    /**
+     * 删除角色时，解除与之对应的权限关系
+     * @param id
+     */
+    private void deletePerAssociated(String id) {
+        LambdaQueryWrapper<RoleWithPermission> qw = Wrappers.lambdaQuery();
+        qw.eq(RoleWithPermission::getRoleId, id);
+        roleWithPermissionMapper.delete(qw);
+    }
+
+    /**
+     * 删除角色时，解除与之对应的用户关系
+     * @param id
+     */
+    private void deleteUserAssociated(String id) {
+        LambdaQueryWrapper<UserWithRole> qw = Wrappers.lambdaQuery();
+        qw.eq(UserWithRole::getRoleId, id);
+        userWithRoleMapper.delete(qw);
+    }
+
+    /**
      * 查询name是否重复
      * @param name
      * @param id
@@ -178,87 +235,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         }
         Integer count = baseMapper.selectCount(qw);
         return count > 0;
-    }
-
-    /**
-     * 获取角色对应的权限id集合
-     * @param id
-     * @return
-     */
-    @Override
-    public JsonResult getPersById(String id) {
-        Set<String> perIds = baseMapper.getPersById(id, EnumHiddenType.DISPLAY.getCode());
-        return JsonResult.successData(perIds);
-    }
-
-    /**
-     * 角色绑定权限
-     * @param id
-     * @param perIds
-     * @return
-     */
-    @Override
-    public JsonResult bindPersById(String id, Set<String> perIds) {
-        //先删除所有关联的数据
-        this.deletePerAssociated(id);
-        //处理前端传过来的id集合
-        if(!ObjectUtils.isEmpty(perIds)) {
-            Set<SysPermission> allPers = permissionService.getAllPers();
-            //保存最终要删除的id集合
-            Set<String> result = new HashSet<>();
-            //生成父id
-            for (String perId : perIds) {
-                findParentId(perId, allPers, result);
-            }
-            //绑定角色与权限之间的关系
-            for (String updateId : result) {
-                RoleWithPermission rwp = new RoleWithPermission();
-                rwp.setRoleId(id);
-                rwp.setPerId(updateId);
-                rwp.setGmtCreate(new Date());
-                roleWithPermissionMapper.insert(rwp);
-            }
-        }        
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
-        return JsonResult.success();
-    }
-
-    /**
-     * （工具方法）前端tree组件如果子集没有全部选中，那么传过来的id集合就不包括父级id，此方法生成父id
-     * @param id
-     * @param allPers
-     * @param result
-     */
-    private void findParentId(String id, Set<SysPermission> allPers, Set<String> result) {
-        for (SysPermission per : allPers) {
-            if(id.equals(per.getId())) {
-                result.add(id);
-                if(!GlobalConst.MENU_PARENT_ID.equals(per.getParentId())) {
-                    //如果父不是根节点，继续查找
-                    this.findParentId(per.getParentId(), allPers, result);
-                }
-            }
-        }
-    }
-
-    /**
-     * 删除角色时，解除与之对应的权限关系
-     * @param id
-     */
-    private void deletePerAssociated(String id) {
-        LambdaQueryWrapper<RoleWithPermission> qw = Wrappers.lambdaQuery();
-        qw.eq(RoleWithPermission::getRoleId, id);
-        roleWithPermissionMapper.delete(qw);
-    }
-
-    /**
-     * 删除角色时，解除与之对应的用户关系
-     * @param id
-     */
-    private void deleteUserAssociated(String id) {
-        LambdaQueryWrapper<UserWithRole> qw = Wrappers.lambdaQuery();
-        qw.eq(UserWithRole::getRoleId, id);
-        userWithRoleMapper.delete(qw);
     }
     
     /**
