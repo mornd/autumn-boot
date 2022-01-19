@@ -1,6 +1,6 @@
 package com.mornd.system.annotation;
 
-import com.mornd.system.entity.enums.LogType;
+import com.mornd.system.constant.enums.LogType;
 
 import java.lang.annotation.*;
 

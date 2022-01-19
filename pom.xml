@@ -29,7 +29,7 @@
     </properties>
 
     <dependencies>
-        <!--数据库连接驱动-->
+        <!--mySQL数据库连接驱动-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -90,6 +90,7 @@
             <scope>test</scope>
         </dependency>-->
 
+        <!--安全框架-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -105,7 +106,7 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
-        <!--登录图像验证码-->
+        <!--图像验证码-->
         <dependency>
             <groupId>com.github.whvcse</groupId>
             <artifactId>easy-captcha</artifactId>
@@ -118,7 +119,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!--热部署-->
+        <!--热部署功能-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>

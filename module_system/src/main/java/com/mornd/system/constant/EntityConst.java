@@ -10,6 +10,7 @@ public interface EntityConst {
     //全局常量：停用
     Integer DISABLED = 0;
     
-    Integer HIDDEN = 0;
-    Integer DISPLAY = 1;
+    //逻辑删除
+    Integer DELETED = 0; //已删除
+    Integer NORMAL = 1; //正常
 }

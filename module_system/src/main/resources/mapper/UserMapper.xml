@@ -10,7 +10,7 @@
         <result column="password" property="password"/>
         <result column="real_name" property="realName"/>
         <result column="gender" property="gender"/>
-        <result column="age" property="age"/>
+        <result column="birthday" property="birthday"/>
         <result column="phone" property="phone"/>
         <result column="status" property="status"/>
         <result column="avatar" property="avatar"/>
@@ -22,26 +22,33 @@
         <result column="del_flag" property="delFlag"/>
         <result column="version" property="version"/>
     </resultMap>
-
-    <!--返回的所有列-->
-    <sql id="baseResultColumns">
-        id,
-        login_name,
-        password,
-        real_name,
-        gender,
-        age,
-        phone,
-        status,
-        account_locked,
-        avatar,
-        email,
-        gmt_create,
-        create_by,
-        gmt_modified,
-        modified_by,
-        del_flag,
-        version
-    </sql>
-
+    
+    <select id="pageList" resultType="com.mornd.system.entity.vo.SysUserVO">
+        SELECT 
+            id,
+            login_name,
+            real_name,
+            gender,
+            birthday,
+            phone,
+            status,
+            avatar,
+            email,
+            gmt_create
+        FROM sys_user 
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="user.loginName != null and user.loginName != ''">
+                AND login_name LIKE concat('%',#{user.loginName},'%')
+            </if>
+            <if test="user.realName != null and user.realName != ''">
+                AND real_name LIKE concat('%',#{user.realName},'%')
+            </if>
+            <if test="user.gender != null">
+                AND gender = #{user.gender}
+            </if>
+            <if test="user.status != null">
+                AND status = #{user.status}
+            </if>
+        </trim>
+    </select>
 </mapper>

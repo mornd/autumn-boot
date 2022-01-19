@@ -1,10 +1,8 @@
-package com.mornd.system.entity.enums;
+package com.mornd.system.constant.enums;
 
+import com.mornd.system.constant.EntityConst;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author mornd
@@ -13,7 +11,7 @@ import java.util.Map;
  */
 
 @AllArgsConstructor
-public enum EnumPermissionType {
+public enum EnumMenuType {
     CATALOGUE(0, "目录"),
     MENU(1, "菜单"),
     BUTTON(2, "按钮");

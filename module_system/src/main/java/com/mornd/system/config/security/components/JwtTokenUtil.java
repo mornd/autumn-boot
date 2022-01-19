@@ -95,7 +95,7 @@ public class JwtTokenUtil {
             Claims claims = getClaimsFromToken(token);
             return claims.getSubject();
         } catch (Exception e) {
-            log.warn("获取token荷载异常：{}",e.getMessage());
+            log.warn("从token荷载获取用户名异常：{}",e.getMessage());
             return null;
         }
     }
@@ -108,11 +108,6 @@ public class JwtTokenUtil {
      */
     public boolean validateToken(String token,UserDetails userDetails){
         String username = getUsernameFromToken(token);
-        /*boolean isTokenExpired = isTokenExpired(token);
-        log.info("token是否过期：" + isTokenExpired);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String tokenCreateDate = format.format(getExpiredDateFromToken(token));
-        log.info("token过期时间：" + tokenCreateDate);*/
         return Objects.equals(username, userDetails.getUsername())
                 && !isTokenExpired(token);
     }

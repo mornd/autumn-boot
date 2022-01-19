@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mornd.system.constant.SpringSecurityConst;
+import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.ApiModel;
@@ -20,6 +20,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class SysUser extends BaseEntity implements UserDetails {
     @NotBlank(message = "ID不能为空",groups = {UpdateValidGroup.class})
     private String id;
 
-    @NotBlank(message = "用户名不能为空")
+    @NotBlank(message = "登录名不能为空")
     @ApiModelProperty("用户登录名称")
     private String loginName;
 
@@ -54,8 +55,8 @@ public class SysUser extends BaseEntity implements UserDetails {
     @ApiModelProperty("性别")
     private Integer gender;
 
-    @ApiModelProperty("年龄")
-    private Integer age;
+    @ApiModelProperty("出生日期")
+    private Date birthday;
 
     @ApiModelProperty("电话号码")
     private String phone;
@@ -92,7 +93,7 @@ public class SysUser extends BaseEntity implements UserDetails {
             return null;
         }
         List<SimpleGrantedAuthority> authorities = this.roles.stream().map(role ->
-                new SimpleGrantedAuthority(SpringSecurityConst.ROLE_PREFIX + role.getCode()))
+                new SimpleGrantedAuthority(SecurityConst.ROLE_PREFIX + role.getCode()))
                 .collect(Collectors.toList());
         if(!ObjectUtils.isEmpty(authorities)){
             this.permissions.forEach(item -> {

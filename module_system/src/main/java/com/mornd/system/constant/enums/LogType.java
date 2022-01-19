@@ -1,4 +1,4 @@
-package com.mornd.system.entity.enums;
+package com.mornd.system.constant.enums;
 
 public enum LogType {
     SERVICE("业务日志"),

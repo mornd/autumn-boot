@@ -7,13 +7,13 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
-import com.mornd.system.constant.SpringSecurityConst;
+import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.RoleWithPermission;
 import com.mornd.system.entity.result.JsonResult;
-import com.mornd.system.entity.enums.EnumHiddenType;
-import com.mornd.system.entity.enums.EnumPermissionType;
+import com.mornd.system.constant.enums.EnumHiddenType;
+import com.mornd.system.constant.enums.EnumMenuType;
 import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.PermissionMapper;
 import com.mornd.system.service.PermissionService;
@@ -61,7 +61,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         }
         return baseMapper.getPersByRoleIds(ids, 
                 enabledState, 
-                EnumPermissionType.BUTTON.getCode(), 
+                EnumMenuType.BUTTON.getCode(), 
                 EnumHiddenType.DISPLAY.getCode());
     }
 
@@ -120,7 +120,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      */
     @Override
     public JsonResult getCatalogueAndMenu() {
-        Set<SysPermission> pers = baseMapper.findCatalogueAndMenu(EnumPermissionType.CATALOGUE.getCode(), EnumPermissionType.MENU.getCode(), EnumHiddenType.DISPLAY.getCode());
+        Set<SysPermission> pers = baseMapper.findCatalogueAndMenu(EnumMenuType.CATALOGUE.getCode(), EnumMenuType.MENU.getCode(), EnumHiddenType.DISPLAY.getCode());
         return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers));
     }
 
@@ -130,7 +130,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      */
     @Override
     public JsonResult getCatalogues() {
-        Set<SysPermission> pers = baseMapper.findCatalogues(EnumPermissionType.CATALOGUE.getCode(), EnumHiddenType.DISPLAY.getCode());
+        Set<SysPermission> pers = baseMapper.findCatalogues(EnumMenuType.CATALOGUE.getCode(), EnumHiddenType.DISPLAY.getCode());
         return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers));
     }
 
@@ -186,8 +186,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     public JsonResult insert(SysPermission sysPermission) {
         if(queryTitleExists(sysPermission.getTitle(), null)) return JsonResult.failure("标题已存在");
         if(queryCodeExists(sysPermission.getCode(), null)) return JsonResult.failure("编码已存在");
-        if(sysPermission.getCode().startsWith(SpringSecurityConst.ROLE_PREFIX)) {
-            return JsonResult.failure("不可使用" + SpringSecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
+        if(sysPermission.getCode().startsWith(SecurityConst.ROLE_PREFIX)) {
+            return JsonResult.failure("不可使用" + SecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
         }
         
         if(!GlobalConst.MENU_PARENT_ID.equals(sysPermission.getParentId())) {//如果菜单的父级不是是根节点
@@ -200,14 +200,14 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
                 return JsonResult.failure("操作失败，父级节点不存在或已被禁用");
             }
             //验证父级是否符合规范
-            if(EnumPermissionType.CATALOGUE.getCode().equals(sysPermission.getMenuType())
-                    || EnumPermissionType.MENU.getCode().equals(sysPermission.getMenuType())) {
-                if(!parent.getMenuType().equals(EnumPermissionType.CATALOGUE.getCode())) {
+            if(EnumMenuType.CATALOGUE.getCode().equals(sysPermission.getMenuType())
+                    || EnumMenuType.MENU.getCode().equals(sysPermission.getMenuType())) {
+                if(!parent.getMenuType().equals(EnumMenuType.CATALOGUE.getCode())) {
                     return JsonResult.failure("目录或菜单的父级必须是目录类型");
                 }
             }
-            if(EnumPermissionType.BUTTON.getCode().equals(sysPermission.getMenuType())) {
-                if(parent.getMenuType().equals(EnumPermissionType.BUTTON.getCode())) {
+            if(EnumMenuType.BUTTON.getCode().equals(sysPermission.getMenuType())) {
+                if(parent.getMenuType().equals(EnumMenuType.BUTTON.getCode())) {
                     return JsonResult.failure("按钮类型的父级必须是目录或菜单类型");
                 }
             }
@@ -216,6 +216,14 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         sysPermission.setCreateBy(SecurityUtil.getLoginUserId());
         sysPermission.setGmtCreate(new Date());
         baseMapper.insert(sysPermission);
+        
+        //超级管理员默认添加所有菜单权限
+        RoleWithPermission rw = new RoleWithPermission();
+        rw.setRoleId(SecurityConst.SUPER_ADMIN_ID);
+        rw.setPerId(sysPermission.getId());
+        rw.setGmtCreate(new Date());
+        roleWithPermissionMapper.insert(rw);
+                
         redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
         return JsonResult.success();
     }
@@ -229,8 +237,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     public JsonResult update(SysPermission sysPermission) {
         if(queryTitleExists(sysPermission.getTitle(), sysPermission.getId())) return JsonResult.failure("标题已存在");
         if(queryCodeExists(sysPermission.getCode(), sysPermission.getId())) return JsonResult.failure("编码已存在");
-        if(sysPermission.getCode().startsWith(SpringSecurityConst.ROLE_PREFIX)) {
-            return JsonResult.failure("不可使用" + SpringSecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
+        if(sysPermission.getCode().startsWith(SecurityConst.ROLE_PREFIX)) {
+            return JsonResult.failure("不可使用" + SecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
         }
         if(!GlobalConst.MENU_PARENT_ID.equals(sysPermission.getParentId())) {
             //验证父级是否符合规则
@@ -241,23 +249,23 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
             if(parent == null || disabled.equals(parent.getEnabled())) {
                 return JsonResult.failure("操作失败，父级节点不存在或已被禁用");
             }
-            if(EnumPermissionType.CATALOGUE.getCode().equals(sysPermission.getMenuType())
-                    || EnumPermissionType.MENU.getCode().equals(sysPermission.getMenuType())) {
-                if(!parent.getMenuType().equals(EnumPermissionType.CATALOGUE.getCode())) {
+            if(EnumMenuType.CATALOGUE.getCode().equals(sysPermission.getMenuType())
+                    || EnumMenuType.MENU.getCode().equals(sysPermission.getMenuType())) {
+                if(!parent.getMenuType().equals(EnumMenuType.CATALOGUE.getCode())) {
                     return JsonResult.failure("目录或菜单的父级必须是目录类型");
                 }
             }
-            if(EnumPermissionType.BUTTON.getCode().equals(sysPermission.getMenuType())) {
-                if(parent.getMenuType().equals(EnumPermissionType.BUTTON.getCode())) {
+            if(EnumMenuType.BUTTON.getCode().equals(sysPermission.getMenuType())) {
+                if(parent.getMenuType().equals(EnumMenuType.BUTTON.getCode())) {
                     return JsonResult.failure("按钮类型的父级必须是目录或菜单类型");
                 }
             }
         }
         //如果此节点为隐藏状态(并且该类型不是按钮类型)，则连同它的子节点都要隐藏
-        if(EnumHiddenType.HIDDEN.getCode().equals(sysPermission.getHidden()) && !sysPermission.getMenuType().equals(EnumPermissionType.BUTTON.getCode())) {
+        if(EnumHiddenType.HIDDEN.getCode().equals(sysPermission.getHidden()) && !sysPermission.getMenuType().equals(EnumMenuType.BUTTON.getCode())) {
             changeChildrenHiddenState(sysPermission.getId(), EnumHiddenType.HIDDEN.getCode());
         }
-        //按钮类型和启用状态不可在这一步修改
+        //按钮类型和启用状态不可以在这一步修改
         sysPermission.setMenuType(null);
         sysPermission.setEnabled(null);
         sysPermission.setGmtModified(new Date());

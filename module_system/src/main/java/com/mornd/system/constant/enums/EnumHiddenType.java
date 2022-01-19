@@ -1,5 +1,6 @@
-package com.mornd.system.entity.enums;
+package com.mornd.system.constant.enums;
 
+import com.mornd.system.constant.EntityConst;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

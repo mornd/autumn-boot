@@ -8,7 +8,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mornd.system.constant.RedisKey;
-import com.mornd.system.entity.enums.EnumHiddenType;
+import com.mornd.system.constant.ResultMessage;
+import com.mornd.system.constant.SecurityConst;
+import com.mornd.system.constant.enums.EnumHiddenType;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.RoleWithPermission;
@@ -120,6 +122,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      */
     @Override
     public JsonResult update(SysRole role) {
+        if(SecurityConst.SUPER_ADMIN_ID.equals(role.getId())) return JsonResult.failure(ResultMessage.CRUD_SUPERADMIN);
         if(queryNameExists(role.getName(), role.getId())) return JsonResult.failure("名称已重复");
         if(queryCodeExists(role.getCode(), role.getId())) return JsonResult.failure("编码已重复");
         role.setModifiedBy(SecurityUtil.getLoginUserId());
@@ -137,6 +140,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      */
     @Override
     public JsonResult delete(String id) {
+        if(SecurityConst.SUPER_ADMIN_ID.equals(id)) {
+            return JsonResult.failure(ResultMessage.CRUD_SUPERADMIN);
+        }
         //解除其他关联关系
         this.deleteUserAssociated(id);
         this.deletePerAssociated(id);
@@ -167,6 +173,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      */
     @Override
     public JsonResult bindPersById(String id, Set<String> perIds) {
+        if(SecurityConst.SUPER_ADMIN_ID.equals(id)) {
+            return JsonResult.failure(ResultMessage.CRUD_SUPERADMIN);
+        }
         //先删除所有关联的数据
         this.deletePerAssociated(id);
         if(!ObjectUtils.isEmpty(perIds)) {
@@ -236,7 +245,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         Integer count = baseMapper.selectCount(qw);
         return count > 0;
     }
-    
+
     /**
      * 修改状态值
      * @param id
@@ -245,6 +254,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      */
     @Override
     public JsonResult changeStatus(String id, Integer state) {
+        //参数校验
+        if(!enabled.equals(state) && !disabled.equals(state)) {
+            return JsonResult.failure("修改的状态值不正确");
+        }
+        if(SecurityConst.SUPER_ADMIN_ID.equals(id)) {
+            return JsonResult.failure(ResultMessage.CRUD_SUPERADMIN);
+        }
         LambdaUpdateWrapper<SysRole> uw = Wrappers.lambdaUpdate();
         uw.set(SysRole::getEnabled, state);
         uw.eq(SysRole::getId, id);

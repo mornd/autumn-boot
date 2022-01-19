@@ -1,6 +1,7 @@
 package com.mornd.system.entity.po.base;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mornd.system.constant.EntityConst;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class BaseEntity implements Serializable {
         /**
          * 删除字段枚举
          */
-        DELETED(0, "删除"), NORMAL(1, "正常");
+        DELETED(EntityConst.DELETED, "删除"), NORMAL(EntityConst.NORMAL, "正常");
         @Getter
         private final Integer code;
         @Getter
@@ -54,8 +55,8 @@ public class BaseEntity implements Serializable {
         /**
          * 启用字段枚举
          */
-        ENABLE(1, "启用"),
-        DISABLE(0, "停用");
+        ENABLE(EntityConst.ENABLED, "启用"),
+        DISABLE(EntityConst.DISABLED, "停用");
         @Getter
         private final Integer code;
         @Getter

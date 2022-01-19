@@ -2,7 +2,7 @@ package com.mornd.system.controller;
 
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.entity.dto.LoginUserDTO;
-import com.mornd.system.entity.enums.LogType;
+import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.LoginService;
 import io.swagger.annotations.Api;

@@ -7,5 +7,6 @@ package com.mornd.system.constant;
  */
 public interface ResultMessage {
     String USER_NOTFOUND = "账号或密码错误";
+    String CRUD_SUPERADMIN = "超级管理员不可操作";
 
 }

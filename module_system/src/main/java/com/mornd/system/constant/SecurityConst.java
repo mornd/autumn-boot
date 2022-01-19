@@ -4,7 +4,7 @@ package com.mornd.system.constant;
  * @author mornd
  * @dateTime 2021/11/8 - 10:55
  */
-public interface SpringSecurityConst {
+public interface SecurityConst {
     //springSecurity的URL白名单
     String[] NONE_SECURITY_URL_PATTERNS = {
         //图标
@@ -29,4 +29,12 @@ public interface SpringSecurityConst {
 
     //系统角色前缀
     String ROLE_PREFIX = "ROLE_";
+    
+    //超级管理员id
+    String SUPER_ADMIN_ID = "1425011630752735234";
+    
+    //菜单管理id
+    String MENU_ID = "1425384413584252930";
+    
+    String USER_DEFAULT_PWD = "123456";
 }
