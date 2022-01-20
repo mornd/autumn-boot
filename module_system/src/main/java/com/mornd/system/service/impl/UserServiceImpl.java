@@ -154,6 +154,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         sysUser.setCreateBy(SecurityUtil.getLoginUserId());
         sysUser.setGmtCreate(new Date());
         baseMapper.insert(sysUser);
+        
+        //角色相关
+        if(ObjectUtils.isNotEmpty(user.getRoles())) {
+            user.getRoles().forEach(id -> {
+                UserWithRole uw = new UserWithRole();
+                uw.setUserId(sysUser.getId());
+                uw.setRoleId(id);
+                uw.setGmtCreate(new Date());
+                userWithRoleMapper.insert(uw);
+            });
+        }
         return JsonResult.success();
     }
 
@@ -171,6 +182,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         sysUser.setModifiedBy(SecurityUtil.getLoginUserId());
         sysUser.setGmtModified(new Date());
         baseMapper.updateById(sysUser);
+
+        //角色相关
+        LambdaQueryWrapper<UserWithRole> qw = Wrappers.lambdaQuery();
+        qw.eq(UserWithRole::getUserId, user.getId());
+        userWithRoleMapper.delete(qw);
+        if(ObjectUtils.isNotEmpty(user.getRoles())) {
+            user.getRoles().forEach(id -> {
+                UserWithRole uw = new UserWithRole();        
+                uw.setUserId(sysUser.getId());
+                uw.setRoleId(id);
+                uw.setGmtCreate(new Date());
+                userWithRoleMapper.insert(uw);
+            });
+        }
         return JsonResult.success();
     }
 
@@ -224,5 +249,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         }
         int count = baseMapper.selectCount(qw);
         return count > 0;
+    }
+
+    @Override
+    public JsonResult getRoleById(String id) {
+        Set<String> ids = baseMapper.getRoleById(id);
+        return JsonResult.successData(ids);
     }
 }

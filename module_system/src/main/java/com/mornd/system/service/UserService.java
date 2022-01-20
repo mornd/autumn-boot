@@ -28,4 +28,6 @@ public interface UserService extends IService<SysUser> {
     JsonResult changeStatus(String id, Integer state);
 
     boolean queryLoginNameExists(String name, String id);
+
+    JsonResult getRoleById(String id);
 }

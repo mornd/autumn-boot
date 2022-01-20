@@ -50,5 +50,17 @@
                 AND status = #{user.status}
             </if>
         </trim>
+        ORDER BY gmt_create
+    </select>
+    
+    <select id="getRoleById" resultType="java.lang.String">
+                SELECT
+                    sr.id
+                FROM
+                    sys_role sr
+                INNER JOIN sys_user_role sur ON
+                    sr.id = sur.role_id
+                WHERE
+                    sur.user_id = #{id}
     </select>
 </mapper>

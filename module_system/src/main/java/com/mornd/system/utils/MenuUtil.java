@@ -29,8 +29,12 @@ public class MenuUtil {
                 return -1;
             }else if(o1.getSort() > o2.getSort()){
                 return 1;
-            }else{
-                return 1;
+            }else {
+                //如果两个比较的sort值相同，再比较id，如果也id相同，则取其中一个值
+                if(o1.getId().equals(o2.getId())) return 0;
+                //再根据id的hashCode排序
+                if(o1.getId().hashCode() < o2.getId().hashCode()) return -1;
+                else return 1;
             }
         });
     }

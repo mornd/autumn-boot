@@ -36,4 +36,6 @@ public interface RoleService extends IService<SysRole> {
     JsonResult bindPersById(String id, Set<String> perIds);
 
     JsonResult changeStatus(String id, Integer state);
+
+    List<SysRole> getAllRoles();
 }

@@ -93,7 +93,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         qw.like(StrUtil.isNotBlank(role.getCode()), SysRole::getCode, role.getCode());
         qw.eq(!ObjectUtils.isEmpty(role.getEnabled()), SysRole::getEnabled, role.getEnabled());
         //排序
-        qw.orderByAsc(SysRole::getSort);
+        qw.orderByAsc(SysRole::getSort, SysRole::getGmtCreate);
         IPage<SysRole> pageResult = baseMapper.selectPage(page, qw);
         return JsonResult.successData(pageResult);
     }
@@ -266,5 +266,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         uw.eq(SysRole::getId, id);
         baseMapper.update(null, uw);
         return JsonResult.success("修改成功");
+    }
+
+    /**
+     * 获取用户授权时所需的所有角色清单
+     * @return
+     */
+    @Override
+    public List<SysRole> getAllRoles() {
+        return baseMapper.getAllRoles();
     }
 }

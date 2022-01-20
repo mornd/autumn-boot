@@ -8,7 +8,7 @@ public class ModuleSystemApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ModuleSystemApplication.class, args);
-        System.out.println("Application started successfully!!!");
+        System.out.println("Application Started Successfully!!!");
     }
 
 }

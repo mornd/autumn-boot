@@ -1,7 +1,6 @@
 package com.mornd.system.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.validation.SelectValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
 import lombok.Data;
@@ -11,6 +10,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author mornd
@@ -43,6 +44,8 @@ public class SysUserVO implements Serializable {
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private Date gmtCreate;
+    
+    Set<String> roles;
     
     @NotNull(message = "分页信息的起始页不能为空", groups = SelectValidGroup.class)
     private Integer pageNo;

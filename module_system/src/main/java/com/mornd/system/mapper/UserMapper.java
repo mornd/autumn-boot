@@ -7,6 +7,8 @@ import com.mornd.system.entity.vo.SysUserVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Set;
+
 
 /**
  * @author mornd
@@ -15,4 +17,6 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface UserMapper extends BaseMapper<SysUser> {
     IPage<SysUserVO> pageList(@Param("page") IPage<SysUserVO> page, @Param("user") SysUserVO user);
+
+    Set<String> getRoleById(@Param("id") String id);
 }

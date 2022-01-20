@@ -1,12 +1,13 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.entity.dto.ChangePwdDTO;
+import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
+import com.mornd.system.service.RoleService;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
-import com.mornd.system.validation.InsertValidGroup;
 import com.mornd.system.validation.SelectValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.Api;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * @author mornd
@@ -29,6 +31,8 @@ import javax.validation.constraints.NotBlank;
 public class UserController {
     @Resource
     private UserService userService;
+    @Resource 
+    private RoleService roleService;
 
     @ApiOperation("获取当前登录用户信息")
     @GetMapping("/getLoginUser")
@@ -84,5 +88,19 @@ public class UserController {
     @GetMapping("/queryLoginNameExists")
     public JsonResult queryNameExists(@NotBlank(message = "名称不能为空") String name, String id) {
         return JsonResult.successData(userService.queryLoginNameExists(name, id));
+    }
+    
+    @ApiOperation("获取用户所拥有的角色id")
+    @GetMapping("/getRoleById/{id}")
+    public JsonResult getRoleById(@PathVariable String id) {
+        return userService.getRoleById(id);
+    }
+
+    @ApiOperation("用户授权角色时获取的所有角色集合(简单列)")
+    @GetMapping("/ageAllRoles")
+    public JsonResult getAllRoles() {
+        List<SysRole> roles = roleService.getAllRoles();
+        return JsonResult.successData(roles);
+        
     }
 }

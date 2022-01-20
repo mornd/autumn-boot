@@ -7,6 +7,7 @@ import com.mornd.system.entity.vo.SysRoleVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,4 +19,6 @@ public interface RoleMapper extends BaseMapper<SysRole> {
     Set<SysRole> findByUserId(@Param("userId") String userId, @Param("enableState") Integer enableState);
 
     Set<String> getPersById(@Param("id") String id, @Param("hidden") Integer hidden);
+
+    List<SysRole> getAllRoles();
 }

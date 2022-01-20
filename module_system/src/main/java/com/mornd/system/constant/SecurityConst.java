@@ -36,5 +36,6 @@ public interface SecurityConst {
     //菜单管理id
     String MENU_ID = "1425384413584252930";
     
+    //新增用户默认密码
     String USER_DEFAULT_PWD = "123456";
 }
