@@ -51,7 +51,6 @@ public class JwtTokenUtil {
         return generateToken(claim);
     }
 
-
     public String generateToken(Map<String,Object> claim) {
         return Jwts.builder()
                 .setClaims(claim)

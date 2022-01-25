@@ -35,7 +35,8 @@
             avatar,
             email,
             gmt_create
-        FROM sys_user 
+        FROM 
+            sys_user 
         <trim prefix="where" prefixOverrides="and | or">
             <if test="user.loginName != null and user.loginName != ''">
                 AND login_name LIKE concat('%',#{user.loginName},'%')
@@ -50,17 +51,18 @@
                 AND status = #{user.status}
             </if>
         </trim>
-        ORDER BY gmt_create
+        ORDER BY 
+            gmt_create
     </select>
     
     <select id="getRoleById" resultType="java.lang.String">
-                SELECT
-                    sr.id
-                FROM
-                    sys_role sr
-                INNER JOIN sys_user_role sur ON
-                    sr.id = sur.role_id
-                WHERE
-                    sur.user_id = #{id}
+        SELECT
+            sr.id
+        FROM
+            sys_role sr
+        INNER JOIN sys_user_role sur ON
+            sr.id = sur.role_id
+        WHERE
+            sur.user_id = #{id}
     </select>
 </mapper>

@@ -135,3 +135,14 @@ jwt:
   tokenHead: 'Bearer '
   #JWT的超期限时间 (单位：s)
   expiration: 1800
+  
+# 七牛云配置  
+qiniu:
+  #密钥AK
+  accessKey: xxx
+  #密钥SK
+  secretKey: xxx
+  #存储的空间
+  bucket: xxx
+  # 文件访问域名前缀
+  domain: xxx

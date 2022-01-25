@@ -35,9 +35,10 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true) //callSuper = true 会连同父类的属性加在一起生成equals(Object o)和hashCode()方法
 @ApiModel("系统用户")
 public class SysUser extends BaseEntity implements UserDetails {
-
-    //@TableId(type = IdType.ASSIGN_UUID) ASSIGN_UUID =>a794d53804816017978dba76b05b19a1
-    @TableId(type = IdType.ASSIGN_ID) // ASSIGN_ID =>1425004256210038785
+    
+    //IdType.ASSIGN_UUID =>a794d53804816017978dba76b05b19a1
+    // IdType.ASSIGN_ID =>1425004256210038785
+    @TableId(type = IdType.ASSIGN_ID) 
     @NotBlank(message = "ID不能为空",groups = {UpdateValidGroup.class})
     private String id;
 

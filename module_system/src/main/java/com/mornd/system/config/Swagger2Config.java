@@ -28,14 +28,22 @@ import java.util.List;
 public class Swagger2Config {
     @Value("${jwt.tokenHeader}")
     private String tokenHeader;
-    private final String project = "autumn";
+
+    private final String basePackage = "com.mornd.system.controller";
+    private final String title = "autumn接口文档";
+    private final String version = "1.1";
+    private final String description = "autumn接口文档";
+    private final String name = "mornd";
+    private final String url = "http://localhost:1001/dataView/doc.html";
+    private final String email = "1152229579@qq.com";
+    
     @Bean
     public Docket createApi(){
         return new Docket(DocumentationType.SWAGGER_2)
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.mornd.system.controller"))
+                .apis(RequestHandlerSelectors.basePackage(basePackage))
                 .paths(PathSelectors.any())
                 .build()
                 .securitySchemes(securitySchemes())
@@ -44,16 +52,16 @@ public class Swagger2Config {
 
     private ApiInfo apiInfo(){
         return new ApiInfoBuilder()
-                .title(project + "项目接口文档")
-                .version("1.1")
-                .description(project + "项目swagger接口文档")
-                .contact(new Contact("mornd","http://localhost:1001/dataView/doc.html","1152229579@qq.com"))
+                .title(title)
+                .version(version)
+                .description(description)
+                .contact(new Contact(name, url, email))
                 .build();
     }
 
     private List<ApiKey> securitySchemes(){
         List<ApiKey> list = new ArrayList<>();
-        ApiKey apiKey = new ApiKey(tokenHeader,tokenHeader,"Header");
+        ApiKey apiKey = new ApiKey(tokenHeader, tokenHeader, "Header");
         list.add(apiKey);
         return list;
     }
