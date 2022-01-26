@@ -30,4 +30,6 @@ public interface UserService extends IService<SysUser> {
     boolean queryLoginNameExists(String name, String id);
 
     JsonResult getRoleById(String id);
+
+    JsonResult updateAvatar(SysUserVO user);
 }

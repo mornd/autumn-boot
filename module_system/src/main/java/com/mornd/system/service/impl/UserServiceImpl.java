@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
@@ -121,6 +122,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             //加密新密码
             user.setPassword(passwordEncoder.encode(newPwd));
             baseMapper.updateById(user);
+            redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
             return JsonResult.success("修改成功");
         }
         return JsonResult.failure("原密码不匹配");
@@ -165,7 +167,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
-        return JsonResult.success();
+        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        return JsonResult.success("用户添加成功，用户的密码默认为：" + SecurityConst.USER_DEFAULT_PWD);
     }
 
     /**
@@ -196,7 +199,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
+        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
         return JsonResult.success();
+    }
+
+    /**
+     * 用户修改头像
+     * @param user
+     * @return
+     */
+    @Override
+    public JsonResult updateAvatar(SysUserVO user) {
+        LambdaUpdateWrapper<SysUser> uw = Wrappers.lambdaUpdate();
+        uw.eq(SysUser::getId, user.getId());
+        uw.set(SysUser::getAvatar, user.getAvatar());
+        baseMapper.update(null, uw);
+        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        return JsonResult.success("修改头像成功");
     }
 
     /**
@@ -212,6 +231,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         userWithRoleMapper.delete(qw);
         //执行删除
         baseMapper.deleteById(id);
+        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
         return JsonResult.success();
     }
 
@@ -231,6 +251,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         uw.set(SysUser::getStatus, state);
         uw.eq(SysUser::getId, id);
         baseMapper.update(null, uw);
+        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
         return JsonResult.success("修改成功");
     }
 

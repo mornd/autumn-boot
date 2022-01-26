@@ -1,7 +1,10 @@
 package com.mornd.system.controller;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mornd.system.entity.dto.ChangePwdDTO;
 import com.mornd.system.entity.po.SysRole;
+import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
 import com.mornd.system.service.RoleService;
@@ -10,6 +13,7 @@ import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
 import com.mornd.system.validation.SelectValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
+import com.mornd.system.validation.ValidGroupA;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Range;
@@ -69,6 +73,12 @@ public class UserController {
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
         return userService.update(user);
+    }
+
+    @ApiOperation("用户修改头像")
+    @PutMapping("/avatar")
+    public JsonResult updateAvatar(@RequestBody @Validated(ValidGroupA.class) SysUserVO user) {
+        return userService.updateAvatar(user);
     }
     
     @ApiOperation("删除")

@@ -3,6 +3,7 @@ package com.mornd.system.entity.vo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mornd.system.validation.SelectValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
+import com.mornd.system.validation.ValidGroupA;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 @Data
 public class SysUserVO implements Serializable {
-    @NotBlank(message = "ID不能为空", groups = {UpdateValidGroup.class})
+    @NotBlank(message = "ID不能为空", groups = {UpdateValidGroup.class, ValidGroupA.class})
     private String id;
 
     @NotBlank(message = "登录名不能为空")
@@ -37,6 +38,7 @@ public class SysUserVO implements Serializable {
 
     private Integer status;
 
+    @NotBlank(message = "用户头像地址不能为空", groups = ValidGroupA.class)
     private String avatar;
 
     private String email;

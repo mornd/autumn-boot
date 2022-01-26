@@ -54,7 +54,7 @@ public class QiniuUtil {
         String dateName = generateName(fileName);
         try {
             Response response = uploadManager.put(filePath, dateName, uploadToken());
-            log.info("文件名称为{}的文件上传成功！", dateName);
+            log.info("文件名称为{}上传成功！", dateName);
             return domain + dateName;
         } catch (QiniuException e) {
             Response r = e.response;
@@ -79,7 +79,7 @@ public class QiniuUtil {
         String dateName = generateName(fileName);
         try {
             Response response = uploadManager.put(bytes, generateName(fileName), uploadToken());
-            log.info("文件名称为{}的文件上传成功！", dateName);
+            log.info("文件名称为{}上传成功！！", dateName);
             return domain + dateName;
         } catch (QiniuException e) {
             Response r = e.response;
@@ -104,9 +104,10 @@ public class QiniuUtil {
         try {
             Response response = uploadManager.put(stream, dateName, uploadToken(), null, null);
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-            log.info(putRet.key);
-            log.info(putRet.hash);
-            log.info("文件名称为{}的文件上传成功！", dateName);
+            log.info("上传的文件key：{}", putRet.key);
+            log.info("上传的文件hash：{}", putRet.hash);
+            log.info("上传的文件外链地址：" + domain + dateName);
+            log.info("文件名称为{}上传成功！", dateName);
             return domain + dateName;
         } catch (QiniuException e) {
             Response r = e.response;
