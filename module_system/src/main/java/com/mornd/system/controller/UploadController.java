@@ -1,5 +1,6 @@
 package com.mornd.system.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -37,7 +38,7 @@ public class UploadController {
      * @return
      * @throws IOException
      */
-    @PostMapping("/image")
+    @PostMapping("/avatar")
     public JsonResult upload(@RequestBody MultipartFile file, HttpServletRequest request) throws IOException {
         if(file == null) return JsonResult.failure("文件为空");
         String id = request.getParameter("id");
@@ -53,7 +54,10 @@ public class UploadController {
             return JsonResult.failure("上传失败，请重试");
         }
         //删除之前的头像
-        qiniuUtil.delete(user.getAvatar());
+        String avatar = user.getAvatar();
+        if(StrUtil.isNotBlank(avatar)) {
+            qiniuUtil.delete(avatar.substring(avatar.lastIndexOf("/") + 1));
+        }
         return JsonResult.success("上传成功", url);
     }
 }

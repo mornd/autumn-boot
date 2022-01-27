@@ -45,8 +45,8 @@ public class UserController {
     }
 
     @ApiOperation("匹配当前密码")
-    @GetMapping("/verifyCurrentPassword/{oldPwd}")
-    public JsonResult verifyCurrentPassword(@PathVariable String oldPwd) {
+    @GetMapping("/verifyCurrentPassword")
+    public JsonResult verifyCurrentPassword(@NotBlank(message = "当前密码不能为空") String oldPwd) {
         boolean matches = userService.verifyCurrentPassword(SecretUtil.desEncrypt(oldPwd));
         return JsonResult.successData(matches);
     }
@@ -73,6 +73,12 @@ public class UserController {
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
         return userService.update(user);
+    }
+
+    @ApiOperation("用户个人修改信息")
+    @PutMapping("/userUpdate")
+    public JsonResult userUpdate(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
+        return userService.userUpdate(user);
     }
 
     @ApiOperation("用户修改头像")
@@ -107,7 +113,7 @@ public class UserController {
     }
 
     @ApiOperation("用户授权角色时获取的所有角色集合(简单列)")
-    @GetMapping("/ageAllRoles")
+    @GetMapping("/getAllRoles")
     public JsonResult getAllRoles() {
         List<SysRole> roles = roleService.getAllRoles();
         return JsonResult.successData(roles);

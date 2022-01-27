@@ -265,7 +265,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         uw.set(SysRole::getEnabled, state);
         uw.eq(SysRole::getId, id);
         baseMapper.update(null, uw);
-        return JsonResult.success("修改成功");
+        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     /**

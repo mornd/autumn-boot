@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
+import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.base.BaseEntity;
@@ -311,7 +312,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         per.setEnabled(state);
         baseMapper.updateById(per);
         redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
-        return JsonResult.success("修改成功");
+        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     /**

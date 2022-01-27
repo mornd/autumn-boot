@@ -1,6 +1,7 @@
 package com.mornd.system.entity.result;
 
 import com.mornd.system.constant.JsonResultCode;
+import com.mornd.system.constant.ResultMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -94,13 +95,13 @@ public class JsonResult<T> implements Serializable {
                 message = "获取数据成功";
                 break;
             case "POST":
-                message = "提交数据成功";
+                message = ResultMessage.INSERT_MSG;
                 break;
             case "PUT":
-                message = "更新数据成功";
+                message = ResultMessage.UPDATE_MSG;
                 break;
             case "DELETE":
-                message = "删除数据成功";
+                message = ResultMessage.DELETE_MSG;
                 break;
             default:
                 break;
@@ -116,16 +117,16 @@ public class JsonResult<T> implements Serializable {
         String method = request.getMethod();
         switch (method.toUpperCase()) {
             case "GET":
-                message = "获取数据失败";
+                message = "获取数据失败，请重试";
                 break;
             case "POST":
-                message = "提交数据失败";
+                message = ResultMessage.INSERT_FAILURE_MSG;
                 break;
             case "PUT":
-                message = "更新数据失败";
+                message = ResultMessage.UPDATE_FAILURE_MSG;
                 break;
             case "DELETE":
-                message = "删除数据失败";
+                message = ResultMessage.DELETE_FAILURE_MSG;
                 break;
             default:
                 break;

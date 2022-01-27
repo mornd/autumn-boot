@@ -50,7 +50,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public JsonResult userLogin(LoginUserDTO loginUserDTO) {
-        log.info("正在执行登录操作，用户名：{}", loginUserDTO.getUsername());
+        log.info("用户{}正在执行登录操作", loginUserDTO.getUsername());
         //验证码校验
         String uuid = loginUserDTO.getUuid();
         String captcha = (String) redisUtil.getValue(RedisKey.LOGIN_CAPTCHA_KEY + uuid);
@@ -71,6 +71,7 @@ public class LoginServiceImpl implements LoginService {
         
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserDTO.getUsername());
         if(userDetails == null || !passwordEncoder.matches(loginUserDTO.getPassword(), userDetails.getPassword())){
+            log.info("用户{}，登录失败：{}", loginUserDTO.getUsername(), ResultMessage.USER_NOTFOUND);
             return JsonResult.failure(ResultMessage.USER_NOTFOUND);
         }
         if(!userDetails.isEnabled()){
@@ -99,7 +100,7 @@ public class LoginServiceImpl implements LoginService {
         tokenMap.put("tokenHead", tokenHead);
         tokenMap.put("token", token);
 
-        log.info("登录成功，当前登录用户：{}", userDetails.getUsername());
+        log.info("用户{}登录系统成功", userDetails.getUsername());
         return JsonResult.success("登录成功", tokenMap);
     }
 

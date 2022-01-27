@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
@@ -34,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -123,7 +121,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             user.setPassword(passwordEncoder.encode(newPwd));
             baseMapper.updateById(user);
             redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
-            return JsonResult.success("修改成功");
+            return JsonResult.success(ResultMessage.UPDATE_MSG);
         }
         return JsonResult.failure("原密码不匹配");
     }
@@ -172,7 +170,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     }
 
     /**
-     * 修改
+     * 管理员修改用户信息
      * @param user 
      * @return
      */
@@ -204,6 +202,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     }
 
     /**
+     * 用户自己修改个人信息
+     * @param user
+     * @return
+     */
+    @Override
+    public JsonResult userUpdate(SysUserVO user) {
+        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) return JsonResult.failure("登录名已重复");
+        LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery();
+        qw.eq(SysUser::getId, user.getId());
+        SysUser searchUser = baseMapper.selectOne(qw);
+        //判断用户的登录名是否修改，如果用户修改了登录名则需重新登录
+        boolean repeat = user.getLoginName().equals(searchUser.getLoginName()); 
+        SysUser sysUser = new SysUser();
+        BeanUtils.copyProperties(user, sysUser);
+        sysUser.setStatus(null);
+        sysUser.setGmtCreate(null);
+        sysUser.setModifiedBy(SecurityUtil.getLoginUserId());
+        sysUser.setGmtModified(new Date());
+        baseMapper.updateById(sysUser);
+        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        return JsonResult.success(ResultMessage.UPDATE_MSG, repeat);
+    }
+    
+    /**
      * 用户修改头像
      * @param user
      * @return
@@ -215,7 +237,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         uw.set(SysUser::getAvatar, user.getAvatar());
         baseMapper.update(null, uw);
         redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
-        return JsonResult.success("修改头像成功");
+        return JsonResult.success("头像修改成功");
     }
 
     /**
@@ -252,7 +274,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         uw.eq(SysUser::getId, id);
         baseMapper.update(null, uw);
         redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
-        return JsonResult.success("修改成功");
+        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     /**
