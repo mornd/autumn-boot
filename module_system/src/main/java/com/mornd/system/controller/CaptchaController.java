@@ -1,6 +1,5 @@
 package com.mornd.system.controller;
 
-import com.mornd.system.annotation.LogStar;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.result.JsonResult;
@@ -38,7 +37,6 @@ public class CaptchaController {
      * @param response
      * @return
      */
-    @LogStar("获取验证码")
     @ApiOperation("获取验证码")
     @GetMapping("/captcha")
     public JsonResult getCaptcha(HttpServletResponse response){

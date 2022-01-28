@@ -9,5 +9,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @dateTime 2022/1/7 - 17:58
  */
 @Mapper
-public interface LogMapper extends BaseMapper<SysLog> {
+public interface SysLogMapper extends BaseMapper<SysLog> {
 }

@@ -1,6 +1,7 @@
 package com.mornd.system.annotation;
 
 import com.mornd.system.constant.enums.LogType;
+import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.*;
 
@@ -13,8 +14,10 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface LogStar {
-    //日志主题
     String value() default "";
+    //主题
+    @AliasFor("value")
+    String title() default "";
     //日志操作类型
-    LogType BusinessType() default LogType.SERVICE;
+    LogType BusinessType() default LogType.OTHER;
 }

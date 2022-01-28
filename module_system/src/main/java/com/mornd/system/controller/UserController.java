@@ -2,6 +2,7 @@ package com.mornd.system.controller;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.mornd.system.annotation.LogStar;
 import com.mornd.system.entity.dto.ChangePwdDTO;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.SysUser;
@@ -37,7 +38,7 @@ public class UserController {
     private UserService userService;
     @Resource 
     private RoleService roleService;
-
+    
     @ApiOperation("获取当前登录用户信息")
     @GetMapping("/getLoginUser")
     public JsonResult getUserInfo(){
@@ -51,48 +52,56 @@ public class UserController {
         return JsonResult.successData(matches);
     }
 
+    @LogStar("修改密码")
     @ApiOperation("修改密码")
     @PostMapping("/changePwd")
     public JsonResult changePwd(@RequestBody @Validated ChangePwdDTO pwd) {
         return userService.changePwd(SecretUtil.desEncrypt(pwd.getOldPwd()), SecretUtil.desEncrypt(pwd.getNewPwd()));
     }
     
+    @LogStar(value = "获取用户列表")
     @ApiOperation("获取用户表格数据")
     @GetMapping
     public JsonResult pageList(@Validated(SelectValidGroup.class) SysUserVO user) {
         return userService.pageList(user);
     }
     
+    @LogStar("新增用户")
     @ApiOperation("新增")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysUserVO user) {
         return userService.insert(user);
     }
     
+    @LogStar("管理员修改用户")
     @ApiOperation("修改")
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
         return userService.update(user);
     }
 
+    @LogStar("用户修改个人信息")
     @ApiOperation("用户个人修改信息")
     @PutMapping("/userUpdate")
     public JsonResult userUpdate(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
         return userService.userUpdate(user);
     }
 
+    @LogStar("修改头像")
     @ApiOperation("用户修改头像")
     @PutMapping("/avatar")
     public JsonResult updateAvatar(@RequestBody @Validated(ValidGroupA.class) SysUserVO user) {
         return userService.updateAvatar(user);
     }
-    
+
+    @LogStar("删除用户")
     @ApiOperation("删除")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id) {
         return userService.delete(id);
     }
 
+    @LogStar("修改用户状态")
     @ApiOperation("更改状态")
     @GetMapping("/changeState")
     public JsonResult changeStatus(@NotBlank(message = "id不能为空") String id,

@@ -1,6 +1,8 @@
 package com.mornd.system.controller;
 
+import com.mornd.system.annotation.LogStar;
 import com.mornd.system.constant.GlobalConst;
+import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.PermissionService;
@@ -28,12 +30,14 @@ public class PermissionController {
     @Resource
     private PermissionService permissionService;
 
+    @LogStar("获取左侧菜单树")
     @ApiOperation("获取当前登录用户左侧菜单树(包含启用、禁用状态)")
     @GetMapping("/leftTree")
     public JsonResult getLeftTree(){
         return JsonResult.successData(permissionService.leftTree());
     }
 
+    @LogStar("获取菜单列表")
     @ApiOperation("获取菜单管理的菜单表格")
     @GetMapping("/tableTree")
     public JsonResult tableTree(){
@@ -77,6 +81,7 @@ public class PermissionController {
         return JsonResult.successData(permissionService.queryHasChildren(id));
     }
 
+    @LogStar("更改菜单状态")
     @ApiOperation("更改状态")
     @GetMapping("/changeState")
     public JsonResult changeStatus(@NotBlank(message = "id不能为空") String id, 
@@ -84,18 +89,21 @@ public class PermissionController {
         return permissionService.changeStatus(id, state);
     }
 
+    @LogStar("新增菜单")
     @ApiOperation("新增菜单")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysPermission sysPermission) {
         return permissionService.insert(sysPermission);
     }
 
+    @LogStar("编辑菜单")
     @ApiOperation("编辑菜单")
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysPermission sysPermission) {
         return permissionService.update(sysPermission);
     }
 
+    @LogStar("删除菜单")
     @ApiOperation("删除菜单")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id){

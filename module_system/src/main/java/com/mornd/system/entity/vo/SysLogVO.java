@@ -1,21 +1,17 @@
 package com.mornd.system.entity.vo;
 
-import com.mornd.system.entity.po.SysRole;
+import com.mornd.system.entity.po.SysLog;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotNull;
-import java.util.Set;
-
 /**
  * @author mornd
- * @dateTime 2022/1/5 - 9:49
+ * @dateTime 2022/1/28 - 16:09
  */
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SysRoleVO extends SysRole {
-    Set<String> perIds;
+public class SysLogVO extends SysLog {
     private Integer pageNo;
     private Integer pageSize;
 }

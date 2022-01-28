@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.mornd.system.annotation.LogStar;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.UserService;
@@ -38,6 +39,7 @@ public class UploadController {
      * @return
      * @throws IOException
      */
+    @LogStar("上传头像")
     @PostMapping("/avatar")
     public JsonResult upload(@RequestBody MultipartFile file, HttpServletRequest request) throws IOException {
         if(file == null) return JsonResult.failure("文件为空");
