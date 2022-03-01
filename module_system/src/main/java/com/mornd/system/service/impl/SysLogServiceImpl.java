@@ -24,12 +24,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> implements SysLogService {
-
+    
     @Override
     public JsonResult pageList(SysLogVO log) {
         IPage<SysLog> page = new Page<>(log.getPageNo(), log.getPageSize());
         LambdaQueryWrapper<SysLog> qw = Wrappers.lambdaQuery();
-        qw.like(StringUtils.isNotBlank(log.getTitle()), SysLog::getTitle, log.getTitle());
+        qw.like(StringUtils.isNotBlank(log.getUsername()), SysLog::getUsername, log.getUsername());
+        if (log.getVisitDateScope() != null && log.getVisitDateScope().length == 2) {
+            qw.between(SysLog::getVisitDate, log.getVisitDateScope()[0], log.getVisitDateScope()[1]);    
+        }
+        qw.eq(log.getType() != null, SysLog::getType, log.getType());
         qw.orderByDesc(SysLog::getVisitDate);
         page = baseMapper.selectPage(page, qw);
         return JsonResult.successData(page);

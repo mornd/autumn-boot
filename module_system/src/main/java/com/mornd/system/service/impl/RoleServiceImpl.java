@@ -57,7 +57,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         return baseMapper.findByUserId(userId, enabled);
     }
 
-    /**
+    /** 
      * 工具方法：获取当前用户的所有可用权限
      * @return
      */

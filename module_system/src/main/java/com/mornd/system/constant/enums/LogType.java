@@ -5,7 +5,7 @@ public enum LogType {
     LOGOUT(2, "退出"),
     OTHER(3, "其他");
 
-    LogType(Integer code, String type) {
+    private LogType(Integer code, String type) {
         this.code = code;
         this.type = type;
     }

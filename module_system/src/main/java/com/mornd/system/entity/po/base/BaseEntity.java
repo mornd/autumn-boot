@@ -40,7 +40,8 @@ public class BaseEntity implements Serializable {
         /**
          * 删除字段枚举
          */
-        DELETED(EntityConst.DELETED, "删除"), NORMAL(EntityConst.NORMAL, "正常");
+        DELETED(EntityConst.DELETED, "删除"), 
+        NORMAL(EntityConst.NORMAL, "正常");
         @Getter
         private final Integer code;
         @Getter

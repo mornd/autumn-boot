@@ -32,12 +32,12 @@ public class SysLog implements Serializable {
     private Integer type;
     @ApiModelProperty("参数")
     private String params;
-    @ApiModelProperty("ip")
+    @ApiModelProperty("访问ip")
     private String ip;
-    @ApiModelProperty("url")
+    @ApiModelProperty("访问url")
     private String url;
     @ApiModelProperty("操作系统浏览器")
     private String osAndBrowser;
-    @ApiModelProperty("结果")
+    @ApiModelProperty("访问结果")
     private String result;
 }
