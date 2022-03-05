@@ -38,4 +38,15 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
         page = baseMapper.selectPage(page, qw);
         return JsonResult.successData(page);
     }
+
+    @Override
+    public boolean clearAll() {
+        try {
+            baseMapper.clearAll();
+            return true;
+        } catch (Exception e) {
+            log.error("清空表操作失败：" + e.getMessage());
+            return false;
+        }
+    }
 }

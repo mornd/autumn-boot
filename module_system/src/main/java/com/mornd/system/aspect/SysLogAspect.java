@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysLog;
 import com.mornd.system.service.SysLogService;
 import com.mornd.system.utils.NetUtil;
@@ -60,9 +61,15 @@ public class SysLogAspect {
         long time = 0;
         Throwable throwable = null;
         Object result = null;
+        String username = null;
         try {
             long beginTime = System.currentTimeMillis();
             //执行目标方法
+            JoinPoint jp = pjp;
+            //执行退出方法须在退出前获取用户信息，否则空指针异常
+            if("userLogout".equals(jp.getSignature().getName())) {
+                username = SecurityUtil.getLoginUsername();
+            }
             result = pjp.proceed();
             time = System.currentTimeMillis() - beginTime;
         } catch (Throwable t) {
@@ -70,12 +77,12 @@ public class SysLogAspect {
             throw (throwable = t);
         } finally {
             //处理日志
-            handleSysLog(pjp, throwable, time, result);
+            handleSysLog(pjp, username, time, throwable, result);
         }
         return result;
     }
 
-    private void handleSysLog(final JoinPoint joinPoint, final Throwable throwable, long processingTime, Object result) {
+    private void handleSysLog(final JoinPoint joinPoint, String username, long processingTime, final Throwable throwable, Object result) {
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;
         Method method = methodSignature.getMethod();
@@ -83,9 +90,17 @@ public class SysLogAspect {
         LogStar logStar = method.getAnnotation(LogStar.class);
         //标题
         String title = logStar.value();
+        LogType logType = logStar.BusinessType();
+        if(LogType.LOGOUT != logType) {
+            try {
+                username = SecurityUtil.getLoginUsername();
+            } catch (Exception e){
+                username = "";
+            }
+        }
         String url = request.getRequestURI();
         String ip = NetUtil.getIpAddress(request);
-
+            
         //类名
         String declaringTypeName = signature.getDeclaringTypeName();
         //方法名
@@ -105,7 +120,7 @@ public class SysLogAspect {
         sysLog.setTitle(title);
         //日志类型
         sysLog.setType(logStar.BusinessType().getCode());
-        sysLog.setUsername(SecurityUtil.getLoginUsername());
+        sysLog.setUsername(username);
         sysLog.setMethodName(methodName);
         sysLog.setUrl(url);
         sysLog.setIp(ip);
@@ -120,6 +135,11 @@ public class SysLogAspect {
         if (result != null) {
             String res = JSON.toJSONString(result);
             sysLog.setResult(res.length() > 500 ? res.substring(0, 500) + "——内容过长，以下内容已经忽略..." : res);
+        }
+        //异常信息
+        if(throwable != null) {
+            String message = throwable.getMessage();
+            sysLog.setExceptionMsg(message.length() > 500 ? message.substring(0, 500) + "——内容过长，以下内容已经忽略..." : message);
         }
         //访问时间
         sysLog.setVisitDate(new Date());

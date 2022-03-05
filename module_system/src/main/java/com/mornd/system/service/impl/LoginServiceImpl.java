@@ -63,14 +63,17 @@ public class LoginServiceImpl implements LoginService {
         if(!captcha.equalsIgnoreCase(loginUserDTO.getCode().trim())){
             return JsonResult.failure("验证码错误");
         }
+        //将密码重新赋新值，防止日志切面读取密码解密后的值
+        String inputPwd;
         if(loginUserDTO.getDesEncrypt() != null && loginUserDTO.getDesEncrypt()) {
             //密码解密
-            String inputPwd = SecretUtil.desEncrypt(loginUserDTO.getPassword());
-            loginUserDTO.setPassword(inputPwd);
+            inputPwd = SecretUtil.desEncrypt(loginUserDTO.getPassword());
+        } else {
+            inputPwd = loginUserDTO.getPassword();
         }
         
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserDTO.getUsername());
-        if(userDetails == null || !passwordEncoder.matches(loginUserDTO.getPassword(), userDetails.getPassword())){
+        if(userDetails == null || !passwordEncoder.matches(inputPwd, userDetails.getPassword())){
             log.info("用户{}，登录失败：{}", loginUserDTO.getUsername(), ResultMessage.USER_NOTFOUND);
             return JsonResult.failure(ResultMessage.USER_NOTFOUND);
         }

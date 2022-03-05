@@ -38,6 +38,10 @@ public class SysLog implements Serializable {
     private String url;
     @ApiModelProperty("操作系统浏览器")
     private String osAndBrowser;
+    
+    @ApiModelProperty("异常信息")
+    private String exceptionMsg;
+    
     @ApiModelProperty("访问结果")
     private String result;
 }
