@@ -61,7 +61,7 @@ public class TokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
+    
     /**
      * 获取 token 荷载中的主题信息
      * @param token
@@ -101,11 +101,11 @@ public class TokenProvider {
     }
 
     /**
-     * 判断token是否失效
+     * 判断token是否过期
      * @param token
      * @return
      */
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         Date expireDate = getExpiredDateFromToken(token);
         return expireDate.before(new Date());
     }
@@ -115,7 +115,7 @@ public class TokenProvider {
      * @param token
      * @return
      */
-    private Date getExpiredDateFromToken(String token) {
+    public Date getExpiredDateFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.getExpiration();
     }

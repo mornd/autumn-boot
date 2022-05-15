@@ -88,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
         redisUtil.setValue(tokenProperties.getOnlineUserKey() + token,
                 principal,
                 tokenProperties.getExpiration(),
-                TimeUnit.MINUTES);
+                TimeUnit.MILLISECONDS);
         // 返回结果
         Map<String,Object> tokenMap = new HashMap<String, Object>(2) {{
             put("tokenHead", tokenProperties.getTokenHead());

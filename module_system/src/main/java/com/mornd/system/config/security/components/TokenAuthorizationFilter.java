@@ -46,14 +46,19 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authenticationToken
                             = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    // todo token 续期
                     if(tokenProperties.getIsRenewal()) {
                         Claims claims = tokenProvider.getClaims(token);
                         // 获取 token 生成时间
-                        long tokenExpiration = claims.getIssuedAt().getTime();
+                        long tokenIssued = claims.getIssuedAt().getTime();
+                        // 续期过期时间
                         long renewalExpiration = tokenProperties.getRenewalExpiration();
-                        if(System.currentTimeMillis() < (tokenExpiration + renewalExpiration)) {
-                            // todo token 续期
-                            redisUtil.expire(tokenProperties.getOnlineUserKey() + token, tokenProperties.getExpiration(), TimeUnit.MINUTES);    
+                        // 系统当前时间 < (token生成时间 + 续期过期时间 - token过期时间) = 是否继续续期token
+                        //终止续期时间
+                        long terminateRefreshTime = (tokenIssued + renewalExpiration - tokenProperties.getExpiration());
+                        if(System.currentTimeMillis() < terminateRefreshTime) {
+                            // 刷新 token 的过期时间
+                            redisUtil.expire(tokenProperties.getOnlineUserKey() + token, tokenProperties.getExpiration(), TimeUnit.MILLISECONDS);    
                         }
                     }
                 }
