@@ -75,6 +75,10 @@ public class JsonResult<T> implements Serializable {
         return failure(JsonResultCode.COMMON_EXCEPTION, message, data);
     }
 
+    public static JsonResult<Object> failure(Integer code, String message){
+        return failure(code, message, null);
+    }
+    
     public static JsonResult<Object> failure(Integer code, String message, Object data){
         JsonResult<Object> jsonResult = new JsonResult<>();
         jsonResult.setSuccess(false);

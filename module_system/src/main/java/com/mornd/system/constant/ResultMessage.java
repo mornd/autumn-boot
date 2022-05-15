@@ -6,7 +6,6 @@ package com.mornd.system.constant;
  * 返回的消息
  */
 public interface ResultMessage {
-    String USER_NOTFOUND = "账号或密码错误";
     String CRUD_SUPERADMIN = "超级管理员不可操作";
     
     String INSERT_MSG = "添加成功";
@@ -16,5 +15,8 @@ public interface ResultMessage {
     String INSERT_FAILURE_MSG = "添加失败，请重试";
     String UPDATE_FAILURE_MSG = "修改失败，请重试";
     String DELETE_FAILURE_MSG = "删除删除，请重试";
-
+    
+    String NOT_LOGGED = "尚未登录，请先登录";
+    String NOT_AUTH = "权限不足";
+    
 }

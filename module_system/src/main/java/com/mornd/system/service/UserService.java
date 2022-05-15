@@ -11,8 +11,6 @@ import com.mornd.system.entity.vo.SysUserVO;
  * @dateTime 2021/8/10 - 15:55
  */
 public interface UserService extends IService<SysUser> {
-    SysUser findByUsername(String username);
-
     boolean verifyCurrentPassword(String oldPwd);
 
     JsonResult changePwd(String oldPwd, String newPwd);

@@ -48,7 +48,7 @@ public class SysLogAspect {
     /**
      * 切入点方法
      */
-    @Pointcut("@annotation(com.mornd.system.annotation.LogStar)")
+    @Pointcut("@annotation(com.mornd.system.annotation.LogStar))")
     public void  pc() {
     }
 

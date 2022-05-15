@@ -1,23 +1,22 @@
-package com.mornd.system.exception;
+package com.mornd.system.exception.handler;
 
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.constant.JsonResultCode;
+import com.mornd.system.exception.BadRequestException;
 import io.lettuce.core.RedisCommandTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.QueryTimeoutException;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.nio.file.AccessDeniedException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -25,20 +24,11 @@ import java.util.Set;
 /**
  * @author mornd
  * @dateTime 2021/8/12 - 10:41
+ * 全局异常处理类
  */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ExceptionHandler(AccessDeniedException.class)
-    public JsonResult exception(AccessDeniedException e){
-        e.printStackTrace();
-        log.info("权限不足");
-        JsonResult<Object> failure = JsonResult.failure("权限不足");
-        failure.setCode(403);
-        return failure;
-    }
 
     @ExceptionHandler(DataAccessException.class)
     public JsonResult exception(DataAccessException e){
@@ -72,22 +62,37 @@ public class GlobalExceptionHandler {
         return JsonResult.failure(e.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(RuntimeException.class)
-    public JsonResult exception(RuntimeException e){
-        e.printStackTrace();
-        log.info("系统异常：{}",e.getMessage());
-        return JsonResult.failure("系统运行时异常：" + e.toString());
+    /**
+     * 用户用户名不存在或密码正确抛出 BadCredentialsException 异常
+     */
+    @ExceptionHandler(BadCredentialsException.class)
+    public JsonResult badCredentialsException(BadCredentialsException e){
+        log.error(e.getMessage());
+        return JsonResult.failure(e.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    /**
+     * 处理自定义异常
+     */
+    @ExceptionHandler(value = BadRequestException.class)
+    public JsonResult badRequestException(BadRequestException e) {
+        // 打印堆栈信息
+        log.error(e.getMessage());
+        return JsonResult.failure(e.getMessage());
+    }
+
+    /**
+     * 处理所有的未知异常
+     * @param e
+     * @return
+     */
     @ExceptionHandler(Throwable.class)
     public JsonResult exception(Throwable e){
         e.printStackTrace();
-        log.info("系统异常2：{}",e.getMessage());
-        return JsonResult.failure("系统异常2：" + e.toString());
+        log.error(e.getMessage());
+        return JsonResult.failure(e.getMessage());
     }
-
+    
     /**
      * 实体Bean校验
      * @param exception

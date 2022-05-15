@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class QiniuConfig {
-
+    
     @Bean
     public UploadManager getUploadManager() {
         //华南地区就选region2

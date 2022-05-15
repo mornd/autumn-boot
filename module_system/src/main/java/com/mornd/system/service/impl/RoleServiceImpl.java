@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mornd.system.constant.RedisKey;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.constant.enums.EnumHiddenType;
@@ -21,6 +20,7 @@ import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.RoleMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
 import com.mornd.system.service.RoleService;
+import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecurityUtil;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     @Resource
     private UserWithRoleMapper userWithRoleMapper;
     @Resource
-    private RedisUtil redisUtil;
+    private AuthUtil authUtil;
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
     private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
@@ -111,7 +111,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         role.setCreateBy(SecurityUtil.getLoginUserId());
         role.setGmtCreate(new Date());
         baseMapper.insert(role);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
         return JsonResult.success();
     }
 
@@ -129,7 +128,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         role.setEnabled(null);
         role.setGmtModified(new Date());
         baseMapper.updateById(role);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 
@@ -150,7 +149,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         baseMapper.deleteById(id);
         userWithRoleMapper.deleteById(id);
         roleWithPermissionMapper.deleteById(id);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 
@@ -188,7 +187,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
                 roleWithPermissionMapper.insert(rwp);
             }    
         }
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 

@@ -19,7 +19,7 @@ public class LoginUserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "登录名不能为空")
-    @Size(min = 3, max = 20, message = "账号长度须在3-20之间")
+    @Size(min = 1, max = 20, message = "账号长度须在1-20之间")
     @ApiModelProperty(value = "登录名",required = true)
     private String username;
 

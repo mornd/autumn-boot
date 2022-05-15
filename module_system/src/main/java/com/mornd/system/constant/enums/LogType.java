@@ -1,5 +1,8 @@
 package com.mornd.system.constant.enums;
 
+/**
+ * 日志类型枚举
+ */
 public enum LogType {
     LOGIN(1, "登录"),
     LOGOUT(2, "退出"),

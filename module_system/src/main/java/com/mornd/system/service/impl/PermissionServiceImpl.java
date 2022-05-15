@@ -19,6 +19,7 @@ import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.PermissionMapper;
 import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
+import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.MenuUtil;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecurityUtil;
@@ -44,7 +45,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     @Resource
     private RoleWithPermissionMapper roleWithPermissionMapper;
     @Resource
-    private RedisUtil redisUtil;
+    private AuthUtil authUtil;
     
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
     private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
@@ -225,7 +226,6 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         rw.setGmtCreate(new Date());
         roleWithPermissionMapper.insert(rw);
                 
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
         return JsonResult.success();
     }
 
@@ -272,7 +272,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         sysPermission.setGmtModified(new Date());
         sysPermission.setModifiedBy(SecurityUtil.getLoginUserId());
         baseMapper.updateById(sysPermission);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 
@@ -311,7 +311,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         per.setId(id);
         per.setEnabled(state);
         baseMapper.updateById(per);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
@@ -391,7 +391,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         LambdaQueryWrapper<RoleWithPermission> roleWithPerQw = Wrappers.lambdaQuery();
         roleWithPerQw.eq(RoleWithPermission::getPerId, id);
         roleWithPermissionMapper.delete(roleWithPerQw);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 }

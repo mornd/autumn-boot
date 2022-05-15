@@ -1,0 +1,122 @@
+package com.mornd.system.config.security.components;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * @author mornd
+ * @dateTime 2022/5/2 - 17:49
+ * 用于生成、校验、解析 token
+ */
+@Slf4j
+@Component
+public class TokenProvider {
+    @Resource
+    private TokenProperties tokenProperties;
+
+    /**
+     * 通过当前登录的用户信息生成 token
+     * @param userDetails
+     * @return
+     */
+    public String generateToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .setId(UUID.randomUUID().toString())
+                .setSubject(userDetails.getUsername()) // 设置主题
+                .setIssuer("mornd")
+                .setIssuedAt(new Date())
+                .setExpiration(generateExpirationDate()) // 过期时间
+                .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret())
+                .compact();
+    }
+
+    /**
+     * 生成 token 失效时间
+     * 单位：分钟
+     * @return
+     */
+    private Date generateExpirationDate() {
+        return new Date(System.currentTimeMillis() + tokenProperties.getExpiration());
+    }
+
+    /**
+     * 从 token 中获取负载
+     * @param token
+     * @return
+     */
+    public Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(tokenProperties.getSecret())
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    /**
+     * 获取 token 荷载中的主题信息
+     * @param token
+     * @return
+     */
+    public String getSubject(String token) {
+        Claims claims = getClaims(token);
+        return claims.getSubject();
+    }
+
+    /**
+     * 从 request 域中解析出token
+     * @param request
+     * @return
+     */
+    public String searchToken(HttpServletRequest request) {
+        String bearerToken = null;
+        String header = request.getHeader(tokenProperties.getTokenHeader());
+        if(StringUtils.hasText(header) && header.startsWith(tokenProperties.getTokenHead())) {
+            bearerToken = header.replace(tokenProperties.getTokenHead(), "");
+        }
+        return bearerToken;
+    }
+
+    /**
+     * 添加自定义荷载信息生成 token
+     * @param claim
+     * @return
+     */
+    public String generateToken(Map<String,Object> claim) {
+        return Jwts.builder()
+                // 使用 setClaims() 会替换掉之前的荷载信息， addClaims() 则是追加荷载信息
+                .addClaims(claim)
+                .setExpiration(generateExpirationDate())
+                .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret())
+                .compact();
+    }
+
+    /**
+     * 判断token是否失效
+     * @param token
+     * @return
+     */
+    private boolean isTokenExpired(String token) {
+        Date expireDate = getExpiredDateFromToken(token);
+        return expireDate.before(new Date());
+    }
+
+    /**
+     * 从token中获取过期时间
+     * @param token
+     * @return
+     */
+    private Date getExpiredDateFromToken(String token) {
+        Claims claims = getClaims(token);
+        return claims.getExpiration();
+    }
+}

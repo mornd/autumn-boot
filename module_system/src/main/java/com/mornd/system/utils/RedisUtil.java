@@ -44,12 +44,7 @@ public class RedisUtil {
      * @return
      */
     public Object getValue(String key){
-        try {
-            return redisTemplate.opsForValue().get(key);
-        } catch (Throwable e) {
-            e.printStackTrace();
-            return null;
-        }
+        return redisTemplate.opsForValue().get(key);
     }
 
     /**
@@ -63,11 +58,7 @@ public class RedisUtil {
      */
     public boolean setValue(String key, Object value, long time, TimeUnit timeUnit){
         try {
-            if(time > 0){
-                redisTemplate.opsForValue().set(key, value, time, timeUnit);
-            }else{
-                setValue(key, value);
-            }
+            redisTemplate.opsForValue().set(key, value, time, timeUnit);
             return true;
         } catch (Throwable e) {
             e.printStackTrace();
@@ -147,6 +138,25 @@ public class RedisUtil {
      */
     public Set<String> keys(String pattern) {
          return redisTemplate.keys(pattern);
+    }
+
+    /**
+     * 指定缓存失效时间
+     *
+     * @param key      键
+     * @param time     时间(秒)
+     * @param timeUnit 单位
+     */
+    public boolean expire(String key, long time, TimeUnit timeUnit) {
+        try {
+            if (time > 0) {
+                redisTemplate.expire(key, time, timeUnit);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+        return true;
     }
 
 }

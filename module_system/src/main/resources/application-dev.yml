@@ -2,8 +2,11 @@ server:
   port: 1001
   servlet:
     context-path: /dataView
+    session:
+      timeout: 3m # session 3分钟后超时，不能小于1分钟
 
 spring:
+  author: mornd
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -98,11 +101,11 @@ spring:
     # 端口
     port: 6379
     # 数据库
-    database: 9
+    database: 0
     # 超时时间：毫秒
     timeout: 5000ms
     # 密码
-    password: 123456
+    password: 
     # 配置lettuce连接池
     lettuce:
       pool:
@@ -125,16 +128,22 @@ mybatis-plus:
     # 是 否 开 启 驼 峰 命 名 转 换
     map-underscore-to-camel-case: true
 
-# jwt属性配置
+# jwt 属性配置
 jwt:
-  # JWT存储的请求头
+  # JWT 存储的请求头
   tokenHeader: Authorization
   # JWT 加解密使用的密钥(盐)
   secret: mornd-secret
-  # JWT负载拿到开头
+  # JWT 负载拿到开头
   tokenHead: 'Bearer '
-  #JWT的超期限时间 (单位：s)
-  expiration: 1800
+  # 缓存中保存在线用户的 key
+  OnlineUserKey: 'onlineUserKey-'
+  # JWT 的超期限时间，单位毫秒
+  expiration: 1800000  # 30分钟
+  # token 是否续期（即登录后每次访问都重新生成超期限时间）
+  isRenewal: true
+  # 续期时间范围，单位毫秒
+  renewalExpiration: 259200000 # 3天
   
 # 七牛云配置  
 qiniu:

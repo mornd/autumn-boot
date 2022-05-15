@@ -1,17 +1,22 @@
 package com.mornd.system.controller;
 
+import com.mornd.system.annotation.LogStar;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
+import com.mornd.system.entity.dto.LoginUserDTO;
+import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.result.JsonResult;
+import com.mornd.system.service.AuthService;
 import com.mornd.system.utils.RedisUtil;
 import com.wf.captcha.ArithmeticCaptcha;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,15 +26,38 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author mornd
- * @dateTime 2021/8/10 - 11:33
- * 验证码加载
+ * @dateTime 2021/8/10 - 12:42
+ * 提供用户登录，退出的接口
  */
 @Slf4j
+@Api("用户认证接口")
 @RestController
-@Api("获取验证码接口")
-public class CaptchaController {
+@RequestMapping
+public class AuthController {
+    @Resource
+    private AuthService authService;
+    
     @Resource
     private RedisUtil redisUtil;
+
+    /**
+     * 用户登录
+     * @param loginUserDTO
+     * @return
+     */
+    @ApiOperation("用户登录")
+    @PostMapping("/userLogin")
+    @LogStar(value = "用户登录", BusinessType = LogType.LOGIN)
+    public JsonResult userLogin(@RequestBody @Validated LoginUserDTO loginUserDTO){
+        return authService.userLogin(loginUserDTO);
+    }
+
+    @ApiOperation("用户注销")
+    @PostMapping("/userLogout")
+    @LogStar(value = "用户注销", BusinessType = LogType.LOGOUT)
+    public JsonResult userLogout(HttpServletRequest request){
+        return authService.userLogout(request);
+    }
 
     /**
      * 获取登录验证码
@@ -58,10 +86,10 @@ public class CaptchaController {
                 GlobalConst.CAPTCHA_EXPIRATION,
                 TimeUnit.MINUTES);
 
-        Map<String, Object> resultData = new HashMap<>();
-        resultData.put("captcha", arithmeticCaptcha.toBase64());
-        resultData.put("uuid", uuid);
-
+        Map<String, Object> resultData = new HashMap<String, Object>(2) {{
+            put("captcha", arithmeticCaptcha.toBase64());
+            put("uuid", uuid);
+        }};
         //设置响应头
         response.setContentType("image/gif");
         response.setHeader("Pragma", "No-cache");

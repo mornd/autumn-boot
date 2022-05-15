@@ -25,14 +25,14 @@ public class MenuUtil {
              *        1表示放在红黑树的右边，即顺序输出
              *        0表示元素相同，仅存放第一个元素
              */
-            /*int compare = Double.compare(o1.getSort(), o2.getSort());
+            int compare = Double.compare(o1.getSort(), o2.getSort());
             if(compare == 0) {
+                // 将 title 进行字符串比较
                 return o1.getTitle().compareTo(o2.getTitle());
             } else {
                 return compare;                
-            }*/
-
-            if(o1.getSort() < o2.getSort()){
+            }
+            /*if(o1.getSort() < o2.getSort()){
                 return -1;
             }else if(o1.getSort() > o2.getSort()){
                 return 1;
@@ -42,7 +42,7 @@ public class MenuUtil {
                 //再根据id的hashCode排序
                 if(o1.getId().hashCode() < o2.getId().hashCode()) return -1;
                 else return 1;
-            }
+            }*/
         });
     }
 

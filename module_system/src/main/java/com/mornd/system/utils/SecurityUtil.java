@@ -1,7 +1,10 @@
 package com.mornd.system.utils;
 
+import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.SysUser;
+import com.mornd.system.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -18,13 +21,14 @@ public class SecurityUtil {
      */
     public static SysUser getLoginUser(){
         try {
-            SysUser principal = (SysUser) SecurityContextHolder.getContext()
+            AuthUser principal = (AuthUser) SecurityContextHolder.getContext()
                     .getAuthentication().getPrincipal();
-            principal.setPassword(null);
-            return principal;
+            SysUser sysUser = principal.getSysUser();
+            sysUser.setPassword(null);
+            return sysUser;
         } catch (Exception e) {
             log.error("获取当前登录用户信息发生异常！{}", e.getMessage());
-            return null;
+            throw new BadRequestException(HttpStatus.UNAUTHORIZED, "找不到当前登录的信息");
         }
     }
 
@@ -48,9 +52,16 @@ public class SecurityUtil {
      * 获取当前用户的加密形式密码
      * @return
      */
-    public static String getPassword() {
-        SysUser principal = (SysUser) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
-        return principal.getPassword();
+    @Deprecated
+    public static String getEncryptionPassword() {
+        try {
+            AuthUser principal = (AuthUser) SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+            SysUser sysUser = principal.getSysUser();
+            return sysUser.getPassword();
+        } catch (Exception e) {
+            log.error("获取当前登录用户信息发生异常！{}", e.getMessage());
+            throw new BadRequestException(HttpStatus.UNAUTHORIZED, "找不到当前登录的信息");
+        }
     }
 }

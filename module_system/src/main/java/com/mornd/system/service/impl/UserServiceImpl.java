@@ -8,11 +8,8 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mornd.system.constant.RedisKey;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
-import com.mornd.system.entity.po.SysPermission;
-import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.UserWithRole;
@@ -20,24 +17,17 @@ import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
 import com.mornd.system.mapper.UserMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
-import com.mornd.system.service.PermissionService;
-import com.mornd.system.service.RoleService;
 import com.mornd.system.service.UserService;
-import com.mornd.system.utils.RedisUtil;
+import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.SecurityUtil;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author mornd
@@ -47,53 +37,13 @@ import java.util.concurrent.TimeUnit;
 @Transactional
 public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements UserService {
     @Resource
-    private RoleService roleService;
-    @Resource
-    private PermissionService permissionService;
-    @Resource
     private UserWithRoleMapper userWithRoleMapper;
     @Resource
-    private RedisUtil redisUtil;
-    @Value("${jwt.expiration}")
-    private long expiration;
+    private AuthUtil authUtil;
     @Resource
     private BCryptPasswordEncoder passwordEncoder;
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
     private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
-
-    /**
-     * 根据用户username查询所属用户、角色、权限信息
-     * @param username
-     * @return
-     */
-    @Override
-    public SysUser findByUsername(String username) {
-        SysUser sysUser;
-        if(redisUtil.hasKey(RedisKey.CURRENT_USER_INFO_KEY + username)){
-            sysUser = (SysUser) redisUtil.getValue(RedisKey.CURRENT_USER_INFO_KEY + username);
-        }else{
-            LambdaQueryWrapper<SysUser> queryWrapper = Wrappers.lambdaQuery();
-            queryWrapper.eq(SysUser::getLoginName,username).last("LIMIT 1");
-            sysUser = baseMapper.selectOne(queryWrapper);
-            if(sysUser == null) {
-                throw new UsernameNotFoundException(ResultMessage.USER_NOTFOUND);
-            } else {
-                //设置角色、权限
-                Set<SysRole> roles = roleService.findByUserId(sysUser.getId());
-                if(ObjectUtils.isNotEmpty(roles)) {
-                    sysUser.setRoles(roles);
-                    List<String> ids = new ArrayList<>();
-                    roles.forEach(i -> ids.add(i.getId()));
-                    Set<SysPermission> pers = permissionService.getPersByRoleIds(ids, enabled);
-                    sysUser.setPermissions(pers);
-                }
-                redisUtil.setValue(RedisKey.CURRENT_USER_INFO_KEY + username,
-                        sysUser,
-                        expiration, TimeUnit.SECONDS);
-            }
-        }
-        return sysUser;
-    }
 
     /**
      * 验证当前密码
@@ -103,7 +53,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     @Override
     public boolean verifyCurrentPassword(String oldPwd) {
         //matches() => 参数1：明文，参数2：密文
-        return passwordEncoder.matches(oldPwd, SecurityUtil.getPassword());
+        return passwordEncoder.matches(oldPwd, SecurityUtil.getEncryptionPassword());
     }
 
     /**
@@ -120,7 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             //加密新密码
             user.setPassword(passwordEncoder.encode(newPwd));
             baseMapper.updateById(user);
-            redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+            authUtil.delCacheLoginUser();
             return JsonResult.success(ResultMessage.UPDATE_MSG);
         }
         return JsonResult.failure("原密码不匹配");
@@ -165,7 +115,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
         return JsonResult.success("用户添加成功，用户的密码默认为：" + SecurityConst.USER_DEFAULT_PWD);
     }
 
@@ -197,7 +146,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 
@@ -221,7 +170,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         sysUser.setModifiedBy(SecurityUtil.getLoginUserId());
         sysUser.setGmtModified(new Date());
         baseMapper.updateById(sysUser);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success(ResultMessage.UPDATE_MSG, repeat);
     }
     
@@ -236,7 +185,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         uw.eq(SysUser::getId, user.getId());
         uw.set(SysUser::getAvatar, user.getAvatar());
         baseMapper.update(null, uw);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success("头像修改成功");
     }
 
@@ -253,7 +202,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         userWithRoleMapper.delete(qw);
         //执行删除
         baseMapper.deleteById(id);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 
@@ -273,7 +222,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         uw.set(SysUser::getStatus, state);
         uw.eq(SysUser::getId, id);
         baseMapper.update(null, uw);
-        redisUtil.delete(RedisKey.CURRENT_USER_INFO_KEY + SecurityUtil.getLoginUsername());
+        authUtil.delCacheLoginUser();
         return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 

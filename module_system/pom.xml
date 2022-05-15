@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <!--继承父模块-->
+        <!-- 继承父模块 -->
         <groupId>com.mornd</groupId>
         <artifactId>autumn_boot</artifactId>
         <version>0.0.1-SNAPSHOT</version>
@@ -20,7 +20,7 @@
     </properties>
 
     <dependencies>
-        <!--引入其他的自定义模块-->
+        <!-- 引入其他的自定义模块 -->
         <!--<dependency>
             <groupId>com.mornd</groupId>
             <artifactId>module_book</artifactId>
@@ -33,28 +33,28 @@
             <optional>true</optional>
         </dependency>
 
-        <!--工具包-->
+        <!-- 工具包 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>5.7.8</version>
         </dependency>
 
-        <!--swagger2文档-->
+        <!-- swagger2 文档 -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>2.9.2</version>
         </dependency>
 
-        <!--swagger美化ui-->
+        <!-- swagger 美化 ui -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>swagger-bootstrap-ui</artifactId>
             <version>1.9.6</version>
         </dependency>
 
-        <!--密码解密-->
+        <!-- 用户密码解密 -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
