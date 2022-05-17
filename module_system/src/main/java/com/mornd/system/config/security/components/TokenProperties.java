@@ -29,9 +29,4 @@ public class TokenProperties {
     private Boolean isRenewal;
     // 续期时间范围，单位毫秒
     private Long renewalExpiration;
-
-    // 校验 token 时会用到
-    public String getTokenStartWith() {
-        return this.tokenHead + " ";
-    }
 }

@@ -128,7 +128,7 @@ mybatis-plus:
     # 是 否 开 启 驼 峰 命 名 转 换
     map-underscore-to-camel-case: true
 
-# jwt 属性配置
+# JWT 属性配置
 jwt:
   # JWT 存储的请求头
   tokenHeader: Authorization
@@ -147,9 +147,9 @@ jwt:
   
 # 七牛云配置  
 qiniu:
-  #密钥AK
+  #密钥 AK
   accessKey: xxx
-  #密钥SK
+  #密钥 SK
   secretKey: xxx
   #存储的空间
   bucket: xxx

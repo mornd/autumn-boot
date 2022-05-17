@@ -7,24 +7,27 @@ package com.mornd.system.constant;
 public interface SecurityConst {
     //springSecurity的URL白名单
     String[] NONE_SECURITY_URL_PATTERNS = {
-        //图标
-        "favicon.ico",
-        //swagger相关
-        "/doc.html",
-        "/webjars/**",
-        "/swagger-resources/**",
-        "/v2/api-docs",
-        "/v2/api-docs-ext",
-
-        //druid数据源监控页面
-        "/druid/**",
-
-        //后台请求url
-        "/userLogin",
-        "/captcha",
-        "/css/**",
-        "/js/**",
-        "/index.html",
+            //图标
+            "favicon.ico",
+            //swagger相关
+            "/doc.html",
+            "/webjars/**",
+            "/swagger-resources/**",
+            "/v2/api-docs",
+            "/v2/api-docs-ext",
+    
+            //druid数据源监控页面
+            "/druid/**",
+            
+            // websocket 连接
+            "/ws/**",
+    
+            //后台请求url
+            "/userLogin",
+            "/captcha",
+            "/css/**",
+            "/js/**",
+            "/index.html",
     };
 
     //系统角色前缀

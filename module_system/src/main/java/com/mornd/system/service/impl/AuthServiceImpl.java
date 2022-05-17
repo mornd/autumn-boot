@@ -9,7 +9,6 @@ import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecretUtil;
-import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -43,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private TokenProperties tokenProperties;
     @Resource
     private RedisUtil redisUtil;
-
+    
     /**
      * 处理用户登录逻辑
      * @param loginUserDTO
@@ -76,10 +75,15 @@ public class AuthServiceImpl implements AuthService {
         // 执行登录逻辑
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(loginUserDTO.getUsername(), inputPwd);
-        Authentication authenticate
-                = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        Authentication authenticate = 
+                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         AuthUser principal = (AuthUser) authenticate.getPrincipal();
+        
+        // todo delete
+        principal.getSysUser().setRoles(null);
+        principal.getSysUser().setPermissions(null);
+        
         // 隐藏密码
         principal.getSysUser().setPassword(null);
         // 生成 token

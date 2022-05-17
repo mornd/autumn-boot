@@ -52,12 +52,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // 配置白名单
                 .antMatchers(SecurityConst.NONE_SECURITY_URL_PATTERNS).permitAll()
-                // 其他请求都需要认证
+                // 除了白名单，其他请求都需要认证
                 .anyRequest().authenticated()
                 .and()
                 // 配置 token 过滤器，在用户名密码校验之前校验 token
                 .addFilterBefore(tokenAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
-                // 没有登录，没有权限访问的异常处理
+                // 添加 没有登录，没有权限访问的异常处理
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)

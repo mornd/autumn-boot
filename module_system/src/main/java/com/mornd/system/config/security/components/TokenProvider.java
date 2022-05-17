@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author mornd
@@ -73,7 +74,7 @@ public class TokenProvider {
     }
 
     /**
-     * 从 request 域中解析出token
+     * 从 request 域中解析出 token
      * @param request
      * @return
      */
@@ -118,5 +119,21 @@ public class TokenProvider {
     public Date getExpiredDateFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.getExpiration();
+    }
+
+    /**
+     * 获取 token 终止续期时间
+     * @param token 令牌
+     * @return 终止续期时间 ms
+     */
+    public long getTerminateRenewalTime(String token) {
+        Claims claims = getClaims(token);
+        // 获取 token 生成时间
+        long tokenIssued = claims.getIssuedAt().getTime();
+        // 续期过期时间
+        long renewalExpiration = tokenProperties.getRenewalExpiration();
+        // 系统当前时间 < (token生成时间 + 续期过期时间 - token过期时间) = 是否继续续期token
+        //终止续期时间
+        return  (tokenIssued + renewalExpiration - tokenProperties.getExpiration());
     }
 }

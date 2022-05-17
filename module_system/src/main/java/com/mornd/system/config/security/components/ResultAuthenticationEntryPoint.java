@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * @author mornd
  * @dateTime 2022/5/2 - 17:07
- * 当用户未登录、未携带token或token过期情况下访问资源时的处理 401
+ * 当用户未登录、未携带 token 或 token 过期情况下访问资源时的处理 401
  */
 @Component
 public class ResultAuthenticationEntryPoint implements AuthenticationEntryPoint {
