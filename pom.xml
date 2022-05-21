@@ -28,6 +28,8 @@
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- 打包跳过测试代码 -->
+        <skipTests>true</skipTests>
     </properties>
 
     <dependencies>
@@ -58,10 +60,10 @@
         </dependency>-->
 
         <!-- 双工通信 websocket 支持 -->
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
@@ -182,6 +184,8 @@
     </dependencies>
 
     <build>
+        <!-- 指定 jar 包名称 -->
+        <finalName>${project.name}</finalName>
         <plugins>
             <!-- 打包时跳过测试 -->
             <plugin>
