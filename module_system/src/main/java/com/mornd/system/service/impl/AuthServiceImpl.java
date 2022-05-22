@@ -83,9 +83,6 @@ public class AuthServiceImpl implements AuthService {
         // todo delete
         principal.getSysUser().setRoles(null);
         principal.getSysUser().setPermissions(null);
-        
-        // 隐藏密码
-        principal.getSysUser().setPassword(null);
         // 生成 token
         String token = tokenProvider.generateToken(principal);
         // 将登录用户信息存入 redis 中
