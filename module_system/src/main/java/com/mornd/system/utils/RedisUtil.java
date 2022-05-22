@@ -101,7 +101,7 @@ public class RedisUtil {
      * @param keys
      * @return
      */
-    public Long delete(Collection<String> keys) {
+    public long delete(Collection<String> keys) {
         return redisTemplate.delete(keys);
     }
 
@@ -138,6 +138,15 @@ public class RedisUtil {
      */
     public Set<String> keys(String pattern) {
          return redisTemplate.keys(pattern);
+    }
+
+    /**
+     * 删除匹配的 key
+     * @param pattern
+     */
+    public long deleteKeysPattern(String pattern) {
+        Set<String> keys = this.keys(pattern);
+        return this.delete(keys);
     }
 
     /**

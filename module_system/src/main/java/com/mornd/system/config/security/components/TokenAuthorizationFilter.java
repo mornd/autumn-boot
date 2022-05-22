@@ -1,8 +1,8 @@
 package com.mornd.system.config.security.components;
 
 import com.mornd.system.entity.dto.AuthUser;
+import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.RedisUtil;
-import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +33,8 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
     private TokenProperties tokenProperties;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private AuthUtil authUtil;
     
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -43,7 +45,7 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
         if(StringUtils.hasText(token)) {
             // 查找缓存数据
             try {
-                AuthUser authUser = (AuthUser) redisUtil.getValue(tokenProperties.getOnlineUserKey() + token);
+                AuthUser authUser = (AuthUser) redisUtil.getValue(authUtil.getLoginUserRedisKey(token));
                 if(Objects.nonNull(authUser)) {
                     UsernamePasswordAuthenticationToken authenticationToken
                             = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());

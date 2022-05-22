@@ -144,6 +144,8 @@ jwt:
   isRenewal: true
   # 续期时间范围，单位毫秒
   renewalExpiration: 259200000 # 3天
+    # 是否是单用户登录模式
+  singleLogin: true
   
 # 七牛云配置  
 qiniu:

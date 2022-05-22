@@ -53,17 +53,17 @@ public class AuthUser implements UserDetails, Serializable {
         
         return roleAuthorities;
     }
-
-    @Override
-    @JsonIgnore
-    public String getPassword() {
-        return sysUser.getPassword();
-    }
-
+    
     @Override
     @JsonIgnore
     public String getUsername() {
         return sysUser.getLoginName();
+    }
+    
+    @Override
+    @JsonIgnore
+    public String getPassword() {
+        return sysUser.getPassword();
     }
 
     /**

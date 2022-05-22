@@ -7,6 +7,7 @@ import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.dto.LoginUserDTO;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.AuthService;
+import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecretUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,8 @@ public class AuthServiceImpl implements AuthService {
     private TokenProperties tokenProperties;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private AuthUtil authUtil;
     
     /**
      * 处理用户登录逻辑
@@ -79,14 +82,14 @@ public class AuthServiceImpl implements AuthService {
                 authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         AuthUser principal = (AuthUser) authenticate.getPrincipal();
-        
-        // todo delete
-        principal.getSysUser().setRoles(null);
-        principal.getSysUser().setPermissions(null);
         // 生成 token
         String token = tokenProvider.generateToken(principal);
+        if(tokenProperties.getSingleLogin()) {
+            // 单用户登录，移除其它登录过的用户 key
+            redisUtil.deleteKeysPattern(tokenProperties.getOnlineUserKey() + principal.getUsername() + "*");    
+        }
         // 将登录用户信息存入 redis 中
-        redisUtil.setValue(tokenProperties.getOnlineUserKey() + token,
+        redisUtil.setValue(authUtil.generateLoginUserRedisKey(token),
                 principal,
                 tokenProperties.getExpiration(),
                 TimeUnit.MILLISECONDS);

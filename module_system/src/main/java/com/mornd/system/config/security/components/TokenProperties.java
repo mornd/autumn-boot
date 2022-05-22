@@ -29,4 +29,6 @@ public class TokenProperties {
     private Boolean isRenewal;
     // 续期时间范围，单位毫秒
     private Long renewalExpiration;
+    // 是否是单用户登录模式
+    private Boolean singleLogin;
 }
