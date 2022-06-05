@@ -22,6 +22,7 @@
     <!--引入子模块-->
     <modules>
         <module>module_system</module>
+        <module>module_commons</module>
     </modules>
 
     <properties>
@@ -183,32 +184,17 @@
         </dependency>
     </dependencies>
 
+
     <build>
-        <!-- 指定 jar 包名称 -->
-        <finalName>${project.name}</finalName>
         <plugins>
             <!-- 打包时跳过测试 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!--<mainClass>com.mornd.system.ModuleSystemApplication</mainClass>-->
                     <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

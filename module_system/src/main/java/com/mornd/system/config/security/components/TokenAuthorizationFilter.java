@@ -40,7 +40,7 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 获取token
         String requestURI = request.getRequestURI();
-        logger.info("TokenAuthorizationFilter拦截的请求url为：" + requestURI);
+        logger.debug("TokenAuthorizationFilter拦截的请求uri为：" + requestURI);
         String token = tokenProvider.searchToken(request);
         if(StringUtils.hasText(token)) {
             // 查找缓存数据

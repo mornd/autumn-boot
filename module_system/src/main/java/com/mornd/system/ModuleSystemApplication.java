@@ -5,6 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+/**
+ * @Author mornd
+ */
 @SpringBootApplication
 @EnableTransactionManagement
 public class ModuleSystemApplication {

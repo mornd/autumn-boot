@@ -22,7 +22,7 @@ public class ResultAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException e) throws IOException, ServletException {
         // 通过 response 写入数据，返回给前端
-        RespUtil.writeResult(response, JsonResult.failure(response.SC_FORBIDDEN,
+        RespUtil.writeResult(response, JsonResult.failure(HttpServletResponse.SC_FORBIDDEN,
                 ResultMessage.NOT_AUTH));
     }
 }

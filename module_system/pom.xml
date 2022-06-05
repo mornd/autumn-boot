@@ -20,10 +20,9 @@
     </properties>
 
     <dependencies>
-        <!-- 引入其他的自定义模块 -->
         <!--<dependency>
             <groupId>com.mornd</groupId>
-            <artifactId>module_book</artifactId>
+            <artifactId>module_commons</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>-->
 
@@ -69,12 +68,31 @@
     </dependencies>
 
     <build>
+        <!-- 指定 jar 包名称 -->
+        <finalName>${project.name}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 指定主启动类 -->
+                    <mainClass>com.mornd.system.ModuleSystemApplication</mainClass>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- 跳过单元测试 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>
