@@ -34,10 +34,12 @@ public class TokenProvider {
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
-                .setSubject(userDetails.getUsername()) // 设置主题
+                // 设置主题
+                .setSubject(userDetails.getUsername())
                 .setIssuer("mornd")
                 .setIssuedAt(new Date())
-                .setExpiration(generateExpirationDate()) // 过期时间
+                // 过期时间
+                .setExpiration(generateExpirationDate()) 
                 .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret())
                 .compact();
     }

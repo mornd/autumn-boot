@@ -11,6 +11,6 @@ import org.apache.ibatis.annotations.Update;
  */
 @Mapper
 public interface SysLogMapper extends BaseMapper<SysLog> {
-    @Update("TRUNCATE TABLE SYS_LOG")
+    @Update("TRUNCATE TABLE sys_log")
     void clearAll();
 }

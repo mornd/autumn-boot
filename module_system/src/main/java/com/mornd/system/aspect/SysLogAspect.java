@@ -2,7 +2,6 @@ package com.mornd.system.aspect;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysLog;
@@ -27,8 +26,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author mornd

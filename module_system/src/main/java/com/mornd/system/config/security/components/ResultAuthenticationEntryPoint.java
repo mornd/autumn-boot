@@ -22,7 +22,7 @@ public class ResultAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
         // 通过 response 写入数据，返回给前端
-        RespUtil.writeResult(response, JsonResult.failure(response.SC_UNAUTHORIZED,
+        RespUtil.writeResult(response, JsonResult.failure(HttpServletResponse.SC_UNAUTHORIZED,
                 ResultMessage.NOT_LOGGED));
     }
 }

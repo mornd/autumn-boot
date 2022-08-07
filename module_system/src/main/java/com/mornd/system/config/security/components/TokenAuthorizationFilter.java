@@ -6,6 +6,7 @@ import com.mornd.system.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -49,6 +50,8 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
                 if(Objects.nonNull(authUser)) {
                     UsernamePasswordAuthenticationToken authenticationToken
                             = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
+                    
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     // todo token 续期
                     if(tokenProperties.getIsRenewal()) {

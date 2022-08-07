@@ -21,7 +21,6 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -78,6 +77,7 @@ public class AuthServiceImpl implements AuthService {
         // 执行登录逻辑
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(loginUserDTO.getUsername(), inputPwd);
+        // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
         Authentication authenticate = 
                 authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authenticate);

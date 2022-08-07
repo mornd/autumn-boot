@@ -85,4 +85,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    public AuthenticationManager authenticationManagerBean() throws Exception {
 //        return super.authenticationManagerBean();
 //    }
+    /**
+     * @Resource
+     * private AuthenticationManager authenticationManager; 
+     * Authentication authenticate2 = authenticationManager.authenticate(authenticationToken); 
+     */
 }
