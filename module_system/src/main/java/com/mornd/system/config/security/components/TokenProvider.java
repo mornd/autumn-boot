@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author mornd
  * @dateTime 2022/5/2 - 17:49
- * 用于生成、校验、解析 token
+ * 生成、校验、解析 token
  */
 @Slf4j
 @Component
@@ -28,18 +28,23 @@ public class TokenProvider {
 
     /**
      * 通过当前登录的用户信息生成 token
+     * 注意：以下生成的token中头部和荷载是可以通过base64解析出来的，而签名中包含了盐，所以无法解析出来
      * @param userDetails
      * @return
      */
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
+                // 声明标识 => jti
                 .setId(UUID.randomUUID().toString())
-                // 设置主题
+                // 设置主题 => sub
                 .setSubject(userDetails.getUsername())
+                // 签发人 => iss
                 .setIssuer("mornd")
+                // 签发时间 => iat
                 .setIssuedAt(new Date())
-                // 过期时间
-                .setExpiration(generateExpirationDate()) 
+                // 过期时间 => exp
+                .setExpiration(generateExpirationDate())
+                // 加密算法 => alg 和 盐值
                 .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret())
                 .compact();
     }
@@ -96,7 +101,7 @@ public class TokenProvider {
      */
     public String generateToken(Map<String,Object> claim) {
         return Jwts.builder()
-                // 使用 setClaims() 会替换掉之前的荷载信息， addClaims() 则是追加荷载信息
+                //注意！！！ 使用 setClaims() 会替换掉之前的荷载信息， addClaims() 则是追加荷载信息
                 .addClaims(claim)
                 .setExpiration(generateExpirationDate())
                 .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret())
