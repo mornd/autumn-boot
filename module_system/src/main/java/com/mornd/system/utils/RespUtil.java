@@ -26,6 +26,7 @@ public class RespUtil {
             response.setStatus(jsonResult.getCode());
             // 防止响应数据中文乱码
             response.setCharacterEncoding("UTF-8");
+            //response.setContentType("application/json;charset=utf-8");
             response.setContentType("application/json");
             PrintWriter writer = response.getWriter();
             writer.write(new ObjectMapper().writeValueAsString(jsonResult));

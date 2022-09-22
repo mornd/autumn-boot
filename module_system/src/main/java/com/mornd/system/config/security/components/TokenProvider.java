@@ -1,6 +1,7 @@
 package com.mornd.system.config.security.components;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author mornd
@@ -29,10 +29,30 @@ public class TokenProvider {
     /**
      * 通过当前登录的用户信息生成 token
      * 注意：以下生成的token中头部和荷载是可以通过base64解析出来的，而签名中包含了盐，所以无法解析出来
+     * @param userDetails 登录用户对象
+     * @return token
+     */
+    public String generateToken(UserDetails userDetails) {
+        return getJwtBuilder(userDetails).compact();
+    }
+
+    /**
+     * 添加自定义荷载信息生成 token
+     * 注意！！！ 使用 setClaims() 会替换掉之前的荷载信息， addClaims() 则是追加荷载信息
+     * @param userDetails  登录用户对象
+     * @param claim 自定义荷载
+     * @return token
+     */
+    public String generateToken(UserDetails userDetails, Map<String,Object> claim) {
+        return getJwtBuilder(userDetails).addClaims(claim).compact();
+    }
+
+    /**
+     * 生成 JwtBuilder
      * @param userDetails
      * @return
      */
-    public String generateToken(UserDetails userDetails) {
+    private JwtBuilder getJwtBuilder(UserDetails userDetails) {
         return Jwts.builder()
                 // 声明标识 => jti
                 .setId(UUID.randomUUID().toString())
@@ -45,8 +65,7 @@ public class TokenProvider {
                 // 过期时间 => exp
                 .setExpiration(generateExpirationDate())
                 // 加密算法 => alg 和 盐值
-                .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret())
-                .compact();
+                .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret());
     }
 
     /**
@@ -92,20 +111,6 @@ public class TokenProvider {
             bearerToken = header.replace(tokenProperties.getTokenHead(), "");
         }
         return bearerToken;
-    }
-
-    /**
-     * 添加自定义荷载信息生成 token
-     * @param claim
-     * @return
-     */
-    public String generateToken(Map<String,Object> claim) {
-        return Jwts.builder()
-                //注意！！！ 使用 setClaims() 会替换掉之前的荷载信息， addClaims() 则是追加荷载信息
-                .addClaims(claim)
-                .setExpiration(generateExpirationDate())
-                .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret())
-                .compact();
     }
 
     /**
