@@ -1,4 +1,4 @@
-package com.mornd.system.config;
+package com.mornd.system.config.async;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,11 +10,11 @@ import java.util.concurrent.Executor;
 /**
  * @author mornd
  * @dateTime 2022/5/20 - 23:16
- * 线程池配置
+ * 自定义线程池配置
  */
-@Configuration
-@EnableAsync // 开启多线程
-public class ThreadPoolConfig {
+//@Configuration
+//@EnableAsync // 开启多线程
+public class MyCoustomThreadPoolConfig {
     
     @Bean("taskExecutor")
     public Executor asyncServiceExecutor() {
@@ -28,7 +28,7 @@ public class ThreadPoolConfig {
         // 设置线程活跃时间
         executor.setKeepAliveSeconds(60);
         // 线程默认名称
-        executor.setThreadNamePrefix("mornd-threadPool");
+        executor.setThreadNamePrefix("autumn-threadPool");
         // 等待所有任务结束后再关闭线程
         executor.setWaitForTasksToCompleteOnShutdown(true);
         // 执行初始化

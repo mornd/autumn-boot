@@ -65,6 +65,11 @@
             <artifactId>ip2region</artifactId>
             <version>1.7.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

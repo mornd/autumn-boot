@@ -119,10 +119,10 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- aop 切面 --> 
+        <!-- aop 的实现 -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
         </dependency>
 
         <!-- 图像验证码 -->

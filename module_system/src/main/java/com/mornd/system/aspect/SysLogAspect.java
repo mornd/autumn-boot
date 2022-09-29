@@ -3,6 +3,8 @@ package com.mornd.system.aspect;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.config.async.factory.AsyncFactory;
+import com.mornd.system.config.async.manager.AsyncManager;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysLog;
 import com.mornd.system.service.SysLogService;
@@ -17,6 +19,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,13 +38,14 @@ import java.util.Date;
 
 @Aspect
 @Component
+@Order(value = 1)
 @EnableAspectJAutoProxy
 public class SysLogAspect {
     @Autowired
     private HttpServletRequest request;
     @Resource
     private SysLogService sysLogService;
-    
+
     /**
      * 切入点方法
      */
@@ -97,7 +101,7 @@ public class SysLogAspect {
         }
         String url = request.getRequestURI();
         String ip = NetUtil.getIpAddress(request);
-            
+
         //类名
         String declaringTypeName = signature.getDeclaringTypeName();
         //方法名
@@ -112,7 +116,7 @@ public class SysLogAspect {
         }
         //方法参数
         String params = JSON.toJSONString(args);
-        
+
         SysLog sysLog = new SysLog();
         sysLog.setTitle(title);
         //日志类型
@@ -125,9 +129,9 @@ public class SysLogAspect {
         //操作系统及浏览器
         sysLog.setOsAndBrowser(NetUtil.getOsAndBrowserInfo(request));
         if(StrUtil.isNotBlank(params) && !"[]".equals(params)) {
-            sysLog.setParams(params.length() > 500 ? params.substring(0, 500) + "——内容过长，以下内容已经忽略..." : params);    
+            sysLog.setParams(params.length() > 500 ? params.substring(0, 500) + "——内容过长，以下内容已经忽略..." : params);
         }
-        
+
         //方法执行结果
         if (result != null) {
             String res = JSON.toJSONString(result);
@@ -140,7 +144,8 @@ public class SysLogAspect {
         }
         //访问时间
         sysLog.setVisitDate(new Date());
-        //保存至数据库
-        sysLogService.save(sysLog);
+        // 异步保存至数据库
+        AsyncManager.me().execute(AsyncFactory.recordSysLogfor(sysLog));
     }
 }
+

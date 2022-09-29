@@ -37,7 +37,7 @@
             gmt_create
         FROM 
             sys_user 
-        <trim prefix="where" prefixOverrides="and | or">
+        <trim prefix="where" prefixOverrides="and|or">
             <if test="user.loginName != null and user.loginName != ''">
                 AND login_name LIKE concat('%',#{user.loginName},'%')
             </if>
