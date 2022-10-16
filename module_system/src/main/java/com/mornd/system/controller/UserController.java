@@ -18,6 +18,7 @@ import com.mornd.system.validation.ValidGroupA;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +60,7 @@ public class UserController {
         return userService.changePwd(SecretUtil.desEncrypt(pwd.getOldPwd()), SecretUtil.desEncrypt(pwd.getNewPwd()));
     }
     
+    @PreAuthorize("hasAnyAuthority('system:user:query')") // any 代表拥有任意一个权限就可访问改接口
     @LogStar(value = "获取用户列表")
     @ApiOperation("获取用户表格数据")
     @GetMapping
@@ -66,13 +68,15 @@ public class UserController {
         return userService.pageList(user);
     }
     
+    @PreAuthorize("hasAnyAuthority('system:user:add')")
     @LogStar("新增用户")
     @ApiOperation("新增")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysUserVO user) {
         return userService.insert(user);
     }
-    
+
+    @PreAuthorize("hasAnyRole('super_admin')")  // 拥有任意角色就可访问, "ROLE_" 的前缀可不加，看源码就知道, security 会补上前缀
     @LogStar("管理员修改用户")
     @ApiOperation("修改")
     @PutMapping
@@ -80,6 +84,7 @@ public class UserController {
         return userService.update(user);
     }
 
+    @PreAuthorize("hasAnyAuthority('system:user:update')")
     @LogStar("用户修改个人信息")
     @ApiOperation("用户个人修改信息")
     @PutMapping("/userUpdate")
@@ -94,6 +99,7 @@ public class UserController {
         return userService.updateAvatar(user);
     }
 
+    @PreAuthorize("hasAnyAuthority('system:user:delete')")
     @LogStar("删除用户")
     @ApiOperation("删除")
     @DeleteMapping("/{id}")
@@ -101,6 +107,7 @@ public class UserController {
         return userService.delete(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('system:user:changeStatus')")
     @LogStar("修改用户状态")
     @ApiOperation("更改状态")
     @GetMapping("/changeState")
@@ -126,6 +133,5 @@ public class UserController {
     public JsonResult getAllRoles() {
         List<SysRole> roles = roleService.getAllRoles();
         return JsonResult.successData(roles);
-        
     }
 }

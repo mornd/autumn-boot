@@ -61,7 +61,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 sysUser.setRoles(roles);
                 List<String> ids = new ArrayList<>();
                 roles.forEach(i -> ids.add(i.getId()));
-                Set<SysPermission> pers = permissionService.getPersByRoleIds(ids, EntityConst.ENABLED);
+                Set<SysPermission> pers = permissionService.getPersByRoleIds(ids, false, EntityConst.ENABLED);
                 sysUser.setPermissions(pers);
             }
         }

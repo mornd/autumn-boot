@@ -7,6 +7,7 @@ import com.mornd.system.service.SysLogService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +28,14 @@ public class SysLogController {
     @Resource
     private SysLogService sysLogService;
     
+    @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog:query')")
     @ApiOperation("获取列表数据")
     @GetMapping
     public JsonResult pageList(SysLogVO log) {
         return sysLogService.pageList(log);    
     }
 
+    @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog:clear')")
     @ApiOperation("清空表数据")
     @DeleteMapping
     @LogStar(value = "清空表数据")

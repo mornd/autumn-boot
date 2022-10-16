@@ -51,27 +51,28 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     /**
      * 根据角色id集合获取对应的权限集合(不包括按钮权限类型)
      * @param ids 角色集合
+     * @param excludeButton 是否排除按钮类型 
      * @param enabledState 状态
      * @return
      */
     @Override
-    public Set<SysPermission> getPersByRoleIds(List<String> ids, Integer enabledState) {
+    public Set<SysPermission> getPersByRoleIds(List<String> ids, boolean excludeButton, Integer enabledState) {
         if(ObjectUtils.isEmpty(ids)) {
             return null;
         }
         return baseMapper.getPersByRoleIds(ids, 
-                enabledState, 
-                EnumMenuType.BUTTON.getCode(), 
+                enabledState,
+                excludeButton ? EnumMenuType.BUTTON.getCode() : null, 
                 EnumHiddenType.DISPLAY.getCode());
     }
-
+    
     /**
      * 展示页面左侧菜单树
      * @return
      */
     @Override
     public Set<SysPermission> leftTree() {
-        Set<SysPermission> pers = this.getPersByRoleIds(roleService.getCurrentRoleIds(), null);
+        Set<SysPermission> pers = this.getPersByRoleIds(roleService.getCurrentRoleIds(), true, null);
         return MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers);
     }
 
@@ -270,7 +271,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         sysPermission.setGmtModified(new Date());
         sysPermission.setModifiedBy(SecurityUtil.getLoginUserId());
         baseMapper.updateById(sysPermission);
-        authUtil.delCacheLoginUser();
+        //authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 
@@ -389,7 +390,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         LambdaQueryWrapper<RoleWithPermission> roleWithPerQw = Wrappers.lambdaQuery();
         roleWithPerQw.eq(RoleWithPermission::getPerId, id);
         roleWithPermissionMapper.delete(roleWithPerQw);
-        authUtil.delCacheLoginUser();
+        //authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 }

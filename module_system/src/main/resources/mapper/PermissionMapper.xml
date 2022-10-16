@@ -44,8 +44,10 @@
             sys_permission sp
         WHERE
             sp.hidden = #{hidden}
-        AND 
+        <if test="excludeMenuType != null">
+            AND
             sp.menu_type != #{excludeMenuType}
+        </if>
         <if test="enabledState != null">
             AND 
                 sp.enabled = #{enabledState}

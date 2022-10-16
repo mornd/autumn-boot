@@ -12,7 +12,7 @@ import java.util.Set;
  * @dateTime 2021/8/11 - 16:53
  */
 public interface PermissionService extends IService<SysPermission> {
-    Set<SysPermission> getPersByRoleIds(List<String> ids, Integer enabledState);
+    Set<SysPermission> getPersByRoleIds(List<String> ids, boolean excludeButton, Integer enabledState);
 
     Set<SysPermission> leftTree();
 

@@ -20,8 +20,8 @@ import java.util.List;
 /**
  * @author mornd
  * @dateTime 2021/9/13 - 8:55
- * 浏览器输入swagger文档地址：http://localhost:1001/dataView/doc.html
- */
+ * 浏览器输入swagger文档地址：http://IP:端口/dataView/doc.html
+ */ 
 
 @Configuration
 @EnableSwagger2
