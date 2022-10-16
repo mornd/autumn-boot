@@ -45,26 +45,22 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
         String token = tokenProvider.searchToken(request);
         if(StringUtils.hasText(token)) {
             // 查找缓存数据
-            try {
-                AuthUser authUser = (AuthUser) redisUtil.getValue(authUtil.getLoginUserRedisKey(token));
-                if(Objects.nonNull(authUser)) {
-                    UsernamePasswordAuthenticationToken authenticationToken
-                            = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
-                    
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    // todo token 续期
-                    if(tokenProperties.getIsRenewal()) {
-                        // 获取 token 续订过期时间
-                        long terminateRenewalTime = tokenProvider.getTerminateRenewalTime(token);
-                        if(System.currentTimeMillis() < terminateRenewalTime) {
-                            // 刷新 token 的过期时间
-                            redisUtil.expire(tokenProperties.getOnlineUserKey() + token, tokenProperties.getExpiration(), TimeUnit.MILLISECONDS);    
-                        }
+            AuthUser authUser = (AuthUser) redisUtil.getValue(authUtil.getLoginUserRedisKey(token));
+            if(Objects.nonNull(authUser)) {
+                UsernamePasswordAuthenticationToken authenticationToken
+                        = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
+
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                // todo token 续期
+                if(tokenProperties.getIsRenewal()) {
+                    // 获取 token 续订过期时间
+                    long terminateRenewalTime = tokenProvider.getTerminateRenewalTime(token);
+                    if(System.currentTimeMillis() < terminateRenewalTime) {
+                        // 刷新 token 的过期时间
+                        redisUtil.expire(tokenProperties.getOnlineUserKey() + token, tokenProperties.getExpiration(), TimeUnit.MILLISECONDS);
                     }
                 }
-            } catch (Exception e) {
-                logger.error(e);
             }
         }
         // 放行至下一个过滤器

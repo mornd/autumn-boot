@@ -85,13 +85,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * 登录方式二：
      * 
+     * Security 配置类中注入 AuthenticationManager
      * @Bean
      * @Override
      * public AuthenticationManager authenticationManagerBean() throws Exception {
      *     return super.authenticationManagerBean();
      * }
      * 
-     * // UserDetailsServiceImpl 中
+     * // UserDetailsServiceImpl 中调用 AuthenticationManager 的方法
      * @Resource
      * private AuthenticationManager authenticationManager;
      * 

@@ -10,6 +10,7 @@ import com.mornd.system.entity.po.SysLog;
 import com.mornd.system.service.SysLogService;
 import com.mornd.system.utils.NetUtil;
 import com.mornd.system.utils.SecurityUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -36,6 +37,7 @@ import java.util.Date;
  * 日志切面
  */
 
+@Slf4j
 @Aspect
 @Component
 @Order(value = 1)

@@ -15,20 +15,36 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "jwt")
 public class TokenProperties {
-    // JWT 存储的请求头
+    /**
+     * JWT 存储的请求头
+     */
     private String tokenHeader;
-    // JWT 加解密使用的密钥(盐)
+    /**
+     * JWT 加解密使用的密钥(盐)
+     */
     private String secret;
-    // JWT 负载拿到开头
+    /**
+     * JWT 负载拿到开头
+     */
     private String tokenHead;
-    // token 不操作时的过期时间
+    /**
+     * token 不操作时的过期时间
+     */
     private Long expiration;
-    // 缓存中保存在线用户的 key
-    private String OnlineUserKey;
-    // token 是否续期（即登录后每次访问都重新生成超期限时间）
+    /**
+     * 缓存中保存在线用户的 key
+     */
+    private String onlineUserKey;
+    /**
+     * token 是否续期（即登录后每次访问都重新生成超期限时间）
+     */
     private Boolean isRenewal;
-    // 续期时间范围，单位毫秒
+    /**
+     * 续期时间范围，单位毫秒
+     */
     private Long renewalExpiration;
-    // 是否是单用户登录模式
+    /**
+     * 是否是单用户登录模式
+     */
     private Boolean singleLogin;
 }
