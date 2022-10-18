@@ -15,6 +15,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -94,4 +95,8 @@ public class SysPermission implements Serializable {
     //子菜单
     @TableField(exist = false)
     private Set<SysPermission> children;
+    
+    @TableField(exist = false)
+    // 访问该权限所需的角色列表(动态权限配置有用到)
+    private List<SysRole> roles;
 }

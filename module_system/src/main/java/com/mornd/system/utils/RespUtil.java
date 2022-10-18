@@ -20,20 +20,16 @@ public class RespUtil {
      * @param response
      * @param jsonResult
      */
-    public static void writeResult(HttpServletResponse response, JsonResult jsonResult) {
-        try {
-            // 设置响应状态
-            response.setStatus(jsonResult.getCode());
-            // 防止响应数据中文乱码
-            response.setCharacterEncoding("UTF-8");
-            //response.setContentType("application/json;charset=utf-8");
-            response.setContentType("application/json");
-            PrintWriter writer = response.getWriter();
-            writer.write(new ObjectMapper().writeValueAsString(jsonResult));
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
+    public static void writeResult(HttpServletResponse response, JsonResult jsonResult) throws IOException {
+        // 设置响应状态
+        response.setStatus(jsonResult.getCode());
+        // 防止响应数据中文乱码
+        response.setCharacterEncoding("UTF-8");
+        //response.setContentType("application/json;charset=utf-8");
+        response.setContentType("application/json");
+        PrintWriter writer = response.getWriter();
+        writer.write(new ObjectMapper().writeValueAsString(jsonResult));
+        writer.flush();
+        writer.close();
     }
 }

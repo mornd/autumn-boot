@@ -5,6 +5,7 @@ import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -14,6 +15,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 @Slf4j
 public class SecurityUtil {
+    /**
+     * 获取认证对象
+     * @return
+     */
+    public static Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
 
     /**
      * 从security中获取当前登录用户信息
@@ -21,8 +29,7 @@ public class SecurityUtil {
      */
     public static SysUser getLoginUser(){
         try {
-            AuthUser principal = (AuthUser) SecurityContextHolder.getContext()
-                    .getAuthentication().getPrincipal();
+            AuthUser principal = (AuthUser) getAuthentication().getPrincipal();
             SysUser sysUser = principal.getSysUser();
             sysUser.setPassword(null);
             return sysUser;

@@ -36,7 +36,15 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
     private RedisUtil redisUtil;
     @Resource
     private AuthUtil authUtil;
-    
+
+    /**
+     * @param request 请求对象
+     * @param response 响应对象
+     * @param filterChain org.springframework.security.web.FilterChainProxy.VirtualFilterChain 对象，
+     *                    additionalFilters 属性可获取过滤器链，doFilter() 用来执行过滤器
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 获取token
@@ -47,7 +55,7 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
             try {
                 // 查找缓存数据
                 AuthUser authUser = (AuthUser) redisUtil.getValue(authUtil.getLoginUserRedisKey(token));
-                if(Objects.nonNull(authUser)) {
+                if(Objects.nonNull(authUser) && Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
                     UsernamePasswordAuthenticationToken authenticationToken
                             = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
 
@@ -59,7 +67,7 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
                         long terminateRenewalTime = tokenProvider.getTerminateRenewalTime(token);
                         if(System.currentTimeMillis() < terminateRenewalTime) {
                             // 刷新 token 的过期时间
-                            redisUtil.expire(tokenProperties.getOnlineUserKey() + token, tokenProperties.getExpiration(), TimeUnit.MILLISECONDS);
+                            redisUtil.expire(authUtil.getLoginUserRedisKey(token), tokenProperties.getExpiration(), TimeUnit.MILLISECONDS);
                         }
                     }
                 }

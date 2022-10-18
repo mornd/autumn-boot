@@ -63,7 +63,7 @@ public class TokenProvider {
                 // 签发时间 => iat
                 .setIssuedAt(new Date())
                 // 过期时间 => exp
-                .setExpiration(generateExpirationDate())
+                //.setExpiration(generateExpirationDate())
                 // 加密算法 => alg 和 盐值
                 .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret());
     }
@@ -88,7 +88,7 @@ public class TokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    
+
     /**
      * 获取 token 荷载中的主题信息
      * @param token

@@ -44,14 +44,14 @@ public class AuthServiceImpl implements AuthService {
     private RedisUtil redisUtil;
     @Resource
     private AuthUtil authUtil;
-    
+
     /**
      * 处理用户登录逻辑
      * @param loginUserDTO
      * @return
      */
     @Override
-    public JsonResult userLogin(LoginUserDTO loginUserDTO) {
+    public JsonResult<?> userLogin(LoginUserDTO loginUserDTO) {
         log.info("用户{}正在执行登录操作", loginUserDTO.getUsername());
         //验证码校验
         String uuid = loginUserDTO.getUuid();
@@ -78,7 +78,16 @@ public class AuthServiceImpl implements AuthService {
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(loginUserDTO.getUsername(), inputPwd);
         // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
-        Authentication authenticate = 
+        /**
+         * 源码：
+         *  authenticationManagerBuilder.getObject() 就是 ProviderManager 对象
+         *  ProviderManager.authenticate() 182行=> result = provider.authenticate(authentication);
+         *  AbstractUserDetailsAuthenticationProvider.authenticate() 133行=> user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+         *          上面的 AbstractUserDetailsAuthenticationProvider 是抽象类，会执行其子类 DaoAuthenticationProvider 的 retrieveUser方法
+         *          AbstractUserDetailsAuthenticationProvider 147行 -> additionalAuthenticationChecks()校验密码
+         *  DaoAuthenticationProvider的retrieveUser() 93行=> UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+         */
+        Authentication authenticate =
                 authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         AuthUser principal = (AuthUser) authenticate.getPrincipal();
@@ -86,10 +95,10 @@ public class AuthServiceImpl implements AuthService {
         String token = tokenProvider.generateToken(principal);
         if(tokenProperties.getSingleLogin()) {
             // 单用户登录，移除其它登录过的用户 key
-            redisUtil.deleteKeysPattern(tokenProperties.getOnlineUserKey() + principal.getUsername() + "*");    
+            redisUtil.deleteKeysPattern(tokenProperties.getOnlineUserKey() + principal.getUsername() + "*");
         }
         // 将登录用户信息存入 redis 中
-        redisUtil.setValue(authUtil.generateLoginUserRedisKey(token),
+        redisUtil.setValue(authUtil.getLoginUserRedisKey(token),
                 principal,
                 tokenProperties.getExpiration(),
                 TimeUnit.MILLISECONDS);
@@ -98,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
             put("tokenHead", tokenProperties.getTokenHead());
             put("token", token);
         }};
-        
+
         log.info("用户{}登录系统成功", loginUserDTO.getUsername());
         return JsonResult.success("登录成功", tokenMap);
     }
@@ -111,7 +120,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public JsonResult userLogout(HttpServletRequest request) {
         String token = tokenProvider.searchToken(request);
-        redisUtil.delete(tokenProperties.getOnlineUserKey() + token);
+        String subject = tokenProvider.getClaims(token).getSubject();
+        redisUtil.delete(authUtil.getLoginUserRedisKey(token));
+        log.info("用户{}注销成功", subject);
         return JsonResult.success("退出成功");
     }
 }

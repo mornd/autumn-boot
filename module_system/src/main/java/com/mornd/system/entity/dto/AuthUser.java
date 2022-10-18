@@ -34,9 +34,6 @@ public class AuthUser implements UserDetails, Serializable {
     @Override
     @JsonIgnore // 注解作用：序列化时忽略该方法 用于将该对象存入redis中 不加该注解，redis反序列化时会报错
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(ObjectUtils.isEmpty(sysUser.getRoles())) {
-            return null;
-        }
         // 获取角色的编码值，添加至权限集合 authorities 中
         List<SimpleGrantedAuthority> roleAuthorities = sysUser.getRoles().stream()
                 .filter(r -> StringUtils.hasText(r.getCode()))

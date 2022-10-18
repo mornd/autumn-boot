@@ -16,6 +16,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +57,7 @@ public class GlobalExceptionHandler {
         log.error("请求地址'{}',不支持'{}'请求", requestURI, e.getMethod());
         return JsonResult.failure(e.getMessage());
     }
-    
+
     @ExceptionHandler(DataAccessException.class)
     public JsonResult exception(DataAccessException e){
         e.printStackTrace();
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 用户用户名不存在或密码正确抛出 BadCredentialsException 异常
+     * 用户用户名不存在或密码不正确抛出 BadCredentialsException 异常
      */
     @ExceptionHandler(BadCredentialsException.class)
     public JsonResult badCredentialsException(BadCredentialsException e){
@@ -119,7 +120,7 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         return JsonResult.failure(e.getMessage());
     }
-    
+
     /**
      * 实体Bean校验
      * @param exception

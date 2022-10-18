@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class AuthController {
     @Resource
     private AuthService authService;
-    
+
     @Resource
     private RedisUtil redisUtil;
 

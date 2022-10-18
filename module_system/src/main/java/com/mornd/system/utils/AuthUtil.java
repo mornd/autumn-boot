@@ -23,31 +23,21 @@ public class AuthUtil {
     private TokenProperties tokenProperties;
 
     /**
-     * 生成存储在 redis 中的当前登录用户信息 key
-     * @param token token
-     * @return
-     */
-    public String generateLoginUserRedisKey(String token) {
-        String subject = tokenProvider.getSubject(token);
-        return tokenProperties.getOnlineUserKey() + subject + "-" + token;
-    }
-
-    /**
      * 获取存储在 redis 中的当前登录用户信息 key
      * @param token token
      * @return
      */
     public String getLoginUserRedisKey(String token) {
         String subject = tokenProvider.getSubject(token);
-        return tokenProperties.getOnlineUserKey() + subject + "-" + token;
+        return String.format("%s%s-%s",tokenProperties.getOnlineUserKey(), subject, token);
     }
-    
+
 
     /**
      * 清空当前缓存中保存的登录用户信息
      */
     public void delCacheLoginUser() {
         String token = tokenProvider.searchToken(request);
-        redisUtil.delete(tokenProperties.getOnlineUserKey() + tokenProvider.getSubject(token) + "-" + token);
+        redisUtil.delete(getLoginUserRedisKey(token));
     }
 }
