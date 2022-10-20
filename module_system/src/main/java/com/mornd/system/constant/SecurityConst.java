@@ -15,13 +15,13 @@ public interface SecurityConst {
             "/swagger-resources/**",
             "/v2/api-docs",
             "/v2/api-docs-ext",
-    
+
             //druid数据源监控页面
             "/druid/**",
-            
+
             // websocket 连接
             //"/ws/**",
-    
+
             //后台请求url
             "/userLogin",
             "/captcha",
@@ -32,13 +32,13 @@ public interface SecurityConst {
 
     //系统角色前缀
     String ROLE_PREFIX = "ROLE_";
-    
+
     //超级管理员id
     String SUPER_ADMIN_ID = "1425011630752735234";
-    
+
     //菜单管理id
     String MENU_ID = "1425384413584252930";
-    
+
     //新增用户默认密码
-    String USER_DEFAULT_PWD = "123456";
+    String USER_DEFAULT_PWD = "000";
 }

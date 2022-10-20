@@ -20,10 +20,7 @@ import java.io.IOException;
 public class CustomFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        Authentication authentication = SecurityUtil.getAuthentication();
         // todo
-        System.out.println("pre CustomFilter...");
         filterChain.doFilter(httpServletRequest, httpServletResponse);
-        System.out.println("post CustomFilter...");
     }
 }

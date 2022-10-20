@@ -37,9 +37,10 @@ import java.util.List;
 public class UserController {
     @Resource
     private UserService userService;
-    @Resource 
+    @Resource
     private RoleService roleService;
-    
+
+    @LogStar("获取当前登录用户信息")
     @ApiOperation("获取当前登录用户信息")
     @GetMapping("/getLoginUser")
     public JsonResult getUserInfo(){
@@ -59,15 +60,15 @@ public class UserController {
     public JsonResult changePwd(@RequestBody @Validated ChangePwdDTO pwd) {
         return userService.changePwd(SecretUtil.desEncrypt(pwd.getOldPwd()), SecretUtil.desEncrypt(pwd.getNewPwd()));
     }
-    
-    @PreAuthorize("hasAnyAuthority('system:user:query')") // any 代表拥有任意一个权限就可访问改接口
+
+    @PreAuthorize("hasAnyAuthority('system:user')") // any 代表拥有任意一个权限就可访问改接口
     @LogStar(value = "获取用户列表")
     @ApiOperation("获取用户表格数据")
     @GetMapping
     public JsonResult pageList(@Validated(SelectValidGroup.class) SysUserVO user) {
         return userService.pageList(user);
     }
-    
+
     @PreAuthorize("hasAnyAuthority('system:user:add')")
     @LogStar("新增用户")
     @ApiOperation("新增")
@@ -121,7 +122,7 @@ public class UserController {
     public JsonResult queryNameExists(@NotBlank(message = "名称不能为空") String name, String id) {
         return JsonResult.successData(userService.queryLoginNameExists(name, id));
     }
-    
+
     @ApiOperation("获取用户所拥有的角色id")
     @GetMapping("/getRoleById/{id}")
     public JsonResult getRoleById(@PathVariable String id) {

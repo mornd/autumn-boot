@@ -27,12 +27,12 @@ import javax.annotation.Resource;
 public class SysLogController {
     @Resource
     private SysLogService sysLogService;
-    
-    @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog:query')")
+
+    @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog')")
     @ApiOperation("获取列表数据")
     @GetMapping
     public JsonResult pageList(SysLogVO log) {
-        return sysLogService.pageList(log);    
+        return sysLogService.pageList(log);
     }
 
     @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog:clear')")

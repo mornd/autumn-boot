@@ -2,10 +2,12 @@ package com.mornd.system.utils;
 
 import com.mornd.system.config.security.components.TokenProperties;
 import com.mornd.system.config.security.components.TokenProvider;
+import com.mornd.system.entity.dto.AuthUser;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 /**
  * @author mornd
@@ -32,6 +34,19 @@ public class AuthUtil {
         return String.format("%s%s-%s",tokenProperties.getOnlineUserKey(), subject, token);
     }
 
+    /**
+     * 用户登录时生成其它信息
+     * @param user
+     * @return
+     */
+    public AuthUser generateLoginInfo(AuthUser user) {
+        user.setIp(IpUtils.getIpAddr(request));
+        user.setOs(NetUtil.getOS(request));
+        user.setBrowser(NetUtil.getBrowser(request));
+        user.setAddress(AddressUtils.getRealAddressByIP(user.getIp()));
+        user.setLoginTime(new Date());
+        return user;
+    }
 
     /**
      * 清空当前缓存中保存的登录用户信息

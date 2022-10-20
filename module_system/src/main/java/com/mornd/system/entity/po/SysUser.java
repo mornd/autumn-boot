@@ -14,6 +14,7 @@ import lombok.EqualsAndHashCode;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -27,10 +28,10 @@ import java.util.Set;
 @ApiModel("系统用户")
 public class SysUser extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     //IdType.ASSIGN_UUID =>a794d53804816017978dba76b05b19a1
     // IdType.ASSIGN_ID =>1425004256210038785
-    @TableId(type = IdType.ASSIGN_ID) 
+    @TableId(type = IdType.ASSIGN_ID)
     @NotBlank(message = "ID不能为空",groups = {UpdateValidGroup.class})
     private String id;
 
@@ -68,9 +69,9 @@ public class SysUser extends BaseEntity implements Serializable {
 
     //角色集合
     @TableField(exist = false)
-    Set<SysRole> roles;
+    Set<SysRole> roles = new HashSet<>();
 
     //菜单权限集合
     @TableField(exist = false)
-    Set<SysPermission> permissions;
+    Set<SysPermission> permissions = new HashSet<>();
 }

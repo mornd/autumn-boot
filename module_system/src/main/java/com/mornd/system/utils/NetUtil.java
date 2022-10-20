@@ -1,5 +1,7 @@
 package com.mornd.system.utils;
 
+import eu.bitwalker.useragentutils.UserAgent;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -13,6 +15,7 @@ public class NetUtil {
      * @param request
      * @return
      */
+    @Deprecated
     public static String getIpAddress(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
@@ -34,10 +37,31 @@ public class NetUtil {
     }
 
     /**
+     * 根据访问的 request 获取操作系统
+     * @param request
+     * @return
+     */
+    public static String getOS(HttpServletRequest request) {
+        UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
+        return userAgent.getOperatingSystem().getName();
+    }
+
+    /**
+     * 根据访问的 request 获取浏览器
+     * @param request
+     * @return
+     */
+    public static String getBrowser(HttpServletRequest request) {
+        UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
+        return userAgent.getBrowser().getName();
+    }
+
+    /**
      * 获取操作系统及浏览器信息
      * @param request
      * @return
      */
+    @Deprecated
     public static String getOsAndBrowserInfo(HttpServletRequest request){
         String  browserDetails  =   request.getHeader("User-Agent");
         String  userAgent       =   browserDetails;

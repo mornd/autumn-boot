@@ -14,6 +14,7 @@ import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,7 @@ public class RoleController {
     @Resource
     private PermissionService permissionService;
 
+    @PreAuthorize("hasAnyAuthority('system:role')")
     @LogStar("获取角色列表")
     @ApiOperation("分页查询")
     @GetMapping
@@ -54,7 +56,8 @@ public class RoleController {
     public JsonResult queryCodeExists(@NotBlank(message = "编码不能为空") String code, String id) {
         return JsonResult.successData(roleService.queryCodeExists(code, id));
     }
-    
+
+    @PreAuthorize("hasAnyAuthority('system:role:add')")
     @LogStar("添加角色")
     @ApiOperation("添加角色")
     @PostMapping
@@ -62,6 +65,7 @@ public class RoleController {
         return roleService.insert(role);
     }
 
+    @PreAuthorize("hasAnyAuthority('system:role:update')")
     @LogStar("修改角色")
     @ApiOperation("修改角色")
     @PutMapping
@@ -69,6 +73,7 @@ public class RoleController {
         return roleService.update(role);
     }
 
+    @PreAuthorize("hasAnyAuthority('system:role:delete')")
     @LogStar("删除角色")
     @ApiOperation("删除角色")
     @DeleteMapping("/{id}")
@@ -76,6 +81,7 @@ public class RoleController {
         return roleService.delete(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('system:role:update')")
     @LogStar("更改角色状态")
     @ApiOperation("更改状态")
     @GetMapping("/changeState")
@@ -83,14 +89,14 @@ public class RoleController {
                                    @Range(min = 0, max = 1, message = "修改的状态值不正确") Integer state) {
         return roleService.changeStatus(id, state);
     }
-    
+
     @ApiOperation("查询所有权限")
     @GetMapping("/getAllPers")
     public  JsonResult getAllPers() {
         Set<SysPermission> allPers = permissionService.getAllPers();
         return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, allPers));
     }
-    
+
     @ApiOperation("根据角色id查询所属的权限")
     @GetMapping("/getPersById/{id}")
     public JsonResult getPersById(@PathVariable String id) {

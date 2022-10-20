@@ -7,7 +7,8 @@ import com.mornd.system.config.async.factory.AsyncFactory;
 import com.mornd.system.config.async.manager.AsyncManager;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysLog;
-import com.mornd.system.service.SysLogService;
+import com.mornd.system.utils.AddressUtils;
+import com.mornd.system.utils.IpUtils;
 import com.mornd.system.utils.NetUtil;
 import com.mornd.system.utils.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -45,8 +46,6 @@ import java.util.Date;
 public class SysLogAspect {
     @Autowired
     private HttpServletRequest request;
-    @Resource
-    private SysLogService sysLogService;
 
     /**
      * 切入点方法
@@ -65,15 +64,28 @@ public class SysLogAspect {
         Throwable throwable = null;
         Object result = null;
         String username = null;
+        Signature signature = pjp.getSignature();
+        MethodSignature methodSignature = (MethodSignature) signature;
+        Method method = methodSignature.getMethod();
+        //获取日志注解信息
+        LogStar logStar = method.getAnnotation(LogStar.class);
+        LogType logType = logStar.BusinessType();
         try {
             long beginTime = System.currentTimeMillis();
-            //执行目标方法
-            JoinPoint jp = pjp;
+
             //执行退出方法须在退出前获取用户信息，否则空指针异常
-            if("userLogout".equals(jp.getSignature().getName())) {
+            if(LogType.LOGOUT.equals(logType)) {
                 username = SecurityUtil.getLoginUsername();
             }
+            //执行目标方法
             result = pjp.proceed();
+            if(!LogType.LOGOUT.equals(logType)) {
+                try {
+                    username = SecurityUtil.getLoginUsername();
+                } catch (Exception e){
+                    username = "用户名或密码错误的用户";
+                }
+            }
             time = System.currentTimeMillis() - beginTime;
         } catch (Throwable t) {
             //方法抛出异常
@@ -93,16 +105,8 @@ public class SysLogAspect {
         LogStar logStar = method.getAnnotation(LogStar.class);
         //标题
         String title = logStar.value();
-        LogType logType = logStar.BusinessType();
-        if(LogType.LOGOUT != logType) {
-            try {
-                username = SecurityUtil.getLoginUsername();
-            } catch (Exception e){
-                username = "";
-            }
-        }
         String url = request.getRequestURI();
-        String ip = NetUtil.getIpAddress(request);
+        String ip = IpUtils.getIpAddr(request);
 
         //类名
         String declaringTypeName = signature.getDeclaringTypeName();
@@ -129,20 +133,25 @@ public class SysLogAspect {
         sysLog.setIp(ip);
         sysLog.setExecutionTime(processingTime);
         //操作系统及浏览器
-        sysLog.setOsAndBrowser(NetUtil.getOsAndBrowserInfo(request));
+        sysLog.setOs(NetUtil.getOS(request));
+        sysLog.setBrowser(NetUtil.getBrowser(request));
+        sysLog.setAddress(AddressUtils.getRealAddressByIP(ip));
         if(StrUtil.isNotBlank(params) && !"[]".equals(params)) {
-            sysLog.setParams(params.length() > 500 ? params.substring(0, 500) + "——内容过长，以下内容已经忽略..." : params);
+            sysLog.setParams(params.length() > 1000 ? params.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : params);
         }
 
         //方法执行结果
         if (result != null) {
             String res = JSON.toJSONString(result);
-            sysLog.setResult(res.length() > 500 ? res.substring(0, 500) + "——内容过长，以下内容已经忽略..." : res);
+            sysLog.setResult(res.length() > 1000 ? res.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : res);
         }
         //异常信息
         if(throwable != null) {
-            String message = throwable.getMessage();
-            sysLog.setExceptionMsg(message.length() > 500 ? message.substring(0, 500) + "——内容过长，以下内容已经忽略..." : message);
+            String msg = throwable.getMessage();
+            if(!StringUtils.hasText(msg)) {
+                msg = "抛出异常，无异常信息";
+            }
+            sysLog.setExceptionMsg(msg.length() > 1000 ? msg.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : msg);
         }
         //访问时间
         sysLog.setVisitDate(new Date());

@@ -22,7 +22,6 @@ public class SysLog implements Serializable {
     private String username;
     @ApiModelProperty("方法名")
     private String methodName;
-    
     @ApiModelProperty("访问时间")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date visitDate;
@@ -34,14 +33,16 @@ public class SysLog implements Serializable {
     private String params;
     @ApiModelProperty("访问ip")
     private String ip;
+    @ApiModelProperty("访问地址")
+    private String address;
     @ApiModelProperty("访问url")
     private String url;
-    @ApiModelProperty("操作系统浏览器")
-    private String osAndBrowser;
-    
+    @ApiModelProperty("操作系统")
+    private String  os;
+    @ApiModelProperty("浏览器")
+    private String browser;
     @ApiModelProperty("异常信息")
     private String exceptionMsg;
-    
     @ApiModelProperty("访问结果")
     private String result;
 }

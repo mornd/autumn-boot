@@ -1,8 +1,10 @@
 package com.mornd.system.config.security;
 
+import com.mornd.system.config.PermitAllUrlProperties;
 import com.mornd.system.config.security.components.CustomFilter;
 import com.mornd.system.config.security.components.TokenAuthorizationFilter;
 import com.mornd.system.constant.SecurityConst;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
@@ -12,6 +14,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -39,6 +42,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationEntryPoint authenticationEntryPoint;
     @Resource
     private AccessDeniedHandler accessDeniedHandler;
+    /**
+     * 允许匿名访问的地址
+     */
+    @Resource
+    private PermitAllUrlProperties permitAllUrl;
     @Resource
     private FilterInvocationSecurityMetadataSource metadataSource;
     @Resource
@@ -52,6 +60,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
+        // 注解标记允许匿名访问的url
+        ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = httpSecurity.authorizeRequests();
+        permitAllUrl.getUrls().forEach(url -> registry.antMatchers(url).permitAll());
+
         httpSecurity
                 // 禁用 csrf
                 .csrf().disable()

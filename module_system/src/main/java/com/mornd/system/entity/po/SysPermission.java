@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mornd.system.validation.UpdateValidGroup;
 import com.mornd.system.validation.PermissionValidated;
 import io.swagger.annotations.ApiModel;
@@ -95,7 +96,8 @@ public class SysPermission implements Serializable {
     //子菜单
     @TableField(exist = false)
     private Set<SysPermission> children;
-    
+
+    @JsonIgnore
     @TableField(exist = false)
     // 访问该权限所需的角色列表(动态权限配置有用到)
     private List<SysRole> roles;

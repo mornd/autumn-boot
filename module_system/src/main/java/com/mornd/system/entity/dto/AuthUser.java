@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +29,33 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class AuthUser implements UserDetails, Serializable {
     private static final long serialVersionUID = 42L;
-    
+
+    public AuthUser(SysUser sysUser) {
+        this.sysUser = sysUser;
+    }
+
     private SysUser sysUser;
+
+    /**
+     * ip
+     */
+    private String ip;
+    /**
+     * 操作地址
+     */
+    private String address;
+    /**
+     * 登录时间
+     */
+    private Date loginTime;
+    /**
+     * 操作系统
+     */
+    private String os;
+    /**
+     * 浏览器
+     */
+    private String browser;
 
     @Override
     @JsonIgnore // 注解作用：序列化时忽略该方法 用于将该对象存入redis中 不加该注解，redis反序列化时会报错
@@ -39,7 +65,7 @@ public class AuthUser implements UserDetails, Serializable {
                 .filter(r -> StringUtils.hasText(r.getCode()))
                 .map(r -> new SimpleGrantedAuthority(SecurityConst.ROLE_PREFIX + r.getCode()))
                 .collect(Collectors.toList());
-        
+
         // 获取菜单权限的编码值，添加至权限集合 authorities 中
         List<SimpleGrantedAuthority> perAuthorities = sysUser.getPermissions().stream()
                 .filter(p -> StringUtils.hasText(p.getCode()))
@@ -47,16 +73,16 @@ public class AuthUser implements UserDetails, Serializable {
                 .collect(Collectors.toList());
         // 合并
         roleAuthorities.addAll(perAuthorities);
-        
+
         return roleAuthorities;
     }
-    
+
     @Override
     @JsonIgnore
     public String getUsername() {
         return sysUser.getLoginName();
     }
-    
+
     @Override
     @JsonIgnore
     public String getPassword() {

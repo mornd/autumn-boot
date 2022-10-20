@@ -62,8 +62,7 @@ public class SecurityUtil {
     @Deprecated
     public static String getEncryptionPassword() {
         try {
-            AuthUser principal = (AuthUser) SecurityContextHolder.getContext()
-                    .getAuthentication().getPrincipal();
+            AuthUser principal = (AuthUser) getAuthentication().getPrincipal();
             SysUser sysUser = principal.getSysUser();
             return sysUser.getPassword();
         } catch (Exception e) {

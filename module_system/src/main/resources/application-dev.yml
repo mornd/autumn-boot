@@ -107,7 +107,7 @@ spring:
     # 超时时间：毫秒
     timeout: 5000ms
     # 密码
-    password: 
+    password:
     # 配置lettuce连接池
     lettuce:
       pool:
@@ -148,8 +148,8 @@ jwt:
   renewalExpiration: 259200000 # 3天
     # 是否是单用户登录模式
   singleLogin: true
-  
-# 七牛云配置  
+
+# 七牛云配置
 qiniu:
   #密钥 AK
   accessKey: xxx
@@ -159,3 +159,10 @@ qiniu:
   bucket: xxx
   # 文件访问域名前缀
   domain: xxx
+
+# 第三方登录
+otherLogin:
+  gitee:
+    clientId: 'xxx'
+    secret: 'xxx'
+    uri: 'http://localhost:9000/callback'

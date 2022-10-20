@@ -57,7 +57,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         return baseMapper.findByUserId(userId, enabled);
     }
 
-    /** 
+    /**
      * 工具方法：获取当前用户的所有可用权限
      * @return
      */
@@ -128,7 +128,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         role.setEnabled(null);
         role.setGmtModified(new Date());
         baseMapper.updateById(role);
-        authUtil.delCacheLoginUser();
+        //authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 
@@ -145,11 +145,11 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         //解除其他关联关系
         this.deleteUserAssociated(id);
         this.deletePerAssociated(id);
-        
+
         baseMapper.deleteById(id);
         userWithRoleMapper.deleteById(id);
         roleWithPermissionMapper.deleteById(id);
-        authUtil.delCacheLoginUser();
+        //authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 
@@ -185,9 +185,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
                 rwp.setPerId(updateId);
                 rwp.setGmtCreate(new Date());
                 roleWithPermissionMapper.insert(rwp);
-            }    
+            }
         }
-        authUtil.delCacheLoginUser();
+        //authUtil.delCacheLoginUser();
         return JsonResult.success();
     }
 

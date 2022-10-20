@@ -97,6 +97,10 @@ public class AuthServiceImpl implements AuthService {
             // 单用户登录，移除其它登录过的用户 key
             redisUtil.deleteKeysPattern(tokenProperties.getOnlineUserKey() + principal.getUsername() + "*");
         }
+
+        //  生成登录用户的 IP，操作系统等
+        authUtil.generateLoginInfo(principal);
+
         // 将登录用户信息存入 redis 中
         redisUtil.setValue(authUtil.getLoginUserRedisKey(token),
                 principal,
