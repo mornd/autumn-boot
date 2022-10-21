@@ -31,7 +31,7 @@ public class OnlineUserController {
     @PreAuthorize("hasAuthority('onlineUser')")
     @LogStar("获取在线用户列表")
     @GetMapping
-    public JsonResult<?> list(@Validated OnlineUser user) {
+    public JsonResult<?> pageList(@Validated OnlineUser user) {
         Set<String> keys = redisUtil.keys(tokenProperties.getOnlineUserKey() + "*");
         List<OnlineUser> userList = new ArrayList<>();
         // 总数
@@ -86,7 +86,7 @@ public class OnlineUserController {
     @DeleteMapping("/{loginName}")
     public JsonResult<?> kick(@PathVariable String loginName) {
         String key = tokenProperties.getOnlineUserKey() + loginName + "*";
-        long result = redisUtil.deleteKeysPattern(key);
-        return JsonResult.successData(result > 0);
+        redisUtil.deleteKeysPattern(key);
+        return JsonResult.success("操作成功");
     }
 }

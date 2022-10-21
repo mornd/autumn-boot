@@ -28,6 +28,7 @@ public class SysLogController {
     @Resource
     private SysLogService sysLogService;
 
+    @LogStar("查看操作日志")
     @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog')")
     @ApiOperation("获取列表数据")
     @GetMapping

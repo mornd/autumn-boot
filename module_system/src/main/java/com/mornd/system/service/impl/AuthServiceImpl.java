@@ -56,9 +56,7 @@ public class AuthServiceImpl implements AuthService {
         //验证码校验
         String uuid = loginUserDTO.getUuid();
         String captcha = (String) redisUtil.getValue(RedisKey.LOGIN_CAPTCHA_KEY + uuid);
-        //模糊匹配删除key
-        Set<String> keys = redisUtil.keys(RedisKey.LOGIN_CAPTCHA_KEY + "*");
-        redisUtil.delete(keys);
+        redisUtil.delete(RedisKey.LOGIN_CAPTCHA_KEY + uuid);
         if(!StringUtils.hasText(captcha)){
             return JsonResult.failure("验证码不存在或已过期");
         }

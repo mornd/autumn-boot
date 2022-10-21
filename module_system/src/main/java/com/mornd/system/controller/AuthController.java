@@ -78,8 +78,6 @@ public class AuthController {
         log.info("登录验证码为：{}", captchaResult);
         log.info("登录uuid为：{}", uuid);
 
-        Set<String> keys = redisUtil.keys(RedisKey.LOGIN_CAPTCHA_KEY + "*");
-        redisUtil.delete(keys);
         //存入redis，并设置过期时间
         redisUtil.setValue(RedisKey.LOGIN_CAPTCHA_KEY + uuid,
                 captchaResult,
