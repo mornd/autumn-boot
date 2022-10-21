@@ -23,7 +23,7 @@ public class OnlineUser {
         address = authUser.getAddress();
         os = authUser.getOs();
         browser = authUser.getBrowser();
-        duration = (System.currentTimeMillis() - loginTime.getTime()) / 1000;
+        duration = (System.currentTimeMillis() - loginTime.getTime());
     }
 
     private String loginName;

@@ -24,7 +24,7 @@ public class PageUtil {
             return list.stream().limit(size).collect(Collectors.toList());
         } else {
             return list.stream().skip((long) (num - 1) * size)
-                    .limit(num).collect(Collectors.toList());
+                    .limit(size).collect(Collectors.toList());
         }
     }
 }

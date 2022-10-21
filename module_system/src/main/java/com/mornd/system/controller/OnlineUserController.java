@@ -1,6 +1,5 @@
 package com.mornd.system.controller;
 
-import com.mornd.system.annotation.Anonymous;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.config.security.components.TokenProperties;
 import com.mornd.system.entity.dto.AuthUser;
@@ -35,6 +34,7 @@ public class OnlineUserController {
     public JsonResult<?> list(@Validated OnlineUser user) {
         Set<String> keys = redisUtil.keys(tokenProperties.getOnlineUserKey() + "*");
         List<OnlineUser> userList = new ArrayList<>();
+        // 总数
         long total = 0;
         for (String key : keys) {
             try {
@@ -44,6 +44,7 @@ public class OnlineUserController {
 
                 String cacheLoginName = authUser.getSysUser().getLoginName();
                 String cacheRealName = authUser.getSysUser().getRealName();
+                // 条件筛选
                 if(StringUtils.hasText(loginName) && StringUtils.hasText(realName)) {
                     if(cacheLoginName.contains(loginName)
                             && cacheRealName.contains(realName)) {
@@ -64,9 +65,9 @@ public class OnlineUserController {
             }
         }
         if(userList.size() > 0) {
-            // 按登录时间排序
             total = userList.size();
-            userList.sort(Comparator.comparing(OnlineUser::getLoginTime));
+            // 按登录时间排序
+            userList.sort((u1, u2) -> -u1.getLoginTime().compareTo(u2.getLoginTime()));
             userList = PageUtil.pageInfo(userList, user.getPageNo(), user.getPageSize());
         }
         Map<String,Object> map = new HashMap<>();
@@ -83,9 +84,9 @@ public class OnlineUserController {
     @PreAuthorize("hasAuthority('onlineUser:kick')")
     @LogStar("强制踢人")
     @DeleteMapping("/{loginName}")
-    public JsonResult kick(@PathVariable String loginName) {
+    public JsonResult<?> kick(@PathVariable String loginName) {
         String key = tokenProperties.getOnlineUserKey() + loginName + "*";
         long result = redisUtil.deleteKeysPattern(key);
-        return JsonResult.success("操作成功");
+        return JsonResult.successData(result > 0);
     }
 }
