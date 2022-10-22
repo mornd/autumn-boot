@@ -84,16 +84,8 @@ public class RedisUtil {
      * 根据key删除value
      * @param keys
      */
-    public void delete(String... keys){
-        if(keys != null && keys.length > 0){
-            if(keys.length == 1){
-                redisTemplate.delete(keys[0]);
-            }else{
-                for (String key : keys) {
-                    redisTemplate.delete(key);
-                }
-            }
-        }
+    public boolean delete(String keys){
+        return redisTemplate.delete(keys);
     }
 
     /**
@@ -101,7 +93,7 @@ public class RedisUtil {
      * @param keys
      * @return
      */
-    public long delete(Collection<String> keys) {
+    public long delete(Collection keys) {
         return redisTemplate.delete(keys);
     }
 

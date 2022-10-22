@@ -106,7 +106,6 @@ public class SysLogAspect {
         //标题
         String title = logStar.value();
         String url = request.getRequestURI();
-        String ip = IpUtils.getIpAddr(request);
 
         //类名
         String declaringTypeName = signature.getDeclaringTypeName();
@@ -130,12 +129,12 @@ public class SysLogAspect {
         sysLog.setUsername(username);
         sysLog.setMethodName(methodName);
         sysLog.setUrl(url);
-        sysLog.setIp(ip);
+        sysLog.setIp(IpUtils.getIpAddr(request));
         sysLog.setExecutionTime(processingTime);
         //操作系统及浏览器
-        sysLog.setOs(NetUtil.getOS(request));
+        sysLog.setOs(NetUtil.getOs(request));
         sysLog.setBrowser(NetUtil.getBrowser(request));
-        sysLog.setAddress(AddressUtils.getRealAddressByIP(ip));
+        sysLog.setAddress(AddressUtils.getRealAddressByIP(sysLog.getIp()));
         if(StrUtil.isNotBlank(params) && !"[]".equals(params)) {
             sysLog.setParams(params.length() > 1000 ? params.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : params);
         }

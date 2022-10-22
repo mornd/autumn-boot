@@ -1,19 +1,14 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.LogStar;
-import com.mornd.system.config.security.components.TokenProperties;
-import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.OnlineUser;
 import com.mornd.system.entity.result.JsonResult;
-import com.mornd.system.utils.PageUtil;
-import com.mornd.system.utils.RedisUtil;
+import com.mornd.system.service.OnlineUserService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.*;
 
 /**
  * @author mornd
@@ -24,56 +19,13 @@ import java.util.*;
 @RequestMapping("/onlineUser")
 public class OnlineUserController {
     @Resource
-    private RedisUtil redisUtil;
-    @Resource
-    private TokenProperties tokenProperties;
+    private OnlineUserService onlineUserService;
 
     @PreAuthorize("hasAuthority('onlineUser')")
     @LogStar("获取在线用户列表")
     @GetMapping
     public JsonResult<?> pageList(@Validated OnlineUser user) {
-        Set<String> keys = redisUtil.keys(tokenProperties.getOnlineUserKey() + "*");
-        List<OnlineUser> userList = new ArrayList<>();
-        // 总数
-        long total = 0;
-        for (String key : keys) {
-            try {
-                AuthUser authUser = (AuthUser) redisUtil.getValue(key);
-                String loginName = user.getLoginName();
-                String realName = user.getRealName();
-
-                String cacheLoginName = authUser.getSysUser().getLoginName();
-                String cacheRealName = authUser.getSysUser().getRealName();
-                // 条件筛选
-                if(StringUtils.hasText(loginName) && StringUtils.hasText(realName)) {
-                    if(cacheLoginName.contains(loginName)
-                            && cacheRealName.contains(realName)) {
-                        userList.add(new OnlineUser(authUser));
-                    }
-                } else if(StringUtils.hasText(loginName)) {
-                    if(cacheLoginName.contains(loginName)) {
-                        userList.add(new OnlineUser(authUser));
-                    }
-                } else if(StringUtils.hasText(realName)) {
-                    if(cacheRealName.contains(realName)) {
-                        userList.add(new OnlineUser(authUser));
-                    }
-                } else {
-                    userList.add(new OnlineUser(authUser));
-                }
-            } catch (Exception e) {
-            }
-        }
-        if(userList.size() > 0) {
-            total = userList.size();
-            // 按登录时间排序
-            userList.sort((u1, u2) -> -u1.getLoginTime().compareTo(u2.getLoginTime()));
-            userList = PageUtil.pageInfo(userList, user.getPageNo(), user.getPageSize());
-        }
-        Map<String,Object> map = new HashMap<>();
-        map.put("data", userList);
-        map.put("total", total);
-        return JsonResult.successData(map);
+        return onlineUserService.pageList(user);
     }
 
     /**
@@ -85,8 +37,7 @@ public class OnlineUserController {
     @LogStar("强制踢人")
     @DeleteMapping("/{loginName}")
     public JsonResult<?> kick(@PathVariable String loginName) {
-        String key = tokenProperties.getOnlineUserKey() + loginName + "*";
-        redisUtil.deleteKeysPattern(key);
+        onlineUserService.kick(loginName);
         return JsonResult.success("操作成功");
     }
 }

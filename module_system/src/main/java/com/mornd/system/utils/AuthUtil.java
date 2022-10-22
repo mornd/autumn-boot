@@ -1,7 +1,7 @@
 package com.mornd.system.utils;
 
-import com.mornd.system.config.security.components.TokenProperties;
 import com.mornd.system.config.security.components.TokenProvider;
+import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.dto.AuthUser;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +21,6 @@ public class AuthUtil {
     private HttpServletRequest request;
     @Resource
     private RedisUtil redisUtil;
-    @Resource
-    private TokenProperties tokenProperties;
 
     /**
      * 获取存储在 redis 中的当前登录用户信息 key
@@ -30,8 +28,7 @@ public class AuthUtil {
      * @return
      */
     public String getLoginUserRedisKey(String token) {
-        String subject = tokenProvider.getSubject(token);
-        return String.format("%s%s-%s",tokenProperties.getOnlineUserKey(), subject, token);
+        return String.format("%s-%s", RedisKey.ONLINE_USER_KEY, token);
     }
 
     /**
@@ -41,7 +38,7 @@ public class AuthUtil {
      */
     public AuthUser generateLoginInfo(AuthUser user) {
         user.setIp(IpUtils.getIpAddr(request));
-        user.setOs(NetUtil.getOS(request));
+        user.setOs(NetUtil.getOs(request));
         user.setBrowser(NetUtil.getBrowser(request));
         user.setAddress(AddressUtils.getRealAddressByIP(user.getIp()));
         user.setLoginTime(new Date());

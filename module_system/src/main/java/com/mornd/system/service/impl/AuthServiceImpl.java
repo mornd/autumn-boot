@@ -7,6 +7,7 @@ import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.dto.LoginUserDTO;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.AuthService;
+import com.mornd.system.service.OnlineUserService;
 import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecretUtil;
@@ -44,6 +45,8 @@ public class AuthServiceImpl implements AuthService {
     private RedisUtil redisUtil;
     @Resource
     private AuthUtil authUtil;
+    @Resource
+    private OnlineUserService onlineUserService;
 
     /**
      * 处理用户登录逻辑
@@ -93,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
         String token = tokenProvider.generateToken(principal);
         if(tokenProperties.getSingleLogin()) {
             // 单用户登录，移除其它登录过的用户 key
-            redisUtil.deleteKeysPattern(tokenProperties.getOnlineUserKey() + principal.getUsername() + "*");
+            onlineUserService.kick(principal.getSysUser().getLoginName());
         }
 
         //  生成登录用户的 IP，操作系统等

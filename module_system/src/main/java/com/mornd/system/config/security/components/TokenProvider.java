@@ -63,7 +63,7 @@ public class TokenProvider {
                 // 签发时间 => iat
                 .setIssuedAt(new Date())
                 // 过期时间 => exp
-                //.setExpiration(generateExpirationDate())
+                //.setExpiration(generateExpirationDate()) // redis 维护
                 // 加密算法 => alg 和 盐值
                 .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret());
     }

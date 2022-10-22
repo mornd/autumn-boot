@@ -138,8 +138,6 @@ jwt:
   secret: mornd-secret
   # JWT 负载拿到开头
   tokenHead: 'Bearer '
-  # 缓存中保存在线用户的 key
-  onlineUserKey: 'onlineUserKey-'
   # JWT 的超期限时间，单位毫秒
   expiration: 1800000  # 30分钟
   # token 是否续期（即登录后每次访问都重新生成超期限时间）

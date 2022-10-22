@@ -66,11 +66,18 @@
             <version>1.7.2</version>
         </dependency>
 
-        <!-- 解析客户端操作系统、浏览器等 -->
+        <!-- 解析客户端操作系统、浏览器等 ruoyi -->
         <dependency>
             <groupId>eu.bitwalker</groupId>
             <artifactId>UserAgentUtils</artifactId>
             <version>1.21</version>
+        </dependency>
+
+        <!-- 解析客户端操作系统、浏览器信息 -->
+        <dependency>
+            <groupId>nl.basjes.parse.useragent</groupId>
+            <artifactId>yauaa</artifactId>
+            <version>5.23</version>
         </dependency>
 
         <dependency>

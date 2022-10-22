@@ -32,10 +32,6 @@ public class TokenProperties {
      */
     private Long expiration;
     /**
-     * 缓存中保存在线用户的 key
-     */
-    private String onlineUserKey;
-    /**
      * token 是否续期（即登录后每次访问都重新生成超期限时间）
      */
     private Boolean isRenewal;
