@@ -1,11 +1,8 @@
 package com.mornd.system.controller;
 
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.entity.dto.ChangePwdDTO;
 import com.mornd.system.entity.po.SysRole;
-import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
 import com.mornd.system.service.RoleService;
@@ -91,13 +88,6 @@ public class UserController {
     @PutMapping("/userUpdate")
     public JsonResult userUpdate(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
         return userService.userUpdate(user);
-    }
-
-    @LogStar("修改头像")
-    @ApiOperation("用户修改头像")
-    @PutMapping("/avatar")
-    public JsonResult updateAvatar(@RequestBody @Validated(ValidGroupA.class) SysUserVO user) {
-        return userService.updateAvatar(user);
     }
 
     @PreAuthorize("hasAnyAuthority('system:user:delete')")

@@ -6,9 +6,8 @@ server:
       timeout: 3m # session 3分钟后超时，不能小于1分钟
 
 spring:
-  author: mornd
   application:
-    name: autumn-boot
+    name: ${autumn.application-name}
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -163,4 +162,4 @@ otherLogin:
   gitee:
     clientId: 'xxx'
     secret: 'xxx'
-    uri: 'http://localhost:9000/callback'
+    uri: 'http://localhost:9000/giteeLoginCallback'

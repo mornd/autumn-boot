@@ -58,6 +58,6 @@ public class ModuleSystemApplication implements ApplicationListener<WebServerIni
                  "\tLocal:\t\thttp://localhost:{}{}" +
                 "\n\tExternal:\thttp://{}:{}{}" +
                 "\n---------------------------------------------------------\n", port, contextPath, ip, port, contextPath);
-        System.out.println("autumn-boot application started successfully!!!");
+        log.info("autumn-boot application started successfully!!!");
     }
 }

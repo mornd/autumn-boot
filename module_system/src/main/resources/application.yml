@@ -1,3 +1,11 @@
+# 系统自定义配置
+autumn:
+  author: mornd
+  version: 1.1
+  application-name: autumn-boot
+  # 文件存储位置 local：本地 qiniu：七牛云
+  upload-storage: local
+
 spring:
   profiles:
     active: prod

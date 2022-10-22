@@ -1,6 +1,6 @@
 package com.mornd.system.service;
 
-import com.mornd.system.entity.dto.GiteeLoginUser;
+import com.mornd.system.entity.dto.OtherLoginUseDTO;
 import com.mornd.system.entity.result.JsonResult;
 
 /**
@@ -8,5 +8,7 @@ import com.mornd.system.entity.result.JsonResult;
  * @dateTime 2022/10/20 - 0:35
  */
 public interface OtherLoginService {
-    JsonResult loginByGitee(GiteeLoginUser user);
+    JsonResult preLoginByGitee();
+
+    JsonResult loginByGitee(OtherLoginUseDTO user);
 }

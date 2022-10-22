@@ -92,21 +92,8 @@ public class AuthServiceImpl implements AuthService {
                 authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         AuthUser principal = (AuthUser) authenticate.getPrincipal();
-        // 生成 token
-        String token = tokenProvider.generateToken(principal);
-        if(tokenProperties.getSingleLogin()) {
-            // 单用户登录，移除其它登录过的用户 key
-            onlineUserService.kick(principal.getSysUser().getLoginName());
-        }
-
-        //  生成登录用户的 IP，操作系统等
-        authUtil.generateLoginInfo(principal);
-
-        // 将登录用户信息存入 redis 中
-        redisUtil.setValue(authUtil.getLoginUserRedisKey(token),
-                principal,
-                tokenProperties.getExpiration(),
-                TimeUnit.MILLISECONDS);
+        // 执行登录，并生成token
+        String token = this.genericLogin(principal);
         // 返回结果
         Map<String,Object> tokenMap = new HashMap<String, Object>(2) {{
             put("tokenHead", tokenProperties.getTokenHead());
@@ -115,6 +102,26 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("用户{}登录系统成功", loginUserDTO.getUsername());
         return JsonResult.success("登录成功", tokenMap);
+    }
+
+    @Override
+    public String genericLogin(AuthUser authUser) {
+        // 生成 token
+        String token = tokenProvider.generateToken(authUser);
+        if(tokenProperties.getSingleLogin()) {
+            // 单用户登录，移除其它登录过的用户 key
+            onlineUserService.kick(authUser.getSysUser().getLoginName());
+        }
+
+        //  生成登录用户的 IP，操作系统等
+        authUtil.generateLoginInfo(authUser);
+
+        // 将登录用户信息存入 redis 中
+        redisUtil.setValue(authUtil.getLoginUserRedisKey(token),
+                authUser,
+                tokenProperties.getExpiration(),
+                TimeUnit.MILLISECONDS);
+        return token;
     }
 
     /**

@@ -1,14 +1,9 @@
 package com.mornd.system.controller;
 
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mornd.system.annotation.LogStar;
-import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.result.JsonResult;
-import com.mornd.system.service.UserService;
-import com.mornd.system.utils.QiniuUtil;
+import com.mornd.system.service.UploadService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,11 +23,9 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/upload")
 public class UploadController {
+
     @Resource
-    private QiniuUtil qiniuUtil;
-    @Resource
-    private UserService userService;
-    
+    private UploadService uploadService;
     /**
      * 头像上传
      * @param file
@@ -41,25 +34,11 @@ public class UploadController {
      */
     @LogStar("上传头像")
     @PostMapping("/avatar")
-    public JsonResult upload(@RequestBody MultipartFile file, HttpServletRequest request) throws IOException {
+    public JsonResult uploadAvatar(@RequestBody MultipartFile file, HttpServletRequest request) throws Exception {
         if(file == null) return JsonResult.failure("文件为空");
         String id = request.getParameter("id");
         if(StringUtils.isBlank(id)) return JsonResult.failure("用户id不能为空");
-        //查询用户之前的头像
-        LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery();
-        qw.eq(SysUser::getId, id);
-        qw.last("LIMIT 1");
-        SysUser user = userService.getOne(qw);
-        
-        String url = qiniuUtil.upload(file.getInputStream(), file.getOriginalFilename());
-        if(url == null) {
-            return JsonResult.failure("上传失败，请重试");
-        }
-        //删除之前的头像
-        String avatar = user.getAvatar();
-        if(StrUtil.isNotBlank(avatar)) {
-            qiniuUtil.delete(avatar.substring(avatar.lastIndexOf("/") + 1));
-        }
+        String url = uploadService.uploadAvatar(id, file);
         return JsonResult.success("上传成功", url);
     }
 }

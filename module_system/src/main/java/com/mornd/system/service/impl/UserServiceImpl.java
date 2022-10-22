@@ -104,7 +104,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         sysUser.setCreateBy(SecurityUtil.getLoginUserId());
         sysUser.setGmtCreate(new Date());
         baseMapper.insert(sysUser);
-        
+
         //角色相关
         if(ObjectUtils.isNotEmpty(user.getRoles())) {
             user.getRoles().forEach(id -> {
@@ -120,7 +120,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
 
     /**
      * 管理员修改用户信息
-     * @param user 
+     * @param user
      * @return
      */
     @Override
@@ -139,7 +139,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         userWithRoleMapper.delete(qw);
         if(ObjectUtils.isNotEmpty(user.getRoles())) {
             user.getRoles().forEach(id -> {
-                UserWithRole uw = new UserWithRole();        
+                UserWithRole uw = new UserWithRole();
                 uw.setUserId(sysUser.getId());
                 uw.setRoleId(id);
                 uw.setGmtCreate(new Date());
@@ -162,7 +162,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         qw.eq(SysUser::getId, user.getId());
         SysUser searchUser = baseMapper.selectOne(qw);
         //判断用户的登录名是否修改，如果用户修改了登录名则需重新登录
-        boolean repeat = user.getLoginName().equals(searchUser.getLoginName()); 
+        boolean repeat = user.getLoginName().equals(searchUser.getLoginName());
         SysUser sysUser = new SysUser();
         BeanUtils.copyProperties(user, sysUser);
         sysUser.setStatus(null);
@@ -173,20 +173,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         authUtil.delCacheLoginUser();
         return JsonResult.success(ResultMessage.UPDATE_MSG, repeat);
     }
-    
+
     /**
      * 用户修改头像
      * @param user
      * @return
      */
     @Override
-    public JsonResult updateAvatar(SysUserVO user) {
+    public int updateAvatar(SysUser user) {
         LambdaUpdateWrapper<SysUser> uw = Wrappers.lambdaUpdate();
         uw.eq(SysUser::getId, user.getId());
         uw.set(SysUser::getAvatar, user.getAvatar());
-        baseMapper.update(null, uw);
-        authUtil.delCacheLoginUser();
-        return JsonResult.success("头像修改成功");
+        return baseMapper.update(null, uw);
     }
 
     /**

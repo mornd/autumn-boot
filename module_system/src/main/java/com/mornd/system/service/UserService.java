@@ -29,7 +29,7 @@ public interface UserService extends IService<SysUser> {
 
     JsonResult getRoleById(String id);
 
-    JsonResult updateAvatar(SysUserVO user);
+    int updateAvatar(SysUser user);
 
     JsonResult userUpdate(SysUserVO user);
 }
