@@ -21,6 +21,9 @@ public class RedisUtil {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
+    public RedisTemplate getRedisTemplate() {
+        return this.redisTemplate;
+    }
     /**
      * 存值
      * @param key
@@ -160,4 +163,22 @@ public class RedisUtil {
         return true;
     }
 
+    /**
+     * 获取key的过期时间
+     * @param key
+     * @return
+     */
+    public long getExpire(String key) {
+        return redisTemplate.getExpire(key);
+    }
+
+    /**
+     * 获取key的过期时间，并指定单位
+     * @param key redis key
+     * @param timeUnit 存储的时间单位
+     * @return
+     */
+    public long getExpire(String key, TimeUnit timeUnit) {
+        return redisTemplate.getExpire(key, timeUnit);
+    }
 }

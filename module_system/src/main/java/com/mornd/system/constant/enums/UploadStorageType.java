@@ -9,16 +9,16 @@ import lombok.Getter;
  * 文件存储位置
  */
 public enum UploadStorageType {
-    LOCAL("local","本地上传"),
-    QINIU("qiniu","七牛云");
+    LOCAL(1, "本地上传"),
+    QINIU(2, "七牛云");
 
     @Getter
-    private final String type;
+    private final Integer code;
     @Getter
     private final String desc;
 
-    private UploadStorageType(String type, String desc) {
-        this.type = type;
+    private UploadStorageType(Integer code, String desc) {
+        this.code = code;
         this.desc = desc;
     }
 }

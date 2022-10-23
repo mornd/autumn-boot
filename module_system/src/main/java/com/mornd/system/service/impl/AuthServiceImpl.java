@@ -24,8 +24,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author mornd
@@ -120,7 +118,7 @@ public class AuthServiceImpl implements AuthService {
         redisUtil.setValue(authUtil.getLoginUserRedisKey(token),
                 authUser,
                 tokenProperties.getExpiration(),
-                TimeUnit.MILLISECONDS);
+                tokenProperties.getExpirationTimeUnit());
         return token;
     }
 

@@ -137,8 +137,10 @@ jwt:
   secret: mornd-secret
   # JWT 负载拿到开头
   tokenHead: 'Bearer '
-  # JWT 的超期限时间，单位毫秒
-  expiration: 1800000  # 30分钟
+  # JWT 的超期限时间，默认180分钟
+  expiration: 180
+  # 设置过期的时间单位(DAYS：天 HOURS：小时 MINUTES：分钟 SECONDS：秒 MILLISECONDS：毫秒)
+  expirationTimeUnit: MINUTES
   # token 是否续期（即登录后每次访问都重新生成超期限时间）
   isRenewal: true
   # 续期时间范围，单位毫秒

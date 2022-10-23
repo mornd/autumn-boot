@@ -1,5 +1,6 @@
 package com.mornd.system.utils;
 
+import com.mornd.system.config.security.components.TokenProperties;
 import com.mornd.system.config.security.components.TokenProvider;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.dto.AuthUser;
@@ -17,6 +18,8 @@ import java.util.Date;
 public class AuthUtil {
     @Resource
     private TokenProvider tokenProvider;
+    @Resource
+    private TokenProperties tokenProperties;
     @Resource
     private HttpServletRequest request;
     @Resource
@@ -51,5 +54,17 @@ public class AuthUtil {
     public void delCacheLoginUser() {
         String token = tokenProvider.searchToken(request);
         redisUtil.delete(getLoginUserRedisKey(token));
+    }
+
+    /**
+     * 更新缓存用户的信息
+     * @param key
+     * @param principal
+     */
+    public void updateAuthUser(String key, AuthUser principal) {
+        // 获取key还有多长时间过期
+        long expire = redisUtil.getExpire(key, tokenProperties.getExpirationTimeUnit());
+        // 更新key的值
+        redisUtil.setValue(key, principal, expire, tokenProperties.getExpirationTimeUnit());
     }
 }

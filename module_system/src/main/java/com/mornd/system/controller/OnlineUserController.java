@@ -30,14 +30,14 @@ public class OnlineUserController {
 
     /**
      * 强制踢人
-     * @param loginName
+     * @param id
      * @return
      */
     @PreAuthorize("hasAuthority('onlineUser:kick')")
     @LogStar("强制踢人")
-    @DeleteMapping("/{loginName}")
-    public JsonResult<?> kick(@PathVariable String loginName) {
-        onlineUserService.kick(loginName);
+    @DeleteMapping("/{id}")
+    public JsonResult<?> kick(@PathVariable String id) {
+        onlineUserService.kick(id);
         return JsonResult.success("操作成功");
     }
 }

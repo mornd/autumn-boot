@@ -94,21 +94,27 @@ public class OnlineUserServiceImpl implements OnlineUserService {
 
     /**
      * 强制退出
-     * @param loginName
+     * @param id
      */
     @Override
-    public long kick(String loginName) {
-        Set<String> keys = redisUtil.keys(RedisKey.ONLINE_USER_KEY + "*");
-        long result = 0;
-        for (String key : keys) {
-            try {
-                AuthUser authUser = (AuthUser) redisUtil.getValue(key);
-                if(loginName.equals(authUser.getSysUser().getLoginName())) {
-                    if(redisUtil.delete(key)) result++;
+    public boolean kick(String id) {
+        String key = getOnlineUserKeyById(id);
+        return key != null && redisUtil.delete(key);
+    }
+
+    public String getOnlineUserKeyById(String id) {
+        if(StringUtils.hasText(id)) {
+            Set<String> keys = redisUtil.keys(RedisKey.ONLINE_USER_KEY + "*");
+            for (String key : keys) {
+                try {
+                    AuthUser authUser = (AuthUser) redisUtil.getValue(key);
+                    if(id.equals(authUser.getSysUser().getId())) {
+                        return key;
+                    }
+                } catch (Exception e) {
                 }
-            } catch (Exception e) {
             }
         }
-        return result;
+        return null;
     }
 }

@@ -1,8 +1,12 @@
 package com.mornd.system.config;
 
+import com.mornd.system.constant.GlobalConst;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.Resource;
 
 /**
  * @author mornd
@@ -11,7 +15,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
-    
+    @Resource
+    private AutumnConfig autumnConfig;
+
+    /**
+     * 添加静态资源映射
+     * @param registry
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler(GlobalConst.RESOURCE_PREFIX + "/**")
+                .addResourceLocations("file:" + autumnConfig.getProfile() + "/");
+    }
+
     /**
      * 跨域配置
      * @param registry
@@ -28,7 +44,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 //.allowedOrigins("*")
                 .allowedOriginPatterns("*")
                 // 是否允许证书
-                .allowCredentials(true)  
+                .allowCredentials(true)
                 // 预检间隔时间
                 .maxAge(3600);
     }

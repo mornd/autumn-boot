@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "autumn")
 public class AutumnConfig {
-    public String author;
-    public String version;
-    public String applicationName;
-    public String uploadStorage;
+    private String author;
+    private String version;
+    private String applicationName;
+    private Integer uploadStorage;
+    private String profile;
 }

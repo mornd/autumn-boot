@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
+import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.UserWithRole;
@@ -17,6 +18,7 @@ import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
 import com.mornd.system.mapper.UserMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
+import com.mornd.system.service.OnlineUserService;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.SecurityUtil;
@@ -40,6 +42,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     private UserWithRoleMapper userWithRoleMapper;
     @Resource
     private AuthUtil authUtil;
+    @Resource
+    private OnlineUserService onlineUserService;
     @Resource
     private BCryptPasswordEncoder passwordEncoder;
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
@@ -146,7 +150,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
-        authUtil.delCacheLoginUser();
+
+        if(SecurityUtil.getLoginUser().getId().equals(user.getId())) {
+            // todo
+            // 删除缓存信息
+            authUtil.delCacheLoginUser();
+        }
         return JsonResult.success();
     }
 
@@ -156,13 +165,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public JsonResult userUpdate(SysUserVO user) {
         if(this.queryLoginNameExists(user.getLoginName(), user.getId())) return JsonResult.failure("登录名已重复");
-        LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery();
-        qw.eq(SysUser::getId, user.getId());
-        SysUser searchUser = baseMapper.selectOne(qw);
-        //判断用户的登录名是否修改，如果用户修改了登录名则需重新登录
-        boolean repeat = user.getLoginName().equals(searchUser.getLoginName());
+        // 更新缓存中的用户
+        String onlineUserKeyById = onlineUserService.getOnlineUserKeyById(user.getId());
+        AuthUser principal = (AuthUser) SecurityUtil.getAuthentication().getPrincipal();
+        SysUser cacheUser = principal.getSysUser();
+        cacheUser.setLoginName(user.getLoginName());
+        cacheUser.setRealName(user.getRealName());
+        cacheUser.setGender(user.getGender());
+        cacheUser.setPhone(user.getPhone());
+        cacheUser.setEmail(user.getEmail());
+        authUtil.updateAuthUser(onlineUserKeyById, principal);
+
+        // 更新数据库
         SysUser sysUser = new SysUser();
         BeanUtils.copyProperties(user, sysUser);
         sysUser.setStatus(null);
@@ -170,8 +187,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         sysUser.setModifiedBy(SecurityUtil.getLoginUserId());
         sysUser.setGmtModified(new Date());
         baseMapper.updateById(sysUser);
-        authUtil.delCacheLoginUser();
-        return JsonResult.success(ResultMessage.UPDATE_MSG, repeat);
+        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     /**

@@ -17,5 +17,7 @@ public interface OnlineUserService {
 
     JsonResult<?> pageList(OnlineUser user);
 
-    long kick(String loginName);
+    boolean kick(String id);
+
+    String getOnlineUserKeyById(String id);
 }

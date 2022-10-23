@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author mornd
  * @dateTime 2022/5/2 - 17:56
@@ -31,6 +33,11 @@ public class TokenProperties {
      * token 不操作时的过期时间
      */
     private Long expiration;
+
+    /**
+     * 时间单位
+     */
+    private TimeUnit expirationTimeUnit;
     /**
      * token 是否续期（即登录后每次访问都重新生成超期限时间）
      */

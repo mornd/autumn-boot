@@ -11,11 +11,13 @@ import java.util.Date;
 /**
  * @author mornd
  * @dateTime 2022/10/20 - 19:39
+ * 在线用户
  */
 @Data
 @NoArgsConstructor
 public class OnlineUser {
     public OnlineUser(AuthUser authUser) {
+        id = authUser.getSysUser().getId();
         loginName = authUser.getSysUser().getLoginName();
         realName = authUser.getSysUser().getRealName();
         loginTime = authUser.getLoginTime();
@@ -26,6 +28,7 @@ public class OnlineUser {
         duration = (System.currentTimeMillis() - loginTime.getTime());
     }
 
+    private String  id;
     private String loginName;
     private String realName;
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

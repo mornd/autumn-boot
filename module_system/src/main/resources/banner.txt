@@ -6,4 +6,4 @@ ___.                                                    .___
  |___  / ____|         |__|_|  /\____/|__|  |___|  /\____ |
      \/\/                    \/                  \/      \/
 
-:: spring-boot.version  :: (${spring-boot.version}) application.name :: (${spring.application.name})
+:: spring-boot.version : (${spring-boot.version}) application.name : (${spring.application.name}) ::

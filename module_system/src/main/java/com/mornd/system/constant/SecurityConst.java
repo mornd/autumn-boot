@@ -16,6 +16,9 @@ public interface SecurityConst {
             "/v2/api-docs",
             "/v2/api-docs-ext",
 
+            // 获取本地磁盘文件
+            "/profile/**",
+
             //druid数据源监控页面
             "/druid/**",
 

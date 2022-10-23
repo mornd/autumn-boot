@@ -35,7 +35,7 @@ public class UploadController {
     @LogStar("上传头像")
     @PostMapping("/avatar")
     public JsonResult uploadAvatar(@RequestBody MultipartFile file, HttpServletRequest request) throws Exception {
-        if(file == null) return JsonResult.failure("文件为空");
+        if(file == null || file.getSize() <= 0) return JsonResult.failure("文件为空");
         String id = request.getParameter("id");
         if(StringUtils.isBlank(id)) return JsonResult.failure("用户id不能为空");
         String url = uploadService.uploadAvatar(id, file);
