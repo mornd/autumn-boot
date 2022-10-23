@@ -1,7 +1,7 @@
 package com.mornd.system.config;
 
-import com.mornd.system.entity.po.SysUser;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -21,10 +21,17 @@ import java.util.List;
  * @author mornd
  * @dateTime 2021/9/13 - 8:55
  * 浏览器输入swagger文档地址：http://IP:端口/dataView/doc.html
- */ 
-
+ */
 @Configuration
 @EnableSwagger2
+/**
+ * @ConditionalOnProperty 注解：
+ *     prefix 为配置文件中的前缀
+ *     name 为配置的名字
+ *     havingValue 是与配置的值对比值,当两个值相同返回true，配置类生效
+ *     matchIfMissing 的值是如果没有找到该属性，那么该配置类是否继续生效
+ */
+@ConditionalOnProperty(prefix = "swagger", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class Swagger2Config {
     @Value("${jwt.tokenHeader}")
     private String tokenHeader;
@@ -34,9 +41,9 @@ public class Swagger2Config {
     private final String version = "1.1";
     private final String description = "autumn接口文档";
     private final String name = "mornd";
-    private final String url = "http://localhost:1001/dataView/doc.html";
+    private final String url = "http://IP:端口/前置路径/doc.html";
     private final String email = "1152229579@qq.com";
-    
+
     @Bean
     public Docket createApi(){
         return new Docket(DocumentationType.SWAGGER_2)

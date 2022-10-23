@@ -26,8 +26,6 @@ public interface SecurityConst {
             //"/ws/**",
 
             //后台请求url
-            "/userLogin",
-            "/captcha",
             "/css/**",
             "/js/**",
             "/index.html",

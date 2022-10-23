@@ -39,14 +39,6 @@ public class TokenProperties {
      */
     private TimeUnit expirationTimeUnit;
     /**
-     * token 是否续期（即登录后每次访问都重新生成超期限时间）
-     */
-    private Boolean isRenewal;
-    /**
-     * 续期时间范围，单位毫秒
-     */
-    private Long renewalExpiration;
-    /**
      * 是否是单用户登录模式
      */
     private Boolean singleLogin;

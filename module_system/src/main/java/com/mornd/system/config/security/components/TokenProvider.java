@@ -63,19 +63,11 @@ public class TokenProvider {
                 // 签发时间 => iat
                 .setIssuedAt(new Date())
                 // 过期时间 => exp
-                //.setExpiration(generateExpirationDate()) // redis 维护
+//                .setExpiration() // redis 维护
                 // 加密算法 => alg 和 盐值
                 .signWith(SignatureAlgorithm.HS512, tokenProperties.getSecret());
     }
 
-    /**
-     * 生成 token 失效时间
-     * 单位：分钟
-     * @return
-     */
-    private Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + tokenProperties.getExpiration());
-    }
 
     /**
      * 从 token 中获取负载
@@ -131,21 +123,5 @@ public class TokenProvider {
     public Date getExpiredDateFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.getExpiration();
-    }
-
-    /**
-     * 获取 token 终止续期时间
-     * @param token 令牌
-     * @return 终止续期时间 ms
-     */
-    public long getTerminateRenewalTime(String token) {
-        Claims claims = getClaims(token);
-        // 获取 token 生成时间
-        long tokenIssued = claims.getIssuedAt().getTime();
-        // 续期过期时间
-        long renewalExpiration = tokenProperties.getRenewalExpiration();
-        // 系统当前时间 < (token生成时间 + 续期过期时间 - token过期时间) = 是否继续续期token
-        //终止续期时间
-        return  (tokenIssued + renewalExpiration - tokenProperties.getExpiration());
     }
 }

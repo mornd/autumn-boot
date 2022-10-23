@@ -108,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
         String token = tokenProvider.generateToken(authUser);
         if(tokenProperties.getSingleLogin()) {
             // 单用户登录，移除其它登录过的用户 key
-            onlineUserService.kick(authUser.getSysUser().getLoginName());
+            onlineUserService.kick(authUser.getSysUser().getId());
         }
 
         //  生成登录用户的 IP，操作系统等

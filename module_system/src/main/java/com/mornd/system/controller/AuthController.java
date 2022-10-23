@@ -1,5 +1,6 @@
 package com.mornd.system.controller;
 
+import com.mornd.system.annotation.Anonymous;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
@@ -20,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +45,7 @@ public class AuthController {
      * @param loginUserDTO
      * @return
      */
+    @Anonymous
     @ApiOperation("用户登录")
     @PostMapping("/userLogin")
     @LogStar(value = "用户登录", BusinessType = LogType.LOGIN)
@@ -65,6 +66,7 @@ public class AuthController {
      * @param response
      * @return
      */
+    @Anonymous
     @ApiOperation("获取验证码")
     @GetMapping("/captcha")
     public JsonResult getCaptcha(HttpServletResponse response){

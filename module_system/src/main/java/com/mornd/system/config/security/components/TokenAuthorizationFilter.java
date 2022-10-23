@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author mornd
@@ -30,8 +29,6 @@ import java.util.concurrent.TimeUnit;
 public class TokenAuthorizationFilter extends OncePerRequestFilter {
     @Resource
     private TokenProvider tokenProvider;
-    @Resource
-    private TokenProperties tokenProperties;
     @Resource
     private RedisUtil redisUtil;
     @Resource
@@ -61,15 +58,6 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
 
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    // todo token 续期
-                    if(tokenProperties.getIsRenewal()) {
-                        // 获取 token 续订过期时间
-                        long terminateRenewalTime = tokenProvider.getTerminateRenewalTime(token);
-                        if(System.currentTimeMillis() < terminateRenewalTime) {
-                            // 刷新 token 的过期时间
-                            redisUtil.expire(authUtil.getLoginUserRedisKey(token), tokenProperties.getExpiration(), TimeUnit.MILLISECONDS);
-                        }
-                    }
                 }
             } catch (Exception e) {
                 log.error(e.getMessage());
