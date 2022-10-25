@@ -1,8 +1,11 @@
 package com.mornd.system.config;
 
 import com.mornd.system.constant.GlobalConst;
+import com.mornd.system.constant.SecurityConst;
+import com.mornd.system.interceptor.CannotBeModifiedInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -47,5 +50,20 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 // 预检间隔时间
                 .maxAge(3600);
+    }
+
+    @Resource
+    private CannotBeModifiedInterceptor cannotBeModifiedInterceptor;
+
+    /**
+     * 添加 spring 拦截器
+     * 执行逻辑：请求 -> filter -> interceptor -> interceptor -> filter -> 响应
+     * @param registry
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(cannotBeModifiedInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(SecurityConst.NONE_SECURITY_URL_PATTERNS);
     }
 }

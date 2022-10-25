@@ -67,6 +67,9 @@ public class SysUser extends BaseEntity implements Serializable {
     @ApiModelProperty("邮箱")
     private String email;
 
+    @ApiModelProperty("登录方式：0为系统用户")
+    private String source;
+
     //角色集合
     @TableField(exist = false)
     Set<SysRole> roles = new HashSet<>();

@@ -36,10 +36,18 @@ public class JsonResult<T> implements Serializable {
         return success(message, null);
     }
 
+    public static JsonResult<Object> success(Integer code, String message){
+        return success(code, message, null);
+    }
+
     public static JsonResult<Object> success(String message, Object data){
+        return success(JsonResultCode.SUCCESS_CODE, message, data);
+    }
+
+    public static JsonResult<Object> success(Integer code, String message, Object data){
         JsonResult<Object> jsonResult = new JsonResult<>();
         jsonResult.setSuccess(true);
-        jsonResult.setCode(JsonResultCode.SUCCESS_CODE);
+        jsonResult.setCode(code);
         jsonResult.setMessage(message);
         jsonResult.setData(data);
         return jsonResult;
@@ -59,7 +67,7 @@ public class JsonResult<T> implements Serializable {
      * @return
      */
     public static JsonResult<Object> successEmpty() {
-        return success(null, null);
+        return success((String) null, null);
     }
 
 
@@ -78,7 +86,7 @@ public class JsonResult<T> implements Serializable {
     public static JsonResult<Object> failure(Integer code, String message){
         return failure(code, message, null);
     }
-    
+
     public static JsonResult<Object> failure(Integer code, String message, Object data){
         JsonResult<Object> jsonResult = new JsonResult<>();
         jsonResult.setSuccess(false);

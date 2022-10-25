@@ -22,7 +22,7 @@ public class RespUtil {
      */
     public static void writeResult(HttpServletResponse response, JsonResult jsonResult) throws IOException {
         // 设置响应状态
-        response.setStatus(jsonResult.getCode());
+        //response.setStatus(jsonResult.getCode());
         // 防止响应数据中文乱码
         response.setCharacterEncoding("UTF-8");
         //response.setContentType("application/json;charset=utf-8");

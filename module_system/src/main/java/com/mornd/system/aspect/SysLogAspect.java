@@ -6,6 +6,7 @@ import com.mornd.system.annotation.LogStar;
 import com.mornd.system.config.async.factory.AsyncFactory;
 import com.mornd.system.config.async.manager.AsyncManager;
 import com.mornd.system.constant.enums.LogType;
+import com.mornd.system.constant.enums.LoginUserSource;
 import com.mornd.system.entity.po.SysLog;
 import com.mornd.system.utils.AddressUtils;
 import com.mornd.system.utils.IpUtils;
@@ -76,12 +77,14 @@ public class SysLogAspect {
             //执行退出方法须在退出前获取用户信息，否则空指针异常
             if(LogType.LOGOUT.equals(logType)) {
                 username = SecurityUtil.getLoginUsername();
+                username = formatUserName(username);
             }
             //执行目标方法
             result = pjp.proceed();
             if(!LogType.LOGOUT.equals(logType)) {
                 try {
                     username = SecurityUtil.getLoginUsername();
+                    username = formatUserName(username);
                 } catch (Exception e){
                     username = "用户名或密码错误的用户";
                 }
@@ -156,6 +159,13 @@ public class SysLogAspect {
         sysLog.setVisitDate(new Date());
         // 异步保存至数据库
         AsyncManager.me().execute(AsyncFactory.recordSysLogfor(sysLog));
+    }
+
+    private String formatUserName(String username) {
+        if(!LoginUserSource.LOCAL.getCode().equals(SecurityUtil.getLoginUser().getSource())) {
+            return String.format("%s(%s)", username, SecurityUtil.getLoginUser().getSource());
+        }
+        return username;
     }
 }
 

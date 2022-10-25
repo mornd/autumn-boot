@@ -53,6 +53,7 @@ public class AuthController {
         return authService.userLogin(loginUserDTO);
     }
 
+    @Anonymous
     @ApiOperation("用户注销")
     @PostMapping("/userLogout")
     @LogStar(value = "用户注销", BusinessType = LogType.LOGOUT)

@@ -5,10 +5,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mornd.system.constant.EntityConst;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
+import com.mornd.system.constant.enums.LoginUserSource;
 import com.mornd.system.entity.po.SysPermission;
+import com.mornd.system.entity.po.SysRole;
+import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.RoleWithPermission;
 import com.mornd.system.entity.result.JsonResult;
@@ -30,6 +34,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author mornd
@@ -44,14 +49,14 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     private RoleWithPermissionMapper roleWithPermissionMapper;
     @Resource
     private AuthUtil authUtil;
-    
+
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
     private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
     /**
      * 根据角色id集合获取对应的权限集合(不包括按钮权限类型)
      * @param ids 角色集合
-     * @param excludeButton 是否排除按钮类型 
+     * @param excludeButton 是否排除按钮类型
      * @param enabledState 状态
      * @return
      */
@@ -60,19 +65,32 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         if(ObjectUtils.isEmpty(ids)) {
             return null;
         }
-        return baseMapper.getPersByRoleIds(ids, 
+        return baseMapper.getPersByRoleIds(ids,
                 enabledState,
-                excludeButton ? EnumMenuType.BUTTON.getCode() : null, 
+                excludeButton ? EnumMenuType.BUTTON.getCode() : null,
                 EnumHiddenType.DISPLAY.getCode());
     }
-    
+
     /**
      * 展示页面左侧菜单树
      * @return
      */
     @Override
     public Set<SysPermission> leftTree() {
-        Set<SysPermission> pers = this.getPersByRoleIds(roleService.getCurrentRoleIds(), true, null);
+        SysUser loginUser = SecurityUtil.getLoginUser();
+        Set<SysPermission> pers;
+        if(LoginUserSource.LOCAL.getCode().equals(loginUser.getSource())) {
+            pers = this.getPersByRoleIds(roleService.getCurrentRoleIds(), true, null);
+        } else {
+            // 非系统用户赋值一个默认角色
+            LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery();
+            qw.in(SysRole::getId, GlobalConst.GITEE_DEFAULT_ROLE_ID);
+            qw.eq(SysRole::getEnabled, EntityConst.ENABLED);
+            List<SysRole> roles = roleService.list(qw);
+            pers = this.getPersByRoleIds(roles.stream().map(SysRole::getId).collect(Collectors.toList()),
+                    true, null);
+        }
+
         return MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers);
     }
 
@@ -190,7 +208,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         if(sysPermission.getCode().startsWith(SecurityConst.ROLE_PREFIX)) {
             return JsonResult.failure("不可使用" + SecurityConst.ROLE_PREFIX + "作为权限编码的前缀");
         }
-        
+
         if(!GlobalConst.MENU_PARENT_ID.equals(sysPermission.getParentId())) {//如果菜单的父级不是是根节点
             //验证父级是否可用
             LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
@@ -217,14 +235,14 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         sysPermission.setCreateBy(SecurityUtil.getLoginUserId());
         sysPermission.setGmtCreate(new Date());
         baseMapper.insert(sysPermission);
-        
+
         //超级管理员默认添加所有菜单权限
         RoleWithPermission rw = new RoleWithPermission();
         rw.setRoleId(SecurityConst.SUPER_ADMIN_ID);
         rw.setPerId(sysPermission.getId());
         rw.setGmtCreate(new Date());
         roleWithPermissionMapper.insert(rw);
-                
+
         return JsonResult.success();
     }
 
