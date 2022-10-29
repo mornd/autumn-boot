@@ -1,5 +1,7 @@
 package com.mornd.system.config;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -47,10 +49,17 @@ public class Swagger2Config {
     @Bean
     public Docket createApi(){
         return new Docket(DocumentationType.SWAGGER_2)
+                // 是否启用
+                .enable(true)
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage(basePackage))
+                // 方法上添加指定的注解
+                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+                // 所有
+//                .apis(RequestHandlerSelectors.any())
+                // 指定包下
+//                .apis(RequestHandlerSelectors.basePackage(basePackage))
                 .paths(PathSelectors.any())
                 .build()
                 .securitySchemes(securitySchemes())
@@ -67,10 +76,10 @@ public class Swagger2Config {
     }
 
     private List<ApiKey> securitySchemes(){
-        List<ApiKey> list = new ArrayList<>();
-        ApiKey apiKey = new ApiKey(tokenHeader, tokenHeader, "Header");
-        list.add(apiKey);
-        return list;
+        List<ApiKey> apiKeyList = new ArrayList<>();
+        ApiKey apiKey = new ApiKey(tokenHeader, tokenHeader, In.HEADER.toValue());
+        apiKeyList.add(apiKey);
+        return apiKeyList;
     }
 
     private List<SecurityContext> securityContexts(){
@@ -91,7 +100,7 @@ public class Swagger2Config {
         AuthorizationScope scope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] scopes = new AuthorizationScope[1];
         scopes[0] = scope;
-        list.add(new SecurityReference(tokenHeader,scopes));
+        list.add(new SecurityReference(tokenHeader, scopes));
         return list;
     }
 }

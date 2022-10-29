@@ -4,7 +4,6 @@ import com.mornd.system.config.PermitAllUrlProperties;
 import com.mornd.system.config.security.components.CustomFilter;
 import com.mornd.system.config.security.components.TokenAuthorizationFilter;
 import com.mornd.system.constant.SecurityConst;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
@@ -53,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AccessDecisionManager accessDecisionManager;
     @Resource
     private CustomFilter customFilter;
+
     /**
      * security 核心配置方法
      * @param httpSecurity

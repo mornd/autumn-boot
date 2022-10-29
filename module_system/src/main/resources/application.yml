@@ -11,7 +11,3 @@ autumn:
 spring:
   profiles:
     active: prod
-
-swagger:
-  # 是否开启swagger
-  enabled: true

@@ -101,7 +101,7 @@ public class OtherLoginServiceImpl implements OtherLoginService {
         Map<String,Object> tokenMap = new HashMap<String, Object>(3) {{
             put("tokenHead", tokenProperties.getTokenHead());
             put("token", token);
-            put("msg", "目前gitee用户没有真正的进入系统，只赋予了游客的身份登录！");
+            put("msg", "目前gitee用户只能访问页面，不能修改或删除用户！");
         }};
         log.info("gitee用户{}登录系统成功", userData.getUsername());
         return JsonResult.success("登录成功", tokenMap);

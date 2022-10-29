@@ -46,7 +46,14 @@
             <version>2.9.2</version>
         </dependency>
 
-        <!-- swagger 美化 ui -->
+        <!-- swagger  美化 ui 黑 -->
+<!--        <dependency>-->
+<!--            <groupId>com.github.xiaoymin</groupId>-->
+<!--            <artifactId>knife4j-spring-ui</artifactId>-->
+<!--            <version>2.0.7</version>-->
+<!--        </dependency>-->
+
+        <!-- swagger 美化 ui 蓝 -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>swagger-bootstrap-ui</artifactId>
@@ -64,6 +71,13 @@
             <groupId>org.lionsoul</groupId>
             <artifactId>ip2region</artifactId>
             <version>1.7.2</version>
+        </dependency>
+
+        <!-- 获取操作系统内存，磁盘等信息 -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.2.2</version>
         </dependency>
 
         <!-- 解析客户端操作系统、浏览器等 ruoyi -->
