@@ -36,7 +36,7 @@ import java.util.Set;
 public class GlobalExceptionHandler {
 
     /**
-     * 权限校验异常 403
+     * 权限校验异常 403，处理 controller 层添加的权限注解
      */
     @ExceptionHandler(AccessDeniedException.class)
     public JsonResult handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request)

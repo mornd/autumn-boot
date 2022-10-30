@@ -19,6 +19,15 @@ import java.io.IOException;
  */
 @Component
 public class ResultAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    /**
+     * 未登录时，访问未放行的接口时处理
+     * @param request that resulted in an <code>AuthenticationException</code>
+     * @param response so that the user agent can begin authentication
+     * @param e that caused the invocation
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
         // 通过 response 写入数据，返回给前端

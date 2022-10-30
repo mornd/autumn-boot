@@ -46,7 +46,6 @@ public class CannotBeModifiedInterceptor implements HandlerInterceptor {
             try {
                 loginUser = SecurityUtil.getLoginUser();
             } catch (Exception e) {
-                log.error(e.getMessage());
                 return true;
             }
             if(LoginUserSource.LOCAL.getCode().equals(loginUser.getSource())) {
