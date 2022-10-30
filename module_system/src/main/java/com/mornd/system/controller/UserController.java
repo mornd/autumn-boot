@@ -1,6 +1,7 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.entity.dto.ChangePwdDTO;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.result.JsonResult;
@@ -67,6 +68,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:user:add')")
+    @RepeatSubmit
     @LogStar("新增用户")
     @ApiOperation("新增")
     @PostMapping
@@ -75,6 +77,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('super_admin')")  // 拥有任意角色就可访问, "ROLE_" 的前缀可不加，看源码就知道, security 会补上前缀
+    @RepeatSubmit
     @LogStar("管理员修改用户")
     @ApiOperation("修改")
     @PutMapping
@@ -83,6 +86,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:user:update')")
+    @RepeatSubmit
     @LogStar("用户修改个人信息")
     @ApiOperation("用户个人修改信息")
     @PutMapping("/userUpdate")

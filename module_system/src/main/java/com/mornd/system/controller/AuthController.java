@@ -2,6 +2,7 @@ package com.mornd.system.controller;
 
 import com.mornd.system.annotation.Anonymous;
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.dto.LoginUserDTO;
@@ -46,6 +47,7 @@ public class AuthController {
      * @return
      */
     @Anonymous
+    @RepeatSubmit(message = "登录太频繁了，请稍后再试")
     @ApiOperation("用户登录")
     @PostMapping("/userLogin")
     @LogStar(value = "用户登录", BusinessType = LogType.LOGIN)

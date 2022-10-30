@@ -97,12 +97,14 @@ public class RoleController {
         return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, allPers));
     }
 
+    @PreAuthorize("hasAnyAuthority('system:role:update')")
     @ApiOperation("根据角色id查询所属的权限")
     @GetMapping("/getPersById/{id}")
     public JsonResult getPersById(@PathVariable String id) {
         return roleService.getPersById(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('system:role:update')")
     @LogStar("给角色授权权限")
     @ApiOperation("绑定角色对应的权限")
     @PutMapping("/bindPersById")

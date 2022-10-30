@@ -59,14 +59,8 @@ public class RedisUtil {
      * @param timeUnit
      * @return
      */
-    public boolean setValue(String key, Object value, long time, TimeUnit timeUnit){
-        try {
-            redisTemplate.opsForValue().set(key, value, time, timeUnit);
-            return true;
-        } catch (Throwable e) {
-            e.printStackTrace();
-            return  false;
-        }
+    public void setValue(String key, Object value, long time, TimeUnit timeUnit){
+        redisTemplate.opsForValue().set(key, value, time, timeUnit);
     }
 
     /**

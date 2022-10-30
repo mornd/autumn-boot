@@ -3,6 +3,7 @@ package com.mornd.system.config;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.interceptor.CannotBeModifiedInterceptor;
+import com.mornd.system.interceptor.RepeatSubmitInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -55,6 +56,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Resource
     private CannotBeModifiedInterceptor cannotBeModifiedInterceptor;
 
+    @Resource
+    private RepeatSubmitInterceptor repeatSubmitInterceptor;
+
     /**
      * 添加 spring 拦截器
      * 执行逻辑：请求 -> filter -> interceptor -> interceptor -> filter -> 响应
@@ -64,6 +68,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(cannotBeModifiedInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns(SecurityConst.NONE_SECURITY_URL_PATTERNS);
+                .excludePathPatterns(SecurityConst.NONE_SECURITY_URL_PATTERNS)
+                .order(0); // 默认根据注册顺序执行，若指定order，则根据 order 升序执行
+
+        registry.addInterceptor(repeatSubmitInterceptor)
+                .addPathPatterns("/**")
+                .order(1);
     }
 }

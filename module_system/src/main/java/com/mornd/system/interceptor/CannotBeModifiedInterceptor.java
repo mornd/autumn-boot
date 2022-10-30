@@ -34,27 +34,32 @@ public class CannotBeModifiedInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        // 目标方法
-        Method method = handlerMethod.getMethod();
-        if(handlerMethod.hasMethodAnnotation(Anonymous.class)
-                || handlerMethod.getBeanType().isAnnotationPresent(Anonymous.class)) {
-            return true;
-        }
-        SysUser loginUser;
-        try {
-            loginUser = SecurityUtil.getLoginUser();
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        if(handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            // 目标方法对象
+            Method method = handlerMethod.getMethod();
+            if(handlerMethod.hasMethodAnnotation(Anonymous.class)
+                    || handlerMethod.getBeanType().isAnnotationPresent(Anonymous.class)) {
+                return true;
+            }
+            SysUser loginUser;
+            try {
+                loginUser = SecurityUtil.getLoginUser();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return true;
+            }
+            if(LoginUserSource.LOCAL.getCode().equals(loginUser.getSource())) {
+                return true;
+            }
+            // get 方式不会影响数据，放行
+            if(HttpMethod.GET.matches(request.getMethod())) {
+                return true;
+            }
+            RespUtil.writeResult(response, JsonResult.failure("非系统用户不允许修改或删除数据！"));
             return false;
-        }
-        if(LoginUserSource.LOCAL.getCode().equals(loginUser.getSource())) {
+        } else {
             return true;
         }
-        if(HttpMethod.GET.matches(request.getMethod())) {
-            return true;
-        }
-        RespUtil.writeResult(response, JsonResult.success(HttpStatus.FORBIDDEN.value(), "非系统用户不允许修改或删除数据！"));
-        return false;
     }
 }

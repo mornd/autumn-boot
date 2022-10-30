@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.mornd.system.constant.enums.LoginUserSource;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.ApiModel;
@@ -68,7 +69,7 @@ public class SysUser extends BaseEntity implements Serializable {
     private String email;
 
     @ApiModelProperty("登录方式：0为系统用户")
-    private String source;
+    private String source = LoginUserSource.LOCAL.getCode();
 
     //角色集合
     @TableField(exist = false)

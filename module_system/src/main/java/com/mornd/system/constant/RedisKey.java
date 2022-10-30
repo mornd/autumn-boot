@@ -15,4 +15,9 @@ public class RedisKey {
      * 缓存中保存在线用户的 key
      */
     public static final String ONLINE_USER_KEY = "online-user-";
+
+    /**
+     * 防重提交 redis key
+     */
+    public static final String REPEAT_SUBMIT_KEY = "repeat_submit:";
 }
