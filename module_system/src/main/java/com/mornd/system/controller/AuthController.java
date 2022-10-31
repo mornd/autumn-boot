@@ -2,9 +2,11 @@ package com.mornd.system.controller;
 
 import com.mornd.system.annotation.Anonymous;
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.annotation.RateLimiter;
 import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
+import com.mornd.system.constant.enums.LimitType;
 import com.mornd.system.entity.dto.LoginUserDTO;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.result.JsonResult;
@@ -47,7 +49,7 @@ public class AuthController {
      * @return
      */
     @Anonymous
-    @RepeatSubmit(message = "登录太频繁了，请稍后再试")
+    @RateLimiter(time = 10, count = 1, limitType = LimitType.IP, message = "登录太过于频繁，请稍后重试")
     @ApiOperation("用户登录")
     @PostMapping("/userLogin")
     @LogStar(value = "用户登录", BusinessType = LogType.LOGIN)
@@ -70,6 +72,7 @@ public class AuthController {
      * @return
      */
     @Anonymous
+    @RateLimiter(time = 10, count = 5, limitType = LimitType.IP)
     @ApiOperation("获取验证码")
     @GetMapping("/captcha")
     public JsonResult getCaptcha(HttpServletResponse response){

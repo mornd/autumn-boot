@@ -1,6 +1,7 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysPermission;
@@ -93,6 +94,7 @@ public class PermissionController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:menu:add')")
+    @RepeatSubmit
     @LogStar("新增菜单")
     @ApiOperation("新增菜单")
     @PostMapping
@@ -101,6 +103,7 @@ public class PermissionController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:menu:update')")
+    @RepeatSubmit
     @LogStar("编辑菜单")
     @ApiOperation("编辑菜单")
     @PutMapping

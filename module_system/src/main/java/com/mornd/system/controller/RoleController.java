@@ -1,6 +1,7 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
@@ -58,6 +59,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:add')")
+    @RepeatSubmit
     @LogStar("添加角色")
     @ApiOperation("添加角色")
     @PostMapping
@@ -66,6 +68,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:update')")
+    @RepeatSubmit
     @LogStar("修改角色")
     @ApiOperation("修改角色")
     @PutMapping

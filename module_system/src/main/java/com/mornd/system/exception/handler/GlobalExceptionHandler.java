@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BadCredentialsException.class)
     public JsonResult badCredentialsException(BadCredentialsException e){
-        log.error(e.getMessage());
+        log.error(e.getMessage(), e);
         return JsonResult.failure(e.getMessage());
     }
 
