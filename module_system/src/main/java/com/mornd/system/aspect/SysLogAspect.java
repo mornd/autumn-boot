@@ -158,7 +158,7 @@ public class SysLogAspect {
         //访问时间
         sysLog.setVisitDate(new Date());
         // 异步保存至数据库
-        AsyncManager.me().execute(AsyncFactory.recordSysLogfor(sysLog));
+        AsyncManager.me().execute(AsyncFactory.recordSysLog(sysLog));
     }
 
     private String formatUserName(String username) {

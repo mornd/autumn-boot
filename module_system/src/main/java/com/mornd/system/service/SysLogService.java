@@ -12,5 +12,5 @@ import com.mornd.system.entity.vo.SysLogVO;
 public interface SysLogService extends IService<SysLog> {
     JsonResult pageList(SysLogVO log);
 
-    boolean clearAll();
+    void clearAll();
 }

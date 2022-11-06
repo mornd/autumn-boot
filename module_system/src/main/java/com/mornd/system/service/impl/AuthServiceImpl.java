@@ -1,10 +1,13 @@
 package com.mornd.system.service.impl;
 
+import com.mornd.system.config.async.factory.AsyncFactory;
+import com.mornd.system.config.async.manager.AsyncManager;
 import com.mornd.system.config.security.components.TokenProperties;
 import com.mornd.system.config.security.components.TokenProvider;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.dto.LoginUserDTO;
+import com.mornd.system.entity.po.SysLoginInfor;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.service.OnlineUserService;
@@ -73,22 +76,30 @@ public class AuthServiceImpl implements AuthService {
         } else {
             inputPwd = loginUserDTO.getPassword();
         }
-        // 执行登录逻辑
-        UsernamePasswordAuthenticationToken authenticationToken
-                = new UsernamePasswordAuthenticationToken(loginUserDTO.getUsername(), inputPwd);
-        // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
-        /**
-         * 源码：
-         *  authenticationManagerBuilder.getObject() 就是 ProviderManager 对象
-         *  ProviderManager.authenticate() 182行=> result = provider.authenticate(authentication);
-         *  AbstractUserDetailsAuthenticationProvider.authenticate() 133行=> user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
-         *          上面的 AbstractUserDetailsAuthenticationProvider 是抽象类，会执行其子类 DaoAuthenticationProvider 的 retrieveUser方法
-         *          AbstractUserDetailsAuthenticationProvider 147行 -> additionalAuthenticationChecks()校验密码
-         *  DaoAuthenticationProvider的retrieveUser() 93行=> UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
-         */
-        Authentication authenticate =
-                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authenticate);
+
+        // 认证对象
+        Authentication authenticate = null;
+        try {
+            // 执行登录逻辑
+            UsernamePasswordAuthenticationToken authenticationToken
+                    = new UsernamePasswordAuthenticationToken(loginUserDTO.getUsername(), inputPwd);
+            // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
+            /**
+             * 源码：
+             *  authenticationManagerBuilder.getObject() 就是 ProviderManager 对象
+             *  ProviderManager.authenticate() 182行=> result = provider.authenticate(authentication);
+             *  AbstractUserDetailsAuthenticationProvider.authenticate() 133行=> user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+             *          上面的 AbstractUserDetailsAuthenticationProvider 是抽象类，会执行其子类 DaoAuthenticationProvider 的 retrieveUser方法
+             *          AbstractUserDetailsAuthenticationProvider 147行 -> additionalAuthenticationChecks()校验密码
+             *  DaoAuthenticationProvider的retrieveUser() 93行=> UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+             */
+            authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authenticate);
+        } catch (Exception e) {
+            // 登录失败，记录失败日志
+            AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(null, loginUserDTO.getUsername(), SysLoginInfor.Status.FAILURE, e.getMessage()));
+            throw e;
+        }
         AuthUser principal = (AuthUser) authenticate.getPrincipal();
         // 执行登录，并生成token
         String token = this.genericLogin(principal);
@@ -99,6 +110,8 @@ public class AuthServiceImpl implements AuthService {
         }};
 
         log.info("用户{}登录系统成功", loginUserDTO.getUsername());
+        // 登录成功
+        AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(principal.getSysUser().getId(), loginUserDTO.getUsername(), SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
         return JsonResult.success("登录成功", tokenMap);
     }
 

@@ -39,12 +39,9 @@ public class SysLogController {
     @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog:clear')")
     @ApiOperation("清空表数据")
     @DeleteMapping
-    @LogStar(value = "清空表数据")
+    @LogStar(value = "清空操作日志表")
     public JsonResult clearAll() {
-        boolean res = sysLogService.clearAll();
-        if(res) {
-            return JsonResult.success();
-        }
-        return JsonResult.failure("操作失败");
+        sysLogService.clearAll();
+        return JsonResult.success();
     }
 }

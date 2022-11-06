@@ -24,14 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> implements SysLogService {
-    
+
     @Override
     public JsonResult pageList(SysLogVO log) {
         IPage<SysLog> page = new Page<>(log.getPageNo(), log.getPageSize());
         LambdaQueryWrapper<SysLog> qw = Wrappers.lambdaQuery();
         qw.like(StringUtils.isNotBlank(log.getUsername()), SysLog::getUsername, log.getUsername());
         if (log.getVisitDateScope() != null && log.getVisitDateScope().length == 2) {
-            qw.between(SysLog::getVisitDate, log.getVisitDateScope()[0], log.getVisitDateScope()[1]);    
+            qw.between(SysLog::getVisitDate, log.getVisitDateScope()[0], log.getVisitDateScope()[1]);
         }
         qw.eq(log.getType() != null, SysLog::getType, log.getType());
         qw.orderByDesc(SysLog::getVisitDate);
@@ -40,13 +40,7 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
     }
 
     @Override
-    public boolean clearAll() {
-        try {
-            baseMapper.clearAll();
-            return true;
-        } catch (Exception e) {
-            log.error("清空表操作失败：" + e.getMessage());
-            return false;
-        }
+    public void clearAll() {
+        baseMapper.clearAll();
     }
 }

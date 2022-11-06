@@ -20,16 +20,34 @@ import java.util.Map;
 public class BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 创建时间
+     */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date gmtCreate;
+    /**
+     * 创建人
+     */
     private String createBy;
 
+    /**
+     * 修改时间
+     */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date gmtModified;
+    /**
+     * 修改人
+     */
     private String modifiedBy;
+    /**
+     * 逻辑删除
+     */
     private Integer delFlag;
+    /**
+     * 版本号
+     */
     private Long version;
 
     /**
@@ -40,7 +58,7 @@ public class BaseEntity implements Serializable {
         /**
          * 删除字段枚举
          */
-        DELETED(EntityConst.DELETED, "删除"), 
+        DELETED(EntityConst.DELETED, "删除"),
         NORMAL(EntityConst.NORMAL, "正常");
         @Getter
         private final Integer code;

@@ -49,7 +49,7 @@ public class AuthController {
      * @return
      */
     @Anonymous
-    @RateLimiter(time = 10, count = 1, limitType = LimitType.IP, message = "登录太过于频繁，请稍后重试")
+    @RateLimiter(time = 10, count = 5, limitType = LimitType.IP, message = "登录太过于频繁，请稍后重试")
     @ApiOperation("用户登录")
     @PostMapping("/userLogin")
     @LogStar(value = "用户登录", BusinessType = LogType.LOGIN)
