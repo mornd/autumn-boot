@@ -1,5 +1,6 @@
 package com.mornd.system.utils;
 
+import cn.hutool.core.io.FileUtil;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -8,7 +9,7 @@ import java.io.File;
  * @author mornd
  * @dateTime 2022/10/23 - 13:49
  */
-public class MyFileUtil {
+public class MyFileUtil extends FileUtil {
     /**
      * 创建文件
      * @param file

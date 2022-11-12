@@ -3,10 +3,10 @@ autumn:
   author: mornd
   version: 1.1
   application-name: autumn-boot
-  # 文件存储位置 (1：本地 2：七牛云)
-  upload-storage: 1
-  # 文件路径 示例（ Windows配置D:/v/uploadPath，Linux配置 /home/autumn/uploadPath）
-  profile: D:/autumn/uploadPath
+  # 文件存储位置 (1：本地 2：七牛云 3：阿里云oss)
+  upload-storage: 3
+  # 文件路径 示例（ Windows配置D:/autumn/uploadPath，Linux配置 /home/autumn/uploadPath）
+  profile: 'D:/autumn/uploadPath'
 
 spring:
   profiles:

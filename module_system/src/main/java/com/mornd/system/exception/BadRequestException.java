@@ -2,6 +2,8 @@ package com.mornd.system.exception;
 
 import org.springframework.http.HttpStatus;
 
+import java.util.StringJoiner;
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
@@ -24,5 +26,13 @@ public class BadRequestException extends RuntimeException{
 
     public Integer getStatus() {
         return status;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", BadRequestException.class.getSimpleName() + "[", "]")
+                .add("status=" + status)
+                .add("message=" + super.getMessage())
+                .toString();
     }
 }

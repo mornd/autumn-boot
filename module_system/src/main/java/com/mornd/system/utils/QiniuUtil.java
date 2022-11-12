@@ -1,5 +1,6 @@
 package com.mornd.system.utils;
 
+import cn.hutool.core.util.IdUtil;
 import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
@@ -15,8 +16,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * @author mornd
@@ -35,10 +34,10 @@ public class QiniuUtil {
     private String bucket;
     @Value("${qiniu.domain}")
     private String domain;
-    
+
     @Resource
     private UploadManager uploadManager;
-    
+
     private String uploadToken() {
         Auth auth = Auth.create(accessKey, secretKey);
         return auth.uploadToken(bucket);
@@ -144,7 +143,6 @@ public class QiniuUtil {
      * @return
      */
     private String generateName(String fileName) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-        return format.format(new Date()) + fileName;
+        return IdUtil.fastSimpleUUID() + fileName;
     }
 }

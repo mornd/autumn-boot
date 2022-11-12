@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
- * 文件上传控制器
+ * 文件存储控制器
  * @author mornd
  * @dateTime 2022/1/24 - 23:18
  */
@@ -23,7 +23,6 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/upload")
 public class UploadController {
-
     @Resource
     private UploadService uploadService;
     /**

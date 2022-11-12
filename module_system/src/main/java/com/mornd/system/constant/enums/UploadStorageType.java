@@ -10,7 +10,8 @@ import lombok.Getter;
  */
 public enum UploadStorageType {
     LOCAL(1, "本地上传"),
-    QINIU(2, "七牛云");
+    QINIU(2, "七牛云"),
+    ALIYUN(3, "阿里云oss");
 
     @Getter
     private final Integer code;

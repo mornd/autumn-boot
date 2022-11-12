@@ -14,10 +14,7 @@ import com.mornd.system.exception.BadRequestException;
 import com.mornd.system.service.OnlineUserService;
 import com.mornd.system.service.UploadService;
 import com.mornd.system.service.UserService;
-import com.mornd.system.utils.AuthUtil;
-import com.mornd.system.utils.MyFileUtil;
-import com.mornd.system.utils.QiniuUtil;
-import com.mornd.system.utils.SecurityUtil;
+import com.mornd.system.utils.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,8 +46,9 @@ public class UploadServiceImpl implements UploadService {
         //查询用户之前的头像
         LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery();
         qw.eq(SysUser::getId, id);
-        qw.last("LIMIT 1");
         SysUser user = userService.getOne(qw);
+        //获取头像地址
+        String avatar = user.getAvatar();
         String url = null;
 
         if(UploadStorageType.QINIU.getCode().equals(autumnConfig.getUploadStorage())) {
@@ -61,9 +59,17 @@ public class UploadServiceImpl implements UploadService {
             }
             url += "http://";
             //删除之前的头像
-            String avatar = user.getAvatar();
             if(StrUtil.isNotBlank(avatar)) {
                 qiniuUtil.delete(avatar.substring(avatar.lastIndexOf("/") + 1));
+            }
+        } else if(UploadStorageType.ALIYUN.getCode().equals(autumnConfig.getUploadStorage())) {
+            //  阿里云oss
+            url = AliyunOssUtil.upload(file.getInputStream(), file.getOriginalFilename());
+            if(!StringUtils.hasText(url)) {
+                throw new BadRequestException("头像上传失败，请重试");
+            }
+            if(StrUtil.isNotBlank(avatar)) {
+                AliyunOssUtil.delete(avatar);
             }
         } else {
             // 本地磁盘
@@ -74,7 +80,6 @@ public class UploadServiceImpl implements UploadService {
             // /ad5fdd7c-b601-4c28-bcc1-10942fe59af5.jpg
             String resourcePath = File.separator + IdUtil.fastUUID() + MyFileUtil.getFileSuffix(file);
             try {
-
                 file.transferTo(new File(avatarPath + resourcePath));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -100,7 +105,7 @@ public class UploadServiceImpl implements UploadService {
             String key =  onlineUserService.getOnlineUserKeyById(id);
             AuthUser principal = (AuthUser) SecurityUtil.getAuthentication().getPrincipal();
             principal.getSysUser().setAvatar(url);
-            authUtil.updateAuthUser(key,principal);
+            authUtil.updateAuthUser(key, principal);
         }
 
         // 更新数据库

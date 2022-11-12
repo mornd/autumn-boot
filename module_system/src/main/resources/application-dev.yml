@@ -15,6 +15,11 @@ server:
       # Tomcat启动初始化的线程数，默认值10
       min-spare: 100
 
+# 控制台输出的日志级别
+#logging:
+#  level:
+#    root: info
+
 swagger:
   # 是否开启swagger
   enabled: true
@@ -175,3 +180,12 @@ otherLogin:
     clientId: 'xxx'
     secret: 'xxx'
     uri: 'http://localhost:9000/giteeLoginCallback'
+
+aliyun:
+  oss:
+    # 地域节点
+    endPoint: 'oss-cn-guangzhou.aliyuncs.com'
+    accessKeyID: 'xxx'
+    accessKeySecret: 'xxx'
+    # 桶名称
+    bucketName: 'autumn-01'
