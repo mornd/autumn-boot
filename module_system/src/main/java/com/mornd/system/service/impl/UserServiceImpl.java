@@ -56,8 +56,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      */
     @Override
     public boolean verifyCurrentPassword(String oldPwd) {
+        String currentPwd = SecurityUtil.getLoginUser().getPassword();
         //matches() => 参数1：明文，参数2：密文
-        return passwordEncoder.matches(oldPwd, SecurityUtil.getEncryptionPassword());
+        return passwordEncoder.matches(oldPwd, currentPwd);
     }
 
     /**

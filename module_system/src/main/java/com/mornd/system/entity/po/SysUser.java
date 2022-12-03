@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -53,14 +54,15 @@ public class SysUser extends BaseEntity implements Serializable {
     @ApiModelProperty("出生日期")
     private Date birthday;
 
+    @Pattern(regexp = "/^(?:(?:\\+|00)86)?1[3-9]\\d{9}$/", message = "电话号码格式不正确")
     @ApiModelProperty("电话号码")
     private String phone;
 
     @ApiModelProperty("账号状态 0：禁用，1：正常")
     private Integer status;
 
-    /*@ApiModelProperty("账号是否锁定 0：锁定 1：正常")
-    private Integer accountLocked;*/
+//    @ApiModelProperty("账号是否锁定 0：锁定 1：正常")
+//    private Integer accountLocked;
 
     @ApiModelProperty("头像")
     private String avatar;

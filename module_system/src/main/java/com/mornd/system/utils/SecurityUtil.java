@@ -31,7 +31,6 @@ public class SecurityUtil {
         try {
             AuthUser principal = (AuthUser) getAuthentication().getPrincipal();
             SysUser sysUser = principal.getSysUser();
-            sysUser.setPassword(null);
             return sysUser;
         } catch (Exception e) {
             log.error("获取当前登录用户信息发生异常！{}", e.getMessage());
@@ -53,21 +52,5 @@ public class SecurityUtil {
      */
     public static String getLoginUserId(){
         return getLoginUser().getId();
-    }
-
-    /**
-     * 获取当前用户的加密形式密码
-     * @return
-     */
-    @Deprecated
-    public static String getEncryptionPassword() {
-        try {
-            AuthUser principal = (AuthUser) getAuthentication().getPrincipal();
-            SysUser sysUser = principal.getSysUser();
-            return sysUser.getPassword();
-        } catch (Exception e) {
-            log.error("获取当前登录用户信息发生异常！{}", e.getMessage());
-            throw new BadRequestException(HttpStatus.UNAUTHORIZED, "找不到当前登录的信息");
-        }
     }
 }

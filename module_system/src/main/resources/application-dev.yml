@@ -27,6 +27,12 @@ swagger:
 spring:
   application:
     name: ${autumn.application-name}
+  servlet:
+    multipart:
+      # 最大上传单个文件大小，默认1M
+      max-file-size: 1024MB
+      # 最大总上传的数据大小：默认10M
+      max-request-size: 1024MB
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver

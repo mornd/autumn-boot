@@ -4,6 +4,7 @@ import com.mornd.system.annotation.LogStar;
 import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.entity.dto.ChangePwdDTO;
 import com.mornd.system.entity.po.SysRole;
+import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
 import com.mornd.system.service.RoleService;
@@ -12,7 +13,6 @@ import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
 import com.mornd.system.validation.SelectValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
-import com.mornd.system.validation.ValidGroupA;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Range;
@@ -42,7 +42,9 @@ public class UserController {
     @ApiOperation("获取当前登录用户信息")
     @GetMapping("/getLoginUser")
     public JsonResult getUserInfo(){
-        return JsonResult.successData(SecurityUtil.getLoginUser());
+        SysUser loginUser = SecurityUtil.getLoginUser();
+        loginUser.setPassword(null);
+        return JsonResult.successData(loginUser);
     }
 
     @ApiOperation("匹配当前密码")

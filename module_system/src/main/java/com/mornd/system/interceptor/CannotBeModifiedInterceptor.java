@@ -55,7 +55,7 @@ public class CannotBeModifiedInterceptor implements HandlerInterceptor {
             if(HttpMethod.GET.matches(request.getMethod())) {
                 return true;
             }
-            RespUtil.writeResult(response, JsonResult.failure("非系统用户不允许修改或删除数据！"));
+            RespUtil.writeResult(response, JsonResult.failure("非系统用户不允许增删改数据！"));
             return false;
         } else {
             return true;
