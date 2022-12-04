@@ -6,12 +6,17 @@ import com.mornd.system.annotation.RateLimiter;
 import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.GlobalConst;
 import com.mornd.system.constant.RedisKey;
+import com.mornd.system.constant.RegexpConstant;
 import com.mornd.system.constant.enums.LimitType;
+import com.mornd.system.entity.dto.ForgetPwdFormDTO;
 import com.mornd.system.entity.dto.LoginUserDTO;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.AuthService;
+import com.mornd.system.service.PhoneMsgService;
+import com.mornd.system.utils.AliyunPhoneMsgUtil;
 import com.mornd.system.utils.RedisUtil;
+import com.mornd.system.utils.SecretUtil;
 import com.wf.captcha.ArithmeticCaptcha;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Pattern;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -32,7 +38,9 @@ import java.util.concurrent.TimeUnit;
  * @dateTime 2021/8/10 - 12:42
  * 提供用户登录，退出的接口
  */
+
 @Slf4j
+@Validated
 @Api("用户认证接口")
 @RestController
 @RequestMapping
@@ -102,5 +110,32 @@ public class AuthController {
         response.setHeader("Cache-Control", "no-cache");
         response.setDateHeader("Expires", 0);
         return JsonResult.successData(resultData);
+    }
+
+    @Resource
+    private PhoneMsgService phoneMsgService;
+
+    @Anonymous
+    @RepeatSubmit(interval = 2000)
+    // 一天只能发5次，阿里云默认也会限制
+    @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "触发天级流控Permits:5")
+    @ApiOperation("忘记密码-发送短信验证码")
+    @GetMapping("/sendForgetPwdPhoneMsgCode/{phone}")
+    public JsonResult sendForgetPwdPhoneMsgCode(@Pattern(regexp = RegexpConstant.PHONE, message = "手机号码格式不正确")
+                                                    @PathVariable(value = "phone")
+                                                    String phone) {
+        phoneMsgService.sendForgetPwdPhoneMsgCode(phone);
+        return JsonResult.successData("发送成功，请注意查收短信，该验证码" + AliyunPhoneMsgUtil.CODE_TIME_OUT + "分钟内有效");
+    }
+
+    @Anonymous
+    @RateLimiter(limitType = LimitType.IP)
+    @ApiOperation("忘记密码-修改新密码")
+    @PostMapping("/forgetPwdUpdatePwd")
+    public JsonResult checkForgetPwdCode(@Validated @RequestBody ForgetPwdFormDTO formDTO) {
+        // 解密密码
+        final String desPwd = SecretUtil.desEncrypt(formDTO.getNewPwd());
+        boolean result = phoneMsgService.updatePwd(formDTO.getPhone(), formDTO.getCode(), desPwd);
+        return JsonResult.successData(result);
     }
 }

@@ -30,4 +30,9 @@ public class RedisKey {
      * 短信验证码
      */
     public static final String PHONE_MSG_CODE = "phone_msg_code:";
+
+    /**
+     * 忘记密码功能短信验证码
+     */
+    public static final String FORGET_PWD_PHONE_MSG_CODE = "forget_pwd_phone_msg_code:";
 }

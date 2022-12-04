@@ -48,7 +48,7 @@ public class AliyunPhoneMsgUtil {
      * @param phone 手机号码
      * @param code 验证码
      */
-    public boolean clientSendMsg(String phone, String code) {
+    public void clientSendMsg(String phone, String code) {
         if(SEND_SYS_USER) {
             SysUser sysUser = userService.getUserByPhone(phone);
             if(sysUser == null) throw new BadRequestException("该手机号码" + phone + "在本系统中不存在");
@@ -88,10 +88,14 @@ public class AliyunPhoneMsgUtil {
         try {
             // 发送并响应结果
             CommonResponse response = client.getCommonResponse(request);
+            String resultMsg = response.getData();
             // {"Message":"OK","RequestId":"3D44243A-AFE6-5698-8767-26E72CCB4C30","Code":"OK","BizId":"136807270143518125^0"}
-            log.info("调用阿里云短信API返回结果：" + response.getData());
-            boolean success = response.getHttpResponse().isSuccess();
-            return success;
+            log.info("调用阿里云短信API返回结果：" + resultMsg);
+            Map apiResponse = new Gson().fromJson(resultMsg, Map.class);
+            final String successMsg = String.valueOf(apiResponse.get("Message"));
+            if(!"OK".equalsIgnoreCase(successMsg)) {
+                throw new BadRequestException(successMsg);
+            };
         } catch (ClientException e) {
             log.error(e.getErrMsg());
             throw new BadRequestException("短信发送失败，" + e.getErrMsg());

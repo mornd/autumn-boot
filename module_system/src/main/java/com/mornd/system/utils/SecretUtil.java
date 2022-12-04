@@ -70,7 +70,7 @@ public class SecretUtil {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            throw new RuntimeException("密码解密异常");
         }
     }
 
@@ -93,7 +93,7 @@ public class SecretUtil {
             return new String(original, StandardCharsets.UTF_8).trim();
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            throw new RuntimeException("密码解密异常");
         }
     }
 }

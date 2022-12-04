@@ -3,6 +3,7 @@ package com.mornd.system.controller;
 import com.mornd.system.annotation.Anonymous;
 import com.mornd.system.annotation.RateLimiter;
 import com.mornd.system.annotation.RepeatSubmit;
+import com.mornd.system.constant.RegexpConstant;
 import com.mornd.system.constant.enums.LimitType;
 import com.mornd.system.entity.dto.OtherLoginUseDTO;
 import com.mornd.system.entity.dto.PhoneMsgLoginDTO;
@@ -14,12 +15,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.Pattern;
 
 /**
  * @author mornd
  * @dateTime 2022/10/19 - 22:11
  * 其它登录方式处理
  */
+@Validated
 @Anonymous
 @RestController
 public class OtherLoginController {
@@ -49,9 +52,12 @@ public class OtherLoginController {
      * @return
      */
     @RepeatSubmit(interval = 2000) // 2秒内不允许相同的手机号提交
-    @RateLimiter(count = 1, limitType = LimitType.IP) // 60秒之后才能继续发送短信，我这里是心疼money，否则去掉count属性就行
+    // 一天只能发5次，阿里云默认也会限制
+    @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "触发天级流控Permits:5")
     @GetMapping("/sendLoginPhoneMsgCode/{phone}")
-    public JsonResult sendLoginPhoneMsgCode(@PathVariable(value = "phone") String phone) {
+    public JsonResult sendLoginPhoneMsgCode(@Pattern(regexp = RegexpConstant.PHONE, message = "手机号码格式不正确")
+                                                @PathVariable(value = "phone")
+                                                String phone) {
         phoneMsgService.sendLoginPhoneMsgCode(phone);
         return JsonResult.successData("发送成功，请注意查收短信，该验证码" + AliyunPhoneMsgUtil.CODE_TIME_OUT + "分钟内有效");
     }

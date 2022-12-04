@@ -12,4 +12,8 @@ public interface PhoneMsgService {
     JsonResult phoneMsgLogin(String phone, String code);
 
     void sendLoginPhoneMsgCode(String phone);
+
+    void sendForgetPwdPhoneMsgCode(String phone);
+
+    boolean updatePwd(String phone, String code, String newPwd);
 }
