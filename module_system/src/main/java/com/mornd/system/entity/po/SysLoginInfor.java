@@ -37,6 +37,9 @@ public class SysLoginInfor implements Serializable {
     @ApiModelProperty("用户登录名")
     private String loginName;
 
+    @ApiModelProperty("登录方式")
+    private Integer type;
+
     @ApiModelProperty("ip")
     private String ip;
 
@@ -85,6 +88,23 @@ public class SysLoginInfor implements Serializable {
 
         private Msg(String  msg) {
             this.msg = msg;
+        }
+    }
+
+    /**
+     * 登录方式
+     */
+    public enum Type {
+        ACCOUNT(0, "账号"),
+        PHONE_MSG(1, "短信");
+        @Getter
+        private final Integer code;
+        @Getter
+        private final String desc;
+
+        private Type(Integer code, String desc) {
+            this.code = code;
+            this.desc = desc;
         }
     }
 }

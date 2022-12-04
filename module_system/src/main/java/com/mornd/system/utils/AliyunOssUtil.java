@@ -33,8 +33,8 @@ public class AliyunOssUtil {
         // 重写文件名称
         fileName = OBJECT_DIR + IdUtil.fastSimpleUUID() + suffix;
         String endpoint = AliyunOssConstant.END_POINT;
-        String accessKeyId = AliyunOssConstant.ACCESS_KEY;
-        String accessKeySecret = AliyunOssConstant.ACCESS_SECRET;
+        String accessKeyId = AliyunOssConstant.ACCESS_KEY_ID;
+        String accessKeySecret = AliyunOssConstant.ACCESS_KEY_SECRET;
         String bucketName = AliyunOssConstant.BUCKET_NAME;
 
         // 创建OSSClient实例。
@@ -76,8 +76,8 @@ public class AliyunOssUtil {
             return;
         }
         String endpoint = AliyunOssConstant.END_POINT;
-        String accessKeyId = AliyunOssConstant.ACCESS_KEY;
-        String accessKeySecret = AliyunOssConstant.ACCESS_SECRET;
+        String accessKeyId = AliyunOssConstant.ACCESS_KEY_ID;
+        String accessKeySecret = AliyunOssConstant.ACCESS_KEY_SECRET;
         String bucketName = AliyunOssConstant.BUCKET_NAME;
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         try {

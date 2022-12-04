@@ -1,6 +1,7 @@
 package com.mornd.system.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mornd.system.constant.RegexpConstant;
 import com.mornd.system.validation.SelectValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
 import com.mornd.system.validation.ValidGroupA;
@@ -45,9 +46,9 @@ public class SysUserVO implements Serializable {
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     private Date gmtCreate;
-    
+
     Set<String> roles;
-    
+
     @NotNull(message = "分页信息的起始页不能为空", groups = SelectValidGroup.class)
     private Integer pageNo;
     @NotNull(message = "分页信息的每页个数不能为空", groups = SelectValidGroup.class)

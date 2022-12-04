@@ -25,4 +25,9 @@ public class RedisKey {
      * 限流 redis key
      */
     public static final String RATE_LIMIT_KEY = "rate_limit:";
+
+    /**
+     * 短信验证码
+     */
+    public static final String PHONE_MSG_CODE = "phone_msg_code:";
 }

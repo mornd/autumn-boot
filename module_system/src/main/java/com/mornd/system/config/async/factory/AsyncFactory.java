@@ -42,11 +42,16 @@ public class AsyncFactory
      * 记录登录日志
      * @param userId 用户id
      * @param loginName 登录名
+     * @param type 登录方式
      * @param status 登录结果状态
      * @param msg 提示消息
      * @return
      */
-    public static TimerTask recordSysLoginInfor(final String userId, final String loginName, final SysLoginInfor.Status status, final String msg) {
+    public static TimerTask recordSysLoginInfor(final String userId,
+                                                final String loginName,
+                                                final SysLoginInfor.Type type,
+                                                final SysLoginInfor.Status status,
+                                                final String msg) {
         HttpServletRequest request = ServletUtil.getRequest();
         String ip = IpUtils.getIpAddr(request);
         String address = AddressUtils.getRealAddressByIP(ip);
@@ -58,6 +63,7 @@ public class AsyncFactory
                 SysLoginInfor sysLoginInfor = new SysLoginInfor();
                 sysLoginInfor.setLoginName(loginName);
                 sysLoginInfor.setStatus(status.getCode());
+                sysLoginInfor.setType(type.getCode());
                 sysLoginInfor.setIp(ip);
                 sysLoginInfor.setAddress(address);
                 sysLoginInfor.setOs(os);

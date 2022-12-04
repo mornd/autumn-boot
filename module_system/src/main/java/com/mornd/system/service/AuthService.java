@@ -19,7 +19,7 @@ public interface AuthService {
     JsonResult userLogin(LoginUserDTO loginUserDTO);
 
     /**
-     * 通用登录方法，并生成 token
+     * 通用登录方法，返回 token
      * @param authUser security 用户
      * @return token
      */

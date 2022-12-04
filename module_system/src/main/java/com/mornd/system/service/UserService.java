@@ -32,4 +32,13 @@ public interface UserService extends IService<SysUser> {
     int updateAvatar(SysUser user);
 
     JsonResult userUpdate(SysUserVO user);
+
+    /**
+     * 根据手机号码查询用户
+     * @param phone
+     * @return
+     */
+    SysUser getUserByPhone(String phone);
+
+    boolean queryPhoneExists(String phone, String id);
 }

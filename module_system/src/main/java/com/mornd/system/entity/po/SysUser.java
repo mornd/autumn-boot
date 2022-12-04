@@ -54,8 +54,7 @@ public class SysUser extends BaseEntity implements Serializable {
     @ApiModelProperty("出生日期")
     private Date birthday;
 
-    @Pattern(regexp = "/^(?:(?:\\+|00)86)?1[3-9]\\d{9}$/", message = "电话号码格式不正确")
-    @ApiModelProperty("电话号码")
+    @ApiModelProperty("手机号码")
     private String phone;
 
     @ApiModelProperty("账号状态 0：禁用，1：正常")

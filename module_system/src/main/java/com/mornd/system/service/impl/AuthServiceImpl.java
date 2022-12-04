@@ -56,7 +56,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public JsonResult<?> userLogin(LoginUserDTO loginUserDTO) {
-        log.info("用户{}正在执行登录操作", loginUserDTO.getUsername());
         //验证码校验
         String uuid = loginUserDTO.getUuid();
         String captcha = (String) redisUtil.getValue(RedisKey.LOGIN_CAPTCHA_KEY + uuid);
@@ -97,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
             SecurityContextHolder.getContext().setAuthentication(authenticate);
         } catch (Exception e) {
             // 登录失败，记录失败日志
-            AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(null, loginUserDTO.getUsername(), SysLoginInfor.Status.FAILURE, e.getMessage()));
+            AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(null, loginUserDTO.getUsername(), SysLoginInfor.Type.ACCOUNT, SysLoginInfor.Status.FAILURE, e.getMessage()));
             throw e;
         }
         AuthUser principal = (AuthUser) authenticate.getPrincipal();
@@ -108,13 +107,16 @@ public class AuthServiceImpl implements AuthService {
             put("tokenHead", tokenProperties.getTokenHead());
             put("token", token);
         }};
-
-        log.info("用户{}登录系统成功", loginUserDTO.getUsername());
         // 登录成功
-        AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(principal.getSysUser().getId(), loginUserDTO.getUsername(), SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
+        AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(principal.getSysUser().getId(), loginUserDTO.getUsername(), SysLoginInfor.Type.ACCOUNT, SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
         return JsonResult.success("登录成功", tokenMap);
     }
 
+    /**
+     * 通用登录方法，返回 token
+     * @param authUser security 用户
+     * @return
+     */
     @Override
     public String genericLogin(AuthUser authUser) {
         // 生成 token

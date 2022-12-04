@@ -1,7 +1,7 @@
 package com.mornd.system.service.impl;
 
+import cn.hutool.core.collection.IterUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mornd.system.constant.EntityConst;
 import com.mornd.system.entity.dto.AuthUser;
@@ -57,7 +57,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }
             //设置角色、权限
             Set<SysRole> roles = roleService.findByUserId(sysUser.getId());
-            if(ObjectUtils.isNotEmpty(roles)) {
+            if(IterUtil.isNotEmpty(roles)) {
                 sysUser.setRoles(roles);
                 List<String> ids = new ArrayList<>();
                 roles.forEach(i -> ids.add(i.getId()));

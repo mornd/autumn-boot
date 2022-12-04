@@ -106,7 +106,7 @@ public class GlobalExceptionHandler {
     public JsonResult badRequestException(BadRequestException e) {
         // 打印堆栈信息
         log.error(e.getMessage());
-        return JsonResult.failure(e.getMessage());
+        return JsonResult.failure(e.getStatus(), e.getMessage());
     }
 
     /**

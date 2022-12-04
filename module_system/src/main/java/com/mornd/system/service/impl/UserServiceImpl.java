@@ -16,6 +16,7 @@ import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.UserWithRole;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
+import com.mornd.system.exception.BadRequestException;
 import com.mornd.system.mapper.UserMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
 import com.mornd.system.service.OnlineUserService;
@@ -100,7 +101,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      */
     @Override
     public JsonResult insert(SysUserVO user) {
-        if(this.queryLoginNameExists(user.getLoginName(), null)) return JsonResult.failure("登录名已重复");
+        if(this.queryLoginNameExists(user.getLoginName(), null)) throw new BadRequestException("登录名已重复");
+        if(queryPhoneExists(user.getPhone(), null)) throw new BadRequestException("手机号码已重复");
         SysUser sysUser = new SysUser();
         BeanUtils.copyProperties(user, sysUser);
         sysUser.setId(null);
@@ -130,7 +132,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      */
     @Override
     public JsonResult update(SysUserVO user) {
-        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) return JsonResult.failure("登录名已重复");
+        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) throw new BadRequestException("登录名已重复");
+        if(queryPhoneExists(user.getPhone(), user.getId())) throw new BadRequestException("手机号码已重复");
         SysUser sysUser = new SysUser();
         BeanUtils.copyProperties(user, sysUser);
         sysUser.setStatus(null);
@@ -168,7 +171,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonResult userUpdate(SysUserVO user) {
-        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) return JsonResult.failure("登录名已重复");
+        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) throw new BadRequestException("登录名已重复");
+        if(queryPhoneExists(user.getPhone(), user.getId())) throw new BadRequestException("手机号码已重复");
         // 更新缓存中的用户
         String onlineUserKeyById = onlineUserService.getOnlineUserKeyById(user.getId());
         AuthUser principal = (AuthUser) SecurityUtil.getAuthentication().getPrincipal();
@@ -262,5 +266,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     public JsonResult getRoleById(String id) {
         Set<String> ids = baseMapper.getRoleById(id);
         return JsonResult.successData(ids);
+    }
+
+    @Override
+    public SysUser getUserByPhone(String phone) {
+        LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery(SysUser.class);
+        qw.eq(SysUser::getPhone, phone);
+        return baseMapper.selectOne(qw);
+    }
+
+    /**
+     * 查询电话号码是否存在
+     * @param phone
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean queryPhoneExists(String phone, String id) {
+        LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery(SysUser.class);
+        qw.eq(SysUser::getPhone, phone);
+        qw.ne(StrUtil.isNotBlank(id), SysUser::getId, id);
+        int count = baseMapper.selectCount(qw);
+        return count > 0;
     }
 }

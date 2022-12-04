@@ -23,11 +23,11 @@ public class AliyunOssConstant {
     /**
      * 访问 key
      */
-    public static String ACCESS_KEY;
+    public static String ACCESS_KEY_ID;
     /**
      * 访问 secret
      */
-    public static String ACCESS_SECRET;
+    public static String ACCESS_KEY_SECRET;
     /**
      * 桶名称
      */
@@ -38,11 +38,11 @@ public class AliyunOssConstant {
     }
 
     public void setAccessKeyID(String accessKeyID) {
-        AliyunOssConstant.ACCESS_KEY = accessKeyID;
+        AliyunOssConstant.ACCESS_KEY_ID = accessKeyID;
     }
 
     public void setAccessKeySecret(String accessKeySecret) {
-        AliyunOssConstant.ACCESS_SECRET = accessKeySecret;
+        AliyunOssConstant.ACCESS_KEY_SECRET = accessKeySecret;
     }
 
     public void setBucketName(String bucketName) {

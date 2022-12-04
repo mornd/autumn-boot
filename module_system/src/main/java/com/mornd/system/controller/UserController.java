@@ -119,6 +119,12 @@ public class UserController {
         return JsonResult.successData(userService.queryLoginNameExists(name, id));
     }
 
+    @ApiOperation("查询手机号是否已被绑定")
+    @GetMapping("/queryPhoneExists")
+    public JsonResult<?> queryPhoneExists(@NotBlank(message = "手机号码不能为空") String phone, String id) {
+        return JsonResult.successData(userService.queryPhoneExists(phone, id));
+    }
+
     @ApiOperation("获取用户所拥有的角色id")
     @GetMapping("/getRoleById/{id}")
     public JsonResult getRoleById(@PathVariable String id) {
