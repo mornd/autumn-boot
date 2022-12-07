@@ -23,14 +23,16 @@ public class MenuUtil {
              * 排序根目录：定制排序，首先根据sort升序
              * return -1表示放在红黑树的左边,即逆序输出
              *        1表示放在红黑树的右边，即顺序输出
-             *        0表示元素相同，仅存放第一个元素
+             *        0表示元素相同，仅存放第一个取到元素
+             *        o1 比较 02 表示升序
              */
             int compare = Double.compare(o1.getSort(), o2.getSort());
+            // 如果是 TreeSet 或 TreeMap 结构， 这里返回0不处理则后者不会添加进集合
             if(compare == 0) {
                 // 将 title 进行字符串比较
                 return o1.getTitle().compareTo(o2.getTitle());
             } else {
-                return compare;                
+                return compare;
             }
             /*if(o1.getSort() < o2.getSort()){
                 return -1;

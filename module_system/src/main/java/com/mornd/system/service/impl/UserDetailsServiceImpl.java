@@ -49,8 +49,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         queryWrapper.eq(SysUser::getLoginName,username).last("LIMIT 1");
         SysUser sysUser = userMapper.selectOne(queryWrapper);
         if(Objects.isNull(sysUser)) {
-            throw new UsernameNotFoundException(""); // security 会自动返回 "用户名或密码错误" 信息
-            //throw new RuntimeException("用户名不存在"); 这种就是自定义返回信息
+            //throw new UsernameNotFoundException(""); // 该异常不管 message 填什么，最后都会被security替换成"用户名或密码错误"
+            throw new BadRequestException("账号不存在");
         } else {
             if(!EntityConst.ENABLED.equals(sysUser.getStatus())) {
                 throw new BadRequestException("该账号已被禁用");

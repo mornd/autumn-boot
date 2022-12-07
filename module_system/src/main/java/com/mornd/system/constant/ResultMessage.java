@@ -8,6 +8,10 @@ package com.mornd.system.constant;
 public interface ResultMessage {
     String CRUD_SUPERADMIN = "超级管理员不可操作";
 
+    String ACCOUNT_LOGIN_ERR = "账号或密码错误";
+
+    String PASSWORD_ERROR = "密码错误";
+
     String INSERT_MSG = "添加成功";
     String UPDATE_MSG = "修改成功";
     String DELETE_MSG = "删除成功";

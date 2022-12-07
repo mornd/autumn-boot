@@ -118,7 +118,7 @@ public class AuthController {
     @Anonymous
     @RepeatSubmit(interval = 2000)
     // 一天只能发5次，阿里云默认也会限制
-    @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "触发天级流控Permits:5")
+    @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "system触发天级流控Permits:5")
     @ApiOperation("忘记密码-发送短信验证码")
     @GetMapping("/sendForgetPwdPhoneMsgCode/{phone}")
     public JsonResult sendForgetPwdPhoneMsgCode(@Pattern(regexp = RegexpConstant.PHONE, message = "手机号码格式不正确")

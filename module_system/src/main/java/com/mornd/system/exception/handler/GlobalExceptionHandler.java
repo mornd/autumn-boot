@@ -1,5 +1,6 @@
 package com.mornd.system.exception.handler;
 
+import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.constant.JsonResultCode;
 import com.mornd.system.exception.BadRequestException;
@@ -59,21 +60,21 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataAccessException.class)
-    public JsonResult exception(DataAccessException e){
+    public JsonResult handleException(DataAccessException e){
         e.printStackTrace();
         log.info("数据访问异常：{}",e.getMessage());
         return JsonResult.failure("数据访问异常");
     }
 
     @ExceptionHandler(RedisCommandTimeoutException.class)
-    public JsonResult exception(RedisCommandTimeoutException e){
+    public JsonResult handleException(RedisCommandTimeoutException e){
         log.error("RedisCommandTimeoutException: redis服务连接异常");
         log.error(e.getMessage());
         return JsonResult.failure("redis服务异常，请稍后再重试");
     }
 
     @ExceptionHandler(QueryTimeoutException.class)
-    public JsonResult exception(QueryTimeoutException e) {
+    public JsonResult handleException(QueryTimeoutException e) {
         log.error("QueryTimeoutException: redis服务连接异常");
         log.error(e.getMessage());
         return JsonResult.failure("redis服务异常，请稍后再重试");
@@ -85,17 +86,19 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(UsernameNotFoundException.class)
-    public JsonResult exception(UsernameNotFoundException e) {
+    public JsonResult handleException(UsernameNotFoundException e) {
         log.error(e.getMessage());
         return JsonResult.failure(e.getMessage());
     }
 
     /**
      * 用户用户名不存在或密码不正确抛出 BadCredentialsException 异常
+     * 准确来说是密码不匹配才会抛出该异常
      */
     @ExceptionHandler(BadCredentialsException.class)
-    public JsonResult badCredentialsException(BadCredentialsException e){
+    public JsonResult handleBadCredentialsException(BadCredentialsException e){
         log.error(e.getMessage(), e);
+//        return JsonResult.failure(ResultMessage.PASSWORD_ERROR);
         return JsonResult.failure(e.getMessage());
     }
 
@@ -103,7 +106,7 @@ public class GlobalExceptionHandler {
      * 处理自定义异常
      */
     @ExceptionHandler(value = BadRequestException.class)
-    public JsonResult badRequestException(BadRequestException e) {
+    public JsonResult handleBadRequestException(BadRequestException e) {
         // 打印堆栈信息
         log.error(e.getMessage());
         return JsonResult.failure(e.getStatus(), e.getMessage());
@@ -115,7 +118,7 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(Throwable.class)
-    public JsonResult exception(Throwable e){
+    public JsonResult handleException(Throwable e){
         e.printStackTrace();
         log.error(e.getMessage());
         return JsonResult.failure(e.getMessage());

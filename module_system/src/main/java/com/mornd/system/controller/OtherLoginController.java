@@ -53,7 +53,7 @@ public class OtherLoginController {
      */
     @RepeatSubmit(interval = 2000) // 2秒内不允许相同的手机号提交
     // 一天只能发5次，阿里云默认也会限制
-    @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "触发天级流控Permits:5")
+    @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "system触发天级流控Permits:5")
     @GetMapping("/sendLoginPhoneMsgCode/{phone}")
     public JsonResult sendLoginPhoneMsgCode(@Pattern(regexp = RegexpConstant.PHONE, message = "手机号码格式不正确")
                                                 @PathVariable(value = "phone")

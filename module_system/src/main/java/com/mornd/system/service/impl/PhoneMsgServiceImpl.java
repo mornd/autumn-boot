@@ -148,6 +148,8 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
         if(value == null || !value.equalsIgnoreCase(code)) {
             throw new BadRequestException("验证码错误");
         }
+        // 删除验证码
+        redisUtil.delete(FORGET_PWD_PHONE_MSG_CODE + phone);
         //加密新密码
         String encode = passwordEncoder.encode(newPwd);
         // 更新数据库

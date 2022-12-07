@@ -36,10 +36,10 @@ public class LoginUserDTO implements Serializable {
     @NotBlank(message = "登录uuid不能为空")
     @ApiModelProperty(value = "验证uuid",required = true)
     private String uuid;
-    
+
     @ApiModelProperty(value = "密码是否需要先解密")
     private Boolean desEncrypt;
 
-    @ApiModelProperty("记住我功能")
-    private Boolean remember;
+    @ApiModelProperty("记住我功能(前端实现)")
+    private Boolean rememberMe;
 }
