@@ -116,7 +116,7 @@ public class AuthController {
     private PhoneMsgService phoneMsgService;
 
     @Anonymous
-    @RepeatSubmit(interval = 2000)
+    @RepeatSubmit(interval = 5000)
     // 一天只能发5次，阿里云默认也会限制
     @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "system触发天级流控Permits:5")
     @ApiOperation("忘记密码-发送短信验证码")

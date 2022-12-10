@@ -122,7 +122,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
-        return JsonResult.success("用户添加成功，用户的密码默认为：" + SecurityConst.USER_DEFAULT_PWD);
+        return JsonResult.success("用户添加成功，密码为系统默认，可在后端配置中进行查看");
     }
 
     /**
@@ -192,7 +192,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         sysUser.setModifiedBy(SecurityUtil.getLoginUserId());
         sysUser.setGmtModified(new Date());
         baseMapper.updateById(sysUser);
-        return JsonResult.success(ResultMessage.UPDATE_MSG);
+        authUtil.delCacheLoginUser();
+        return JsonResult.success("修改成功，需重新登录");
     }
 
     /**
@@ -221,7 +222,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         userWithRoleMapper.delete(qw);
         //执行删除
         baseMapper.deleteById(id);
-        authUtil.delCacheLoginUser();
+        if(SecurityUtil.getLoginUserId().equals(id)) {
+            authUtil.delCacheLoginUser();
+        }
         return JsonResult.success();
     }
 
@@ -241,7 +244,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         uw.set(SysUser::getStatus, state);
         uw.eq(SysUser::getId, id);
         baseMapper.update(null, uw);
-        authUtil.delCacheLoginUser();
+        if(SecurityUtil.getLoginUserId().equals(id)) {
+            authUtil.delCacheLoginUser();
+        }
         return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
