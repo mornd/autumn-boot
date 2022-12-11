@@ -132,7 +132,7 @@ spring:
     timeout: 5000ms
     # 密码
     password:
-    # 配置lettuce连接池
+    # 配置 lettuce 连接池
     lettuce:
       pool:
         # 最大连接数，默认8
@@ -159,7 +159,7 @@ jwt:
   # JWT 存储的请求头
   tokenHeader: Authorization
   # JWT 加解密使用的密钥(盐)
-  secret: mornd-secret
+  secret: 'mornd-secret'
   # JWT 负载拿到开头
   tokenHead: 'Bearer '
   # JWT 的超期限时间，单位分钟，默认值180

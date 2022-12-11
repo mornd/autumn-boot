@@ -87,9 +87,11 @@ public class RoleController {
     @PreAuthorize("hasAnyAuthority('system:role:update')")
     @LogStar("更改角色状态")
     @ApiOperation("更改状态")
-    @GetMapping("/changeState")
-    public JsonResult changeStatus(@NotBlank(message = "id不能为空") String id,
-                                   @Range(min = 0, max = 1, message = "修改的状态值不正确") Integer state) {
+    @PutMapping("/changeState/{id}/{state}")
+    public JsonResult changeStatus(@PathVariable(value = "id") @NotBlank(message = "id不能为空")
+                                        String id,
+                                   @PathVariable(value = "state") @Range(min = 0, max = 1, message = "修改的状态值不正确")
+                                        Integer state) {
         return roleService.changeStatus(id, state);
     }
 

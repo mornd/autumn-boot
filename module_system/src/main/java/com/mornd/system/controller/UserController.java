@@ -107,9 +107,11 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('system:user:changeStatus')")
     @LogStar("修改用户状态")
     @ApiOperation("更改状态")
-    @GetMapping("/changeState")
-    public JsonResult changeStatus(@NotBlank(message = "id不能为空") String id,
-                                   @Range(min = 0, max = 1, message = "修改的状态值不正确") Integer state) {
+    @PutMapping("/changeState/{id}/{state}")
+    public JsonResult changeStatus(@PathVariable(value = "id") @NotBlank(message = "id不能为空")
+                                        String id,
+                                   @PathVariable(value = "state") @Range(min = 0, max = 1, message = "修改的状态值不正确")
+                                        Integer state) {
         return userService.changeStatus(id, state);
     }
 

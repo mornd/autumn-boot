@@ -328,7 +328,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         per.setId(id);
         per.setEnabled(state);
         baseMapper.updateById(per);
-        authUtil.delCacheLoginUser();
+//        authUtil.delCacheLoginUser();
         return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
