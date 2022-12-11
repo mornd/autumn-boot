@@ -20,6 +20,7 @@ import com.mornd.system.exception.BadRequestException;
 import com.mornd.system.mapper.UserMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
 import com.mornd.system.service.OnlineUserService;
+import com.mornd.system.service.UploadService;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.SecurityUtil;
@@ -47,6 +48,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     private OnlineUserService onlineUserService;
     @Resource
     private BCryptPasswordEncoder passwordEncoder;
+    @Resource
+    private UploadService uploadService;
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
     private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
@@ -220,11 +223,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         LambdaQueryWrapper<UserWithRole> qw = Wrappers.lambdaQuery();
         qw.eq(UserWithRole::getUserId, id);
         userWithRoleMapper.delete(qw);
+
+        // 获取用户的头像地址
+        LambdaQueryWrapper<SysUser> qw2 = Wrappers.lambdaQuery(SysUser.class);
+        qw2.eq(SysUser::getId, id);
+        SysUser sysUser = baseMapper.selectOne(qw2);
         //执行删除
         baseMapper.deleteById(id);
         if(SecurityUtil.getLoginUserId().equals(id)) {
             authUtil.delCacheLoginUser();
         }
+        // 删除头像
+        uploadService.deleteAvatar(sysUser.getAvatar());
         return JsonResult.success();
     }
 

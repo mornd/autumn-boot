@@ -15,6 +15,7 @@ import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.service.PhoneMsgService;
 import com.mornd.system.utils.AliyunPhoneMsgUtil;
+import com.mornd.system.utils.MyIdUtil;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecretUtil;
 import com.wf.captcha.ArithmeticCaptcha;
@@ -30,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Pattern;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -90,7 +90,7 @@ public class AuthController {
         arithmeticCaptcha.setLen(2);
         //验证码结果
         String captchaResult = arithmeticCaptcha.text();
-        String uuid = UUID.randomUUID().toString().replace("-","");
+        String uuid = MyIdUtil.fastSimpleUUID();
         log.info("登录验证码为：{}", captchaResult);
         log.info("登录uuid为：{}", uuid);
 
@@ -116,7 +116,7 @@ public class AuthController {
     private PhoneMsgService phoneMsgService;
 
     @Anonymous
-    @RepeatSubmit(interval = 5000)
+    @RepeatSubmit(interval = 60000)
     // 一天只能发5次，阿里云默认也会限制
     @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "system触发天级流控Permits:5")
     @ApiOperation("忘记密码-发送短信验证码")

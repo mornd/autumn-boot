@@ -51,7 +51,7 @@ public class OtherLoginController {
      * @param phone 目标手机号码
      * @return
      */
-    @RepeatSubmit(interval = 5000) // 5秒内不允许相同的手机号提交
+    @RepeatSubmit(interval = 60000) //  一分钟内不允许相同的手机号提交
     // 一天只能发5次，阿里云默认也会限制
     @RateLimiter(count = 5, time = 86400, limitType = LimitType.IP, message = "system触发天级流控Permits:5")
     @GetMapping("/sendLoginPhoneMsgCode/{phone}")

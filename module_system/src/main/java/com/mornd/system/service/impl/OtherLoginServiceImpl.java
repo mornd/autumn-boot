@@ -7,7 +7,6 @@ import com.mornd.system.constant.enums.EnumHiddenType;
 import com.mornd.system.constant.enums.LoginUserSource;
 import com.mornd.system.entity.dto.AuthUser;
 
-import cn.hutool.core.util.IdUtil;
 import com.mornd.system.config.security.components.TokenProperties;
 import com.mornd.system.entity.dto.OtherLoginUseDTO;
 import com.mornd.system.entity.po.SysPermission;
@@ -18,6 +17,7 @@ import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.service.OtherLoginService;
 import com.mornd.system.service.PermissionService;
+import com.mornd.system.utils.MyIdUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.model.AuthCallback;
@@ -63,7 +63,7 @@ public class OtherLoginServiceImpl implements OtherLoginService {
         AuthGiteeRequest authRequest =
                 new AuthGiteeRequest(AuthConfig.builder()
                         .clientId(clientId).clientSecret(secret).redirectUri(uri).build());
-        String uuid = IdUtil.fastUUID();
+        String uuid = MyIdUtil.fastUUID();
         String authorizeUrl = authRequest.authorize(uuid);
         Map<String,Object> map = new HashMap<>();
         map.put("authorizeUrl", authorizeUrl);

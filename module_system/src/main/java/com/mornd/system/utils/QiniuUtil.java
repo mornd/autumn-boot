@@ -1,6 +1,5 @@
 package com.mornd.system.utils;
 
-import cn.hutool.core.util.IdUtil;
 import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
@@ -143,6 +142,6 @@ public class QiniuUtil {
      * @return
      */
     private String generateName(String fileName) {
-        return IdUtil.fastSimpleUUID() + fileName;
+        return MyIdUtil.fastUUID() + fileName;
     }
 }

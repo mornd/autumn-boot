@@ -10,4 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface UploadService {
 
     String uploadAvatar(String id, MultipartFile file) throws Exception;
+
+    void deleteAvatar(String path);
 }

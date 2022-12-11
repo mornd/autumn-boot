@@ -1,8 +1,6 @@
 package com.mornd.system.service.impl;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mornd.system.config.AutumnConfig;
@@ -47,30 +45,16 @@ public class UploadServiceImpl implements UploadService {
         LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery();
         qw.eq(SysUser::getId, id);
         SysUser user = userService.getOne(qw);
-        //获取头像地址
-        String avatar = user.getAvatar();
+        if(user == null) throw new BadRequestException("用户不存在");
         String url = null;
 
         if(UploadStorageType.QINIU.getCode().equals(autumnConfig.getUploadStorage())) {
             // 七牛云
             url = qiniuUtil.upload(file.getInputStream(), file.getOriginalFilename());
-            if(!StringUtils.hasText(url)) {
-                throw new BadRequestException("头像上传失败，请重试");
-            }
             url += "http://";
-            //删除之前的头像
-            if(StrUtil.isNotBlank(avatar)) {
-                qiniuUtil.delete(avatar.substring(avatar.lastIndexOf("/") + 1));
-            }
         } else if(UploadStorageType.ALIYUN.getCode().equals(autumnConfig.getUploadStorage())) {
             //  阿里云oss
             url = AliyunOssUtil.upload(file.getInputStream(), file.getOriginalFilename());
-            if(!StringUtils.hasText(url)) {
-                throw new BadRequestException("头像上传失败，请重试");
-            }
-            if(StrUtil.isNotBlank(avatar)) {
-                AliyunOssUtil.delete(avatar);
-            }
         } else {
             // 本地磁盘
             // D:/autumn/uploadPath/avatar
@@ -78,27 +62,23 @@ public class UploadServiceImpl implements UploadService {
             MyFileUtil.mkdirs(avatarPath);
 
             // /ad5fdd7c-b601-4c28-bcc1-10942fe59af5.jpg
-            String resourcePath = File.separator + IdUtil.fastUUID() + MyFileUtil.getFileSuffix(file);
+            String resourcePath = File.separator + MyIdUtil.fastUUID() + MyFileUtil.getFileSuffix(file);
             try {
                 file.transferTo(new File(avatarPath + resourcePath));
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new BadRequestException("头像上传发生异常，请重试");
             }
-
-            // 删除之前的头像
-            String oldAvatar= user.getAvatar();
-            if(StringUtils.hasText(oldAvatar)) {
-                if(oldAvatar.startsWith(GlobalConst.RESOURCE_PREFIX)) {
-                    oldAvatar = oldAvatar.replace(GlobalConst.RESOURCE_PREFIX, "");
-                }
-                oldAvatar = autumnConfig.getProfile() + oldAvatar;
-                FileUtil.del(oldAvatar);
-            }
             // /profile/avatar/011f1c31-4031-463d-8b1d-64986579bda4.jpg
             url = String.format("%s%s%s%s", GlobalConst.RESOURCE_PREFIX,
                     File.separator, GlobalConst.AVATAR_DIR_NAME, resourcePath);
         }
+        if(!StringUtils.hasText(url)) {
+            throw new BadRequestException("头像上传失败，请重试");
+        }
+
+        // 删除之前的头像
+        this.deleteAvatar(user.getAvatar());
 
         if(id.equals(SecurityUtil.getLoginUserId())) {
             // 更新缓存中的用户信息
@@ -112,5 +92,27 @@ public class UploadServiceImpl implements UploadService {
         user.setAvatar(url);
         userService.updateAvatar(user);
         return url;
+    }
+
+    /**
+     * 删除头像文件
+     * @param path
+     */
+    @Override
+    public void deleteAvatar(String path) {
+        if(!StringUtils.hasText(path)) {
+            return;
+        }
+        if(UploadStorageType.QINIU.getCode().equals(autumnConfig.getUploadStorage())) {
+            qiniuUtil.delete(path.substring(path.lastIndexOf("/") + 1));
+        } else if(UploadStorageType.ALIYUN.getCode().equals(autumnConfig.getUploadStorage())) {
+            AliyunOssUtil.delete(path);
+        } else {
+            if(path.startsWith(GlobalConst.RESOURCE_PREFIX)) {
+                path = path.replace(GlobalConst.RESOURCE_PREFIX, "");
+            }
+            path = autumnConfig.getProfile() + path;
+            FileUtil.del(path);
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.mornd.system.utils;
 
-import cn.hutool.core.util.IdUtil;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
@@ -31,7 +30,7 @@ public class AliyunOssUtil {
         //  截取后缀
         String suffix = fileName.substring(fileName.lastIndexOf('.'));
         // 重写文件名称
-        fileName = OBJECT_DIR + IdUtil.fastSimpleUUID() + suffix;
+        fileName = OBJECT_DIR + MyIdUtil.fastUUID() + suffix;
         String endpoint = AliyunOssConstant.END_POINT;
         String accessKeyId = AliyunOssConstant.ACCESS_KEY_ID;
         String accessKeySecret = AliyunOssConstant.ACCESS_KEY_SECRET;

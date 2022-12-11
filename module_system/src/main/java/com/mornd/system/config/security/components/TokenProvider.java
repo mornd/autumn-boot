@@ -1,5 +1,6 @@
 package com.mornd.system.config.security.components;
 
+import com.mornd.system.utils.MyIdUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -13,7 +14,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author mornd
@@ -55,7 +55,7 @@ public class TokenProvider {
     private JwtBuilder getJwtBuilder(UserDetails userDetails) {
         return Jwts.builder()
                 // 声明标识 => jti
-                .setId(UUID.randomUUID().toString())
+                .setId(MyIdUtil.fastSimpleUUID())
                 // 设置主题 => sub
                 .setSubject(userDetails.getUsername())
                 // 签发人 => iss
