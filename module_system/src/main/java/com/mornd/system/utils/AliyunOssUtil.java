@@ -30,7 +30,7 @@ public class AliyunOssUtil {
         //  截取后缀
         String suffix = fileName.substring(fileName.lastIndexOf('.'));
         // 重写文件名称
-        fileName = OBJECT_DIR + MyIdUtil.fastUUID() + suffix;
+        fileName = OBJECT_DIR + AutumnUUID.fastUUID() + suffix;
         String endpoint = AliyunOssConstant.END_POINT;
         String accessKeyId = AliyunOssConstant.ACCESS_KEY_ID;
         String accessKeySecret = AliyunOssConstant.ACCESS_KEY_SECRET;

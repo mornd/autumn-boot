@@ -163,13 +163,13 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
     }
 
     /**
-     * 生成四位的随机整数
+     * 生成六位的随机整数
      * @return
      */
     String generateRandomCode() {
         ThreadLocalRandom threadLocalRandom = ThreadLocalRandom.current();
         // 左闭右开取值
-        final int code = threadLocalRandom.nextInt(1000, 10000);
+        final int code = threadLocalRandom.nextInt(100000, 1000000);
         return String.valueOf(code);
     }
 }

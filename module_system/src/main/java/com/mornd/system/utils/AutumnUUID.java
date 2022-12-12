@@ -7,7 +7,7 @@ import cn.hutool.core.util.IdUtil;
  * @dateTime: 2022/12/11 - 19:52
  * @description: uuid 工具类
  */
-public class MyIdUtil {
+public class AutumnUUID {
 
     /**
      * 生成带-的随机数

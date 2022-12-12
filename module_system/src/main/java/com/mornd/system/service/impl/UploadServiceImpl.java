@@ -62,7 +62,7 @@ public class UploadServiceImpl implements UploadService {
             MyFileUtil.mkdirs(avatarPath);
 
             // /ad5fdd7c-b601-4c28-bcc1-10942fe59af5.jpg
-            String resourcePath = File.separator + MyIdUtil.fastUUID() + MyFileUtil.getFileSuffix(file);
+            String resourcePath = File.separator + AutumnUUID.fastUUID() + MyFileUtil.getFileSuffix(file);
             try {
                 file.transferTo(new File(avatarPath + resourcePath));
             } catch (IOException e) {

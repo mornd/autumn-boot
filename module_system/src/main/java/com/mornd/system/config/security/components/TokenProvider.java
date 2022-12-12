@@ -1,6 +1,6 @@
 package com.mornd.system.config.security.components;
 
-import com.mornd.system.utils.MyIdUtil;
+import com.mornd.system.utils.AutumnUUID;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -55,7 +55,7 @@ public class TokenProvider {
     private JwtBuilder getJwtBuilder(UserDetails userDetails) {
         return Jwts.builder()
                 // 声明标识 => jti
-                .setId(MyIdUtil.fastSimpleUUID())
+                .setId(AutumnUUID.fastSimpleUUID())
                 // 设置主题 => sub
                 .setSubject(userDetails.getUsername())
                 // 签发人 => iss

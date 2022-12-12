@@ -142,6 +142,6 @@ public class QiniuUtil {
      * @return
      */
     private String generateName(String fileName) {
-        return MyIdUtil.fastUUID() + fileName;
+        return AutumnUUID.fastUUID() + fileName;
     }
 }

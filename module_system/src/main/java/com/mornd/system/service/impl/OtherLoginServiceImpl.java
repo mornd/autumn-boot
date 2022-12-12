@@ -17,7 +17,7 @@ import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.service.OtherLoginService;
 import com.mornd.system.service.PermissionService;
-import com.mornd.system.utils.MyIdUtil;
+import com.mornd.system.utils.AutumnUUID;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.model.AuthCallback;
@@ -63,7 +63,7 @@ public class OtherLoginServiceImpl implements OtherLoginService {
         AuthGiteeRequest authRequest =
                 new AuthGiteeRequest(AuthConfig.builder()
                         .clientId(clientId).clientSecret(secret).redirectUri(uri).build());
-        String uuid = MyIdUtil.fastUUID();
+        String uuid = AutumnUUID.fastUUID();
         String authorizeUrl = authRequest.authorize(uuid);
         Map<String,Object> map = new HashMap<>();
         map.put("authorizeUrl", authorizeUrl);

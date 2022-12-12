@@ -15,7 +15,7 @@ import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.service.PhoneMsgService;
 import com.mornd.system.utils.AliyunPhoneMsgUtil;
-import com.mornd.system.utils.MyIdUtil;
+import com.mornd.system.utils.AutumnUUID;
 import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecretUtil;
 import com.wf.captcha.ArithmeticCaptcha;
@@ -90,7 +90,7 @@ public class AuthController {
         arithmeticCaptcha.setLen(2);
         //验证码结果
         String captchaResult = arithmeticCaptcha.text();
-        String uuid = MyIdUtil.fastSimpleUUID();
+        String uuid = AutumnUUID.fastSimpleUUID();
         log.info("登录验证码为：{}", captchaResult);
         log.info("登录uuid为：{}", uuid);
 
