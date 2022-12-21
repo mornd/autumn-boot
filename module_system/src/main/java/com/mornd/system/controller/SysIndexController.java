@@ -11,8 +11,8 @@ public class SysIndexController
     /** 系统基础配置 */
     @Value("${spring.application.name}")
     private String appName;
-    @Value("${server.servlet.context-path}")
-    private String contextPath;
+//    @Value("${server.servlet.context-path}")
+//    private String contextPath;
 
     /**
      * 访问首页，提示语
@@ -21,7 +21,6 @@ public class SysIndexController
     @RequestMapping("/")
     public String index()
     {
-        return String.format("欢迎使用%s后台管理框架，接口前置路径为：%s，请通过前端地址访问。",
-                appName, contextPath);
+        return String.format("欢迎使用%s后台管理框架，请通过前端地址访问。", appName);
     }
 }

@@ -125,7 +125,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
-        return JsonResult.success("用户添加成功，密码为系统默认，可在后端配置中进行查看");
+        return JsonResult.success("用户添加成功，密码为系统默认");
     }
 
     /**

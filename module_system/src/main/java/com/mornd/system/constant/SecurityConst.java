@@ -23,7 +23,7 @@ public interface SecurityConst {
             "/druid/**",
 
             // websocket 连接
-            //"/ws/**",
+            "/ws/**",
 
             //后台请求url
             "/css/**",

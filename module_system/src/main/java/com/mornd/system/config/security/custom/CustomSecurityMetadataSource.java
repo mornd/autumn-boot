@@ -1,8 +1,6 @@
 package com.mornd.system.config.security.custom;
 
-import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.entity.po.SysPermission;
-import com.mornd.system.entity.po.SysRole;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
@@ -19,6 +17,7 @@ import java.util.List;
  * @author mornd
  * @dateTime 2022/10/16 - 21:08
  * 权限控制 （根据请求url分析请求所需的角色）
+ * 该项目暂时未使用
  */
 
 @Deprecated

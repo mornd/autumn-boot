@@ -15,6 +15,7 @@ import java.util.Collection;
  * @author mornd
  * @dateTime 2022/10/16 - 22:09
  * 判断用户角色
+ * 该项目暂时未使用
  */
 @Deprecated
 @Component

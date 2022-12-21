@@ -1,7 +1,16 @@
+# 系统自定义配置
+autumn:
+  author: mornd
+  version: 1.1
+  application-name: autumn-boot
+  # 文件存储位置 (1：本地 2：七牛云 3：阿里云oss)
+  upload-storage: 1
+  # 文件路径 示例（ Windows配置D:/autumn/uploadPath，Linux配置 /home/autumn/uploadPath）
+  profile: 'D:/autumn/uploadPath'
+
 server:
   port: 9001
   servlet:
-    context-path: /dataView
     session:
       timeout: 3m # session 3分钟后超时，不能小于1分钟
   tomcat:

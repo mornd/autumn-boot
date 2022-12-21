@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author mornd
  * @dateTime 2021/9/13 - 8:55
- * 浏览器输入swagger文档地址：http://IP:端口/dataView/doc.html
+ * 浏览器输入swagger文档地址：http://IP:端口/doc.html
  */
 @Configuration
 @EnableSwagger2
@@ -43,7 +43,7 @@ public class Swagger2Config {
     private final String version = "1.1";
     private final String description = "autumn接口文档";
     private final String name = "mornd";
-    private final String url = "http://IP:端口/前置路径/doc.html";
+    private final String url = "http://IP:端口/doc.html";
     private final String email = "1152229579@qq.com";
 
     @Bean

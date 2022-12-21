@@ -3,6 +3,7 @@ package com.mornd.system.exception.handler;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.constant.JsonResultCode;
+import com.mornd.system.exception.AutumnException;
 import com.mornd.system.exception.BadRequestException;
 import io.lettuce.core.RedisCommandTimeoutException;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +101,16 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage(), e);
 //        return JsonResult.failure(ResultMessage.PASSWORD_ERROR);
         return JsonResult.failure(e.getMessage());
+    }
+
+    /**
+     * 处理自定义异常
+     */
+    @ExceptionHandler(value = AutumnException.class)
+    public JsonResult handleAutumnException(AutumnException e) {
+        // 打印堆栈信息
+        log.error(e.getDetailMessage());
+        return JsonResult.failure(e.getCode(), e.getMessage());
     }
 
     /**
