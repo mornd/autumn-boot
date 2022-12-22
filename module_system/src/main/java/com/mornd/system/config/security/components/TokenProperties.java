@@ -35,9 +35,9 @@ public class TokenProperties {
     private Long expiration;
 
     /**
-     * 时间单位
+     * 设置过期的时间单位，MINUTES表示分钟，最好不要改动这里
      */
-    private TimeUnit expirationTimeUnit;
+    private TimeUnit expirationTimeUnit = TimeUnit.MINUTES;
     /**
      * 是否是单用户登录模式
      */

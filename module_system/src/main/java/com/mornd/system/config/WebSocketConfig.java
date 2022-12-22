@@ -23,7 +23,6 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import javax.annotation.Resource;
-import java.util.Objects;
 
 /**
  * @author: mornd
@@ -79,7 +78,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     if(StringUtils.hasText(token)) {
                         // 查找缓存数据
                         AuthUser authUser = (AuthUser) redisUtil.getValue(authUtil.getLoginUserRedisKey(token));
-                        if(Objects.nonNull(authUser) && Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
+                        if(authUser != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                             UsernamePasswordAuthenticationToken authenticationToken
                                     = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
                             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
