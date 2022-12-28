@@ -31,8 +31,8 @@ import java.util.Set;
 public class SysUser extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    //IdType.ASSIGN_UUID =>a794d53804816017978dba76b05b19a1
-    // IdType.ASSIGN_ID =>1425004256210038785
+    //IdType.ASSIGN_UUID => a794d53804816017978dba76b05b19a1
+    // IdType.ASSIGN_ID => 1425004256210038785
     @TableId(type = IdType.ASSIGN_ID)
     @NotBlank(message = "ID不能为空",groups = {UpdateValidGroup.class})
     private String id;

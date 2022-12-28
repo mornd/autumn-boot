@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
@@ -24,6 +25,7 @@ public class SysUserVO implements Serializable {
     private String id;
 
     @NotBlank(message = "登录名不能为空")
+    @Pattern(regexp = RegexpConstant.ACCOUNT, message = RegexpConstant.ACCOUNT_MESSAGE)
     private String loginName;
 
     @NotBlank(message = "姓名不能为空")

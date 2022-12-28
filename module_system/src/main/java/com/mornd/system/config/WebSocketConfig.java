@@ -5,6 +5,7 @@ import com.mornd.system.constant.WebSocketConst;
 import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -30,6 +31,7 @@ import javax.annotation.Resource;
  * @description: websocket 配置
  */
 
+@Slf4j
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
@@ -83,6 +85,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                                     = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
                             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                             accessor.setUser(authenticationToken);
+                            log.info("webSocket连接建立成功");
                         }
                     }
                 }

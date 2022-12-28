@@ -19,7 +19,7 @@ public class LoginUserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "登录名不能为空")
-    @Size(min = 1, max = 20, message = "账号长度须在1-20之间")
+    @Size(min = 2, max = 20, message = "账号长度须在2-20之间")
     @ApiModelProperty(value = "登录名",required = true)
     private String username;
 
@@ -37,9 +37,10 @@ public class LoginUserDTO implements Serializable {
     @ApiModelProperty(value = "验证uuid",required = true)
     private String uuid;
 
-    @ApiModelProperty(value = "密码是否需要先解密")
+    @ApiModelProperty(value = "密码是否需要先解密，用于swagger接口测试")
     private Boolean desEncrypt;
 
+    @Deprecated
     @ApiModelProperty("记住我功能(前端实现)")
     private Boolean rememberMe;
 }

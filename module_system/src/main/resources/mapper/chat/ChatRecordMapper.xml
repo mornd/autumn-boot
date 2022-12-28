@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mornd.system.chat.mapper.ChatRecordMapper">
+    <resultMap id="baseColumnResult" type="com.mornd.system.chat.entity.ChatRecord">
+        <id property="id" column="id" />
+        <result property="fromKey" column="from_key" />
+        <result property="toKey" column="to_key" />
+        <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <!--<sql id="baseColumn">
+
+    </sql>-->
+
+    <resultMap id="recordAndMessage" type="com.mornd.system.chat.entity.ChatRecord" extends="baseColumnResult">
+        <association property="chatMessage" javaType="com.mornd.system.chat.entity.ChatMessage">
+            <id property="id" column="message_id" />
+            <result property="content" column="content" />
+        </association>
+    </resultMap>
+
+    <select id="getRecentUsername" resultType="java.lang.String">
+        SELECT
+            to_key
+        FROM
+            chat_record
+        WHERE
+            from_key = #{loginName}
+          AND from_deleted = 0 UNION
+        SELECT
+            from_key
+        FROM
+            chat_record
+        WHERE
+            to_key = #{loginName}
+          AND to_deleted = 0
+    </select>
+
+    <select id="getRecord" resultMap="recordAndMessage">
+        SELECT
+            record.id,from_key,to_key,create_time,message_id,message.content
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    chat_record
+                WHERE
+                    from_key = #{self}
+                  AND to_key = #{other}
+                  AND from_deleted = 0 UNION
+                SELECT
+                    *
+                FROM
+                    chat_record
+                WHERE
+                    from_key = #{other}
+                  AND to_key = #{self}
+                  AND to_deleted = 0
+            ) record
+                INNER JOIN chat_message message ON record.message_id = message.id
+        ORDER BY
+            record.id DESC
+        <if test="last">
+            LIMIT 1
+        </if>
+    </select>
+
+    <select id="unreadCount" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM
+            (
+                SELECT
+                    id
+                FROM
+                    chat_record
+                WHERE
+                    from_key = #{self}
+                  AND to_key = #{other}
+                  AND from_deleted = 0
+                  AND from_read = 0 UNION
+                SELECT
+                    id
+                FROM
+                    chat_record
+                WHERE
+                    from_key = #{other}
+                  AND to_key = #{self}
+                  AND to_deleted = 0
+                  AND to_read = 0
+            ) record
+    </select>
+</mapper>

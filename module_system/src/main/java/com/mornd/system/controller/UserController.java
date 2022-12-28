@@ -87,7 +87,7 @@ public class UserController {
         return userService.update(user);
     }
 
-    @PreAuthorize("hasAnyAuthority('system:user:update')")
+    //@PreAuthorize("hasAnyAuthority('system:user:update')")
     @RepeatSubmit
     @LogStar("用户修改个人信息")
     @ApiOperation("用户个人修改信息")

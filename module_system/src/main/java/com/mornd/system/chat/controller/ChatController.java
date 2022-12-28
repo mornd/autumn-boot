@@ -1,13 +1,14 @@
 package com.mornd.system.chat.controller;
 
+import com.mornd.system.chat.entity.ChatSession;
 import com.mornd.system.chat.entity.ChatUser;
 import com.mornd.system.chat.service.ChatService;
 import com.mornd.system.entity.result.JsonResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.mornd.system.utils.SecurityUtil;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -22,13 +23,42 @@ public class ChatController {
     private ChatService chatService;
 
     /**
-     * 查找所有聊天用户，并排除当前登录用户
+     * 查找所有 chat 好友，并按账号名称排序
      * @return
      */
-    @GetMapping("/users")
-    public JsonResult<?> users() {
-        TreeSet<ChatUser> result = chatService.users();
+    @GetMapping("/allFriends")
+    public JsonResult<?> friends() {
+        TreeSet<ChatUser> result = chatService.friends();
         return JsonResult.successData(result);
     }
 
+    /**
+     * 获取最近聊天的好友
+     * @return
+     */
+    @GetMapping("/getRecentUsers")
+    public JsonResult<?> recentUsers() {
+        TreeSet<ChatUser> reslut = chatService.recentUsers();
+        return JsonResult.successData(reslut);
+    }
+
+    /**
+     * 获取与某个好友的聊天消息
+     * @param other
+     * @return
+     */
+    @GetMapping("/getSession/{other}")
+    public JsonResult<?> getSession(@PathVariable String other) {
+        List<ChatSession> result = chatService.getSession(other);
+        return JsonResult.successData(result);
+    }
+
+    /**
+     * 用户已读取全部消息
+     * @param other 聊天对象
+     */
+    @PutMapping("/read/{other}")
+    public void read(@PathVariable String other) {
+        chatService.read(SecurityUtil.getLoginUsername(), other);
+    }
 }
