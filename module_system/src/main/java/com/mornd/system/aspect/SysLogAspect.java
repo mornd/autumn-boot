@@ -138,15 +138,19 @@ public class SysLogAspect {
         sysLog.setOs(NetUtil.getOs(request));
         sysLog.setBrowser(NetUtil.getBrowser(request));
         sysLog.setAddress(AddressUtils.getRealAddressByIP(sysLog.getIp()));
-        if(StrUtil.isNotBlank(params) && !"[]".equals(params)) {
-            sysLog.setParams(params.length() > 1000 ? params.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : params);
+        if(logStar.isSaveRequestData()) {
+            if(StrUtil.isNotBlank(params) && !"[]".equals(params)) {
+                sysLog.setParams(params.length() > 1000 ? params.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : params);
+            }
+        }
+        if(logStar.isSaveResponseData()) {
+            //方法执行结果
+            if (result != null) {
+                String res = JSON.toJSONString(result);
+                sysLog.setResult(res.length() > 1000 ? res.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : res);
+            }
         }
 
-        //方法执行结果
-        if (result != null) {
-            String res = JSON.toJSONString(result);
-            sysLog.setResult(res.length() > 1000 ? res.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : res);
-        }
         //异常信息
         if(throwable != null) {
             String msg = throwable.getMessage();

@@ -20,4 +20,14 @@ public @interface LogStar {
     String title() default "";
     //日志操作类型
     LogType BusinessType() default LogType.OTHER;
+
+    /**
+     * 是否保存请求的参数
+     */
+    public boolean isSaveRequestData() default true;
+
+    /**
+     * 是否保存响应的参数
+     */
+    public boolean isSaveResponseData() default true;
 }
