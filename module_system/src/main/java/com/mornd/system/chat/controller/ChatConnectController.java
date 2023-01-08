@@ -39,8 +39,20 @@ public class ChatConnectController {
         chatMessage.setTo(chatMessage.getTo());
         chatMessage.setDate(LocalDateTime.now());
         chatMessage.setFromName(sysUser.getRealName());
-        // todo 入库记录
-        chatService.insertMessage(sysUser, chatMessage);
+        try {
+            //  入库记录
+            chatService.insertMessage(sysUser, chatMessage);
+            chatMessage.setSuccess(true);
+        } catch (Exception e) {
+            // 发送失败，这条消息发回给自己
+            chatMessage.setSuccess(false);
+            chatMessage.setContent(e.getMessage());
+            simpMessagingTemplate.convertAndSendToUser(chatMessage.getFrom(),
+                    WebSocketConst.CHAT_DESTINATION_PREFIXE + "/chat",
+                    chatMessage);
+            return;
+        }
+
         if(chatMessage.getFrom().equals(chatMessage.getTo())) {
             // 自己发给自己消息
             return;

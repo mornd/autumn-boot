@@ -22,4 +22,8 @@ public interface ChatService {
     List<ChatSession> getSession(String other);
 
     void read(String self, String other);
+
+    void delete(String other);
+
+    void clearAll();
 }

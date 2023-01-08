@@ -29,4 +29,6 @@ public class TransmissionChatMessage {
     private String content;
 
     private LocalDateTime date;
+
+    private boolean success = true;
 }

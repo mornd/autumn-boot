@@ -5,6 +5,7 @@ import com.mornd.system.chat.entity.ChatUser;
 import com.mornd.system.chat.service.ChatService;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.utils.SecurityUtil;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -60,5 +61,24 @@ public class ChatController {
     @PutMapping("/read/{other}")
     public void read(@PathVariable String other) {
         chatService.read(SecurityUtil.getLoginUsername(), other);
+    }
+
+    /**
+     * 删除与某人的聊天记录
+     * @param other
+     */
+    @DeleteMapping("/delete/{other}")
+    public void delete(@PathVariable String other) {
+        chatService.delete(other);
+    }
+
+    /**
+     * 超级管理员清除所有的聊天记录
+     */
+    @PreAuthorize("hasRole('super_admin')")
+    @DeleteMapping("/clear")
+    public JsonResult clearAll() {
+        chatService.clearAll();
+        return JsonResult.success();
     }
 }

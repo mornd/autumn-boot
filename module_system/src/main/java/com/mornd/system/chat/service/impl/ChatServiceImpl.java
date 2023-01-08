@@ -59,7 +59,6 @@ public class ChatServiceImpl implements ChatService {
                             .eq(SysUser::getLoginName, name)
             );
             ChatUser chatUser = new ChatUser(sysUser);
-            // todo 字段加索引
             List<ChatRecord> lastRecord = chatRecordMapper.getRecord(loginUser.getLoginName(), name, true);
             Optional<ChatRecord> first = lastRecord.stream().findFirst();
             first.ifPresent((record) -> {
@@ -126,5 +125,19 @@ public class ChatServiceImpl implements ChatService {
         uw.eq(ChatRecord::getToRead, 0);
         // 第一个参数跟 UpdateWrapper.set 方法一样
         chatRecordMapper.update(record, uw);
+    }
+
+    @Override
+    public void delete(String other) {
+        String loginUsername = SecurityUtil.getLoginUsername();
+        List<ChatRecord> list = chatRecordMapper.getRecord(loginUsername, other, false);
+        list.forEach(record -> {
+        });
+    }
+
+    @Override
+    public void clearAll() {
+        chatMessageMapper.clear();
+        chatRecordMapper.clear();
     }
 }
