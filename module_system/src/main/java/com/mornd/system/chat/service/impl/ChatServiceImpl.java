@@ -128,11 +128,56 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(String other) {
         String loginUsername = SecurityUtil.getLoginUsername();
-        List<ChatRecord> list = chatRecordMapper.getRecord(loginUsername, other, false);
-        list.forEach(record -> {
-        });
+        Set<Long> recordDel = new HashSet<>();
+        Set<Long> messageDel = new HashSet<>();
+
+        LambdaUpdateWrapper<ChatRecord> qw = Wrappers.lambdaUpdate(ChatRecord.class);
+        qw.eq(ChatRecord::getFromKey, loginUsername);
+        qw.eq(ChatRecord::getToKey, other);
+        qw.eq(ChatRecord::getFromDeleted, 0);
+        List<ChatRecord> chatRecords = chatRecordMapper.selectList(qw);
+
+        for (ChatRecord chatRecord : chatRecords) {
+            if(1 == chatRecord.getToDeleted()) {
+                recordDel.add(chatRecord.getId());
+                messageDel.add(chatRecord.getMessageId());
+            } else {
+                LambdaUpdateWrapper<ChatRecord> uw = Wrappers.lambdaUpdate(ChatRecord.class);
+                uw.set(ChatRecord::getFromDeleted, 1);
+                uw.eq(ChatRecord::getId, chatRecord.getId());
+                chatRecordMapper.update(null, uw);
+            }
+        }
+
+        LambdaUpdateWrapper<ChatRecord> qw2 = Wrappers.lambdaUpdate(ChatRecord.class);
+        qw2.eq(ChatRecord::getFromKey, other);
+        qw2.eq(ChatRecord::getToKey, loginUsername);
+        qw2.eq(ChatRecord::getToDeleted, 0);
+        List<ChatRecord> chatRecords2 = chatRecordMapper.selectList(qw2);
+
+        for (ChatRecord chatRecord : chatRecords2) {
+            if(1 == chatRecord.getFromDeleted()) {
+                recordDel.add(chatRecord.getId());
+                messageDel.add(chatRecord.getMessageId());
+            } else {
+                LambdaUpdateWrapper<ChatRecord> uw = Wrappers.lambdaUpdate(ChatRecord.class);
+                uw.set(ChatRecord::getToDeleted, 1);
+                uw.eq(ChatRecord::getId, chatRecord.getId());
+                chatRecordMapper.update(null, uw);
+            }
+        }
+
+        // 删除表记录
+        if(!recordDel.isEmpty()) {
+            chatRecordMapper.deleteBatchIds(recordDel);
+        }
+
+        if(!messageDel.isEmpty()) {
+            chatMessageMapper.deleteBatchIds(messageDel);
+        }
     }
 
     @Override

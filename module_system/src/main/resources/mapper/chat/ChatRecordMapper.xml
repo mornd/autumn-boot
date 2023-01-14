@@ -10,10 +10,6 @@
         <result property="createTime" column="create_time" />
     </resultMap>
 
-    <!--<sql id="baseColumn">
-
-    </sql>-->
-
     <resultMap id="recordAndMessage" type="com.mornd.system.chat.entity.ChatRecord" extends="baseColumnResult">
         <association property="chatMessage" javaType="com.mornd.system.chat.entity.ChatMessage">
             <id property="id" column="message_id" />
@@ -70,7 +66,7 @@
 
     <select id="unreadCount" resultType="java.lang.Integer">
         SELECT
-            count(*)
+            count(1)
         FROM
             (
                 SELECT
