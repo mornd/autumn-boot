@@ -68,8 +68,9 @@ public class ChatController {
      * @param other
      */
     @DeleteMapping("/delete/{other}")
-    public void delete(@PathVariable String other) {
+    public JsonResult delete(@PathVariable String other) {
         chatService.delete(other);
+        return JsonResult.success();
     }
 
     /**

@@ -2,7 +2,6 @@
 -- drop database if exists `db_autumn`;
 -- CREATE DATABASE `db_autumn`;
 -- use `db_autumn`;
---
 
 /*
  Navicat Premium Data Transfer
@@ -17,11 +16,48 @@
  Target Server Version : 80019
  File Encoding         : 65001
 
- Date: 06/11/2022 21:59:40
+ Date: 15/01/2023 17:47:07
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for chat_message
+-- ----------------------------
+DROP TABLE IF EXISTS `chat_message`;
+CREATE TABLE `chat_message`  (
+                                 `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+                                 `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息内容',
+                                 PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of chat_message
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for chat_record
+-- ----------------------------
+DROP TABLE IF EXISTS `chat_record`;
+CREATE TABLE `chat_record`  (
+                                `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+                                `from_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '发件人',
+                                `to_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '收件人',
+                                `create_time` datetime NOT NULL COMMENT '时间',
+                                `from_read` tinyint NULL DEFAULT 0 COMMENT '发件人是否读取( 0：未读1：已读)',
+                                `to_read` tinyint NULL DEFAULT 0 COMMENT '收件人是否读取',
+                                `from_deleted` tinyint NULL DEFAULT 0 COMMENT '发件人是否删除该条消息(0：未删1：已删)',
+                                `to_deleted` tinyint NULL DEFAULT 0 COMMENT '收件人是否删除该条消息',
+                                `message_id` bigint NOT NULL COMMENT '消息id',
+                                PRIMARY KEY (`id`) USING BTREE,
+                                INDEX `idx_from`(`from_key` ASC) USING BTREE,
+                                INDEX `idx_to`(`to_key` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of chat_record
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for sys_log
@@ -32,14 +68,14 @@ CREATE TABLE `sys_log`  (
                             `username` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作用户名',
                             `method_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '方法名',
                             `visit_date` datetime NOT NULL COMMENT '访问时间',
-                            `execution_time` int NULL DEFAULT NULL COMMENT '操作时长',
+                            `execution_time` bigint NULL DEFAULT NULL COMMENT '操作时长',
                             `ip` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '访问ip',
                             `url` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '访问url',
                             `address` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '真实地址',
-                            `params` varchar(1500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '访问参数',
+                            `params` mediumtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '访问参数',
                             `os` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作系统',
-                            `result` varchar(1500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '执行结果',
-                            `type` smallint NULL DEFAULT NULL COMMENT '日志类型(1:登录2:退出3:其他)',
+                            `result` mediumtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '执行结果',
+                            `type` tinyint NULL DEFAULT NULL COMMENT '日志类型(1:登录2:退出3:其他)',
                             `exception_msg` varchar(1500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '异常信息',
                             `browser` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '浏览器'
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
@@ -57,6 +93,7 @@ CREATE TABLE `sys_logininfor`  (
                                    `user_id` varbinary(255) NULL DEFAULT NULL COMMENT '用户id',
                                    `login_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户登录名',
                                    `status` tinyint(1) NULL DEFAULT NULL COMMENT '状态(0：成功，1：失败) ',
+                                   `type` tinyint NULL DEFAULT NULL COMMENT '登录方式(0：账号密码，1：短信)',
                                    `ip` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'ip',
                                    `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '真实地址',
                                    `browser` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器',
@@ -64,7 +101,7 @@ CREATE TABLE `sys_logininfor`  (
                                    `msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '信息',
                                    `login_time` datetime NULL DEFAULT NULL COMMENT '登录时间',
                                    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 387 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -103,7 +140,7 @@ CREATE TABLE `sys_permission`  (
 INSERT INTO `sys_permission` VALUES ('1425381271220101122', '0', '系统管理', '', NULL, 'fa fa-gear', 3, NULL, 1, 1, 1, 0, '2021-08-11 17:20:45', NULL, '2022-05-03 02:24:54', '1425004256210038785', 1, 'system', '系统管理');
 INSERT INTO `sys_permission` VALUES ('1425384255047946241', '1425381271220101122', '用户管理', '/system/user', 'system/user/UserList', 'fa fa-user', 1, 1, 1, 1, 1, 1, '2021-08-11 00:00:00', NULL, '2022-10-16 19:00:58', '1425004256210038785', 1, 'system:user', '用户管理');
 INSERT INTO `sys_permission` VALUES ('1425384412992856065', '1425381271220101122', '角色管理', '/system/role', 'system/role/RoleList', 'fa fa-user-secret', 2, 1, 1, 1, 1, 1, '2022-01-05 00:00:00', NULL, '2022-10-20 23:36:59', '1425004256210038785', 1, 'system:role', '角色管理');
-INSERT INTO `sys_permission` VALUES ('1425384413584252930', '1425381271220101122', '菜单管理', '/system/permission', 'system/permission/PermissionList', 'fa fa-bars', 3, 1, 1, 1, 1, 1, '2022-01-05 00:00:00', NULL, '2022-10-20 23:37:39', '1425004256210038785', 1, 'system:menu', '菜单管理');
+INSERT INTO `sys_permission` VALUES ('1425384413584252930', '1425381271220101122', '菜单管理', '/system/permission', 'system/permission/PermissionList', 'el-icon-menu', 3, 1, 1, 1, 1, 1, '2022-01-05 00:00:00', NULL, '2022-12-31 22:06:25', '1425004256210038785', 1, 'system:menu', '菜单管理');
 INSERT INTO `sys_permission` VALUES ('1461990613021151233', '0', '系统监控', '', NULL, 'fa fa-tv', 100, 1, 1, 1, 1, 0, '2021-11-20 17:31:38', '1425004256210038785', '2022-10-16 19:21:01', '1425004256210038785', 1, 'systemMonitor', '系统监控');
 INSERT INTO `sys_permission` VALUES ('1462047178541559809', '1425384413584252930', '新增菜单', '', NULL, NULL, 2, NULL, 1, 1, 1, 2, '2021-11-20 21:16:26', '1425004256210038785', '2022-10-16 19:04:56', '1425004256210038785', 1, 'system:menu:add', '新增菜单');
 INSERT INTO `sys_permission` VALUES ('1463297492196085761', '1461990613021151233', 'driud监控', 'monitor/druid', 'monitor/druid/index', 'fa fa-database', 4, 1, 1, 1, 1, 1, '2021-11-24 00:00:00', '1425004256210038785', '2022-11-06 19:44:37', '1425004256210038785', 1, 'duridMonitoring', 'driud监控');
@@ -120,7 +157,7 @@ INSERT INTO `sys_permission` VALUES ('1581607834781171714', '1486984444607004673
 INSERT INTO `sys_permission` VALUES ('1581621978532102146', '1425384255047946241', '用户状态修改', NULL, NULL, NULL, 5, NULL, 1, 1, 1, 2, '2022-10-16 20:23:59', '1425004256210038785', NULL, NULL, 1, 'system:user:changeStatus', NULL);
 INSERT INTO `sys_permission` VALUES ('1582756101220888578', '1461990613021151233', '在线用户', 'monitor/online', 'monitor/online/OnlineList', 'fa fa-group', 3, 1, 1, 1, 1, 1, '2022-10-19 00:00:00', '1425004256210038785', '2022-11-06 19:44:15', '1425004256210038785', 1, 'onlineUser', NULL);
 INSERT INTO `sys_permission` VALUES ('1583049737108144129', '1582756101220888578', '强退在线用户', NULL, NULL, NULL, 1, NULL, 1, 1, 1, 2, '2022-10-20 18:57:24', '1', '2022-10-20 23:40:06', '1425004256210038785', 1, 'onlineUser:kick', NULL);
-INSERT INTO `sys_permission` VALUES ('1586279773806186498', '1461990613021151233', '服务监控', 'monitor/server', 'monitor/server/index', 'fa fa-heart', 5, 1, 1, 1, 1, 1, '2022-10-29 00:00:00', '1425004256210038785', '2022-10-29 16:53:27', '1425004256210038785', 1, 'systemMonitor:server', NULL);
+INSERT INTO `sys_permission` VALUES ('1586279773806186498', '1461990613021151233', '服务监控', 'monitor/server', 'monitor/server/index', 'fa fa-heartbeat', 5, 1, 1, 1, 1, 1, '2022-10-29 00:00:00', '1425004256210038785', '2022-12-20 22:11:11', '1425004256210038785', 1, 'systemMonitor:server', NULL);
 INSERT INTO `sys_permission` VALUES ('1589222073322692610', '1461990613021151233', '登录日志', 'monitor/loginInfor', 'monitor/loginInfor/index', 'fa fa-sign-in', 1, 1, 1, 1, 1, 1, '2022-11-06 00:00:00', '1425004256210038785', '2022-11-06 19:57:24', '1425004256210038785', 1, 'systemMonitor:sysLoginInfor', NULL);
 INSERT INTO `sys_permission` VALUES ('1589233921480712193', '1589222073322692610', '清空登录日志表', NULL, NULL, NULL, 1, NULL, 1, 1, 1, 2, '2022-11-06 20:31:08', '1425004256210038785', '2022-11-06 20:31:48', '1425004256210038785', 1, 'systemMonitor:sysLoginInfor:truncate', NULL);
 
@@ -157,9 +194,9 @@ INSERT INTO `sys_role` VALUES ('1484007915195211778', 'geek', '极客', 1, NULL,
 INSERT INTO `sys_role` VALUES ('1484008013073489921', 'BountyHunter', '赏金猎人', 1, NULL, '2022-01-20 11:40:57', '1425004256210038785', NULL, NULL, 1, NULL, 12);
 INSERT INTO `sys_role` VALUES ('1484008120518975489', 'gunner', '枪手', 1, NULL, '2022-01-20 11:41:22', '1425004256210038785', NULL, NULL, 1, NULL, 13);
 INSERT INTO `sys_role` VALUES ('1484008292372193281', 'priate', '海盗', 1, NULL, '2022-01-20 11:42:03', '1425004256210038785', NULL, NULL, 1, NULL, 14);
-INSERT INTO `sys_role` VALUES ('1484008391340990466', 'razor', '剃刀党', 1, NULL, '2022-01-20 11:42:27', '1425004256210038785', NULL, NULL, 1, NULL, 15);
 INSERT INTO `sys_role` VALUES ('1484069473107582977', 'security staff', '保安', 1, NULL, '2022-01-20 15:45:10', '1425004256210038785', NULL, NULL, 1, NULL, 12);
 INSERT INTO `sys_role` VALUES ('1584907057962328066', 'gitee', 'gitee用户', 1, 'gitee用户访问默认角色', '2022-10-25 00:00:00', '7853024', '2022-10-25 21:58:15', '7853024', 1, NULL, 1);
+INSERT INTO `sys_role` VALUES ('1601532409578823682', 'starGuardian', '星之守护者', 1, NULL, '2022-12-10 00:00:00', '1425004256210038785', '2022-12-10 19:01:38', '1425004256210038785', 1, NULL, 5);
 
 -- ----------------------------
 -- Table structure for sys_role_permission
@@ -241,6 +278,11 @@ INSERT INTO `sys_role_permission` VALUES ('1479338174086205442', '14253842550479
 INSERT INTO `sys_role_permission` VALUES ('1479338174086205442', '1425384412992856065', '2022-11-06 21:43:31');
 INSERT INTO `sys_role_permission` VALUES ('1479338174086205442', '1486984444607004673', '2022-11-06 21:43:31');
 INSERT INTO `sys_role_permission` VALUES ('1479338174086205442', '1582756101220888578', '2022-11-06 21:43:31');
+INSERT INTO `sys_role_permission` VALUES ('1601532409578823682', '1425381271220101122', '2022-12-10 19:03:12');
+INSERT INTO `sys_role_permission` VALUES ('1601532409578823682', '1581602962446958593', '2022-12-10 19:03:12');
+INSERT INTO `sys_role_permission` VALUES ('1601532409578823682', '1425384255047946241', '2022-12-10 19:03:12');
+INSERT INTO `sys_role_permission` VALUES ('1601532409578823682', '1581602868477771778', '2022-12-10 19:03:12');
+INSERT INTO `sys_role_permission` VALUES ('1601532409578823682', '1581621978532102146', '2022-12-10 19:03:12');
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -273,15 +315,8 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES ('1', 'jack', '$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', ' 小晨', 0, '1998-06-15', '', 1, '', '', '2021-09-14 00:00:00', NULL, '2022-10-30 17:35:55', '1425004256210038785', 1, 1, 1, '0');
-INSERT INTO `sys_user` VALUES ('1425004256210038785', 'tom', '$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', '小杨2', 1, '1770-01-02', '18270917877', 1, '/profile\\avatar\\68824553-64ec-41df-9394-0b64d9b2249c.jpg', 'tom@163.com', '2021-08-10 00:00:00', NULL, '2022-10-23 23:26:11', '1425004256210038785', 1, NULL, 1, '0');
-INSERT INTO `sys_user` VALUES ('1484059335881662465', '尊敬的弗拉基米尔伯爵二世', '$2a$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', '尊敬的弗拉基米尔伯爵', 0, '2022-01-04', NULL, 1, NULL, NULL, '2022-01-20 00:00:00', '1425004256210038785', '2022-10-30 17:45:06', '1425004256210038785', 1, 1, 1, '0');
-INSERT INTO `sys_user` VALUES ('1486508175301906434', 'alice', '$2a$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', '爱丽丝', 0, NULL, NULL, 1, NULL, NULL, '2022-01-27 09:15:42', '1425004256210038785', NULL, NULL, 1, 1, 1, '0');
-INSERT INTO `sys_user` VALUES ('1486508328414973954', 'dina', '$2a$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', '黛娜', 0, NULL, NULL, 1, NULL, NULL, '2022-01-27 09:16:18', '1425004256210038785', NULL, NULL, 1, 1, 1, '0');
-INSERT INTO `sys_user` VALUES ('1486508482861830146', 'jane', '$2a$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', '简1231', 0, NULL, NULL, 1, NULL, NULL, '2022-01-27 00:00:00', '1425004256210038785', '2022-10-30 18:55:01', '1425004256210038785', 1, 1, 1, '0');
-INSERT INTO `sys_user` VALUES ('1486508911700054018', 'anna', '$2a$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', '安娜', 1, '2022-05-15', NULL, 1, NULL, NULL, '2022-01-27 00:00:00', '1425004256210038785', '2022-10-30 17:44:48', '1425004256210038785', 1, 1, 1, '0');
-INSERT INTO `sys_user` VALUES ('1486508971322085378', 'bob', '$2a$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', '鲍勃', 1, '2022-05-15', NULL, 1, 'http://r67xhbta9.hn-bkt.clouddn.com/20220127093137_1486508971322085378.jpg', NULL, '2022-01-27 00:00:00', '1425004256210038785', '2022-05-15 20:32:42', '1425004256210038785', 1, 1, 1, '0');
-INSERT INTO `sys_user` VALUES ('1486509025365692417', 'lucy', '$2a$2a$10$rvfn7AvmOxnF3yqYkRjChejNVItVbxg8uvpzWUGRG9qWAWEZPsK3m', '露西', 0, '2022-05-15', NULL, 1, NULL, NULL, '2022-01-27 00:00:00', '1425004256210038785', '2022-05-15 20:32:21', '1425004256210038785', 1, 1, 1, '0');
+INSERT INTO `sys_user` VALUES ('1', 'bob', '$2a$10$CG9zi0YGQq8LEG2ekMPp6.y5eGdv3M6XLaqd.SVjv6J1BYbHmcIsC', '鲍勃', 0, '1998-06-15', '18270917877', 1, '/profile\\avatar\\a4f0400a-6a6c-4f82-9b48-deafbd5496f7.jpg', '', '2021-09-14 00:00:00', NULL, '2023-01-15 17:41:05', '1425004256210038785', 1, 1, 1, '0');
+INSERT INTO `sys_user` VALUES ('1425004256210038785', 'tom', '$2a$10$YNXMehner5tmZlC4adQA3.aAelN6/9QRxM6IOK5KR/9kMKCWChkUK', '小杨', 1, '1770-01-02', '18270917870', 1, '/profile\\avatar\\5c5b86f2-f028-4aa4-9ecb-3f05dc75de7e.jpg', 'tom@163.com', '2021-08-10 00:00:00', NULL, '2022-12-19 21:15:50', '1425004256210038785', 1, NULL, 1, '0');
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -296,15 +331,12 @@ CREATE TABLE `sys_user_role`  (
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
-INSERT INTO `sys_user_role` VALUES ('1486508175301906434', '1', '2022-01-27 09:15:42');
-INSERT INTO `sys_user_role` VALUES ('1486508328414973954', '1484008292372193281', '2022-01-27 09:16:18');
-INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1425011630752735234', '2022-05-15 20:50:07');
-INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1484008391340990466', '2022-05-15 20:50:07');
-INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1484008120518975489', '2022-05-15 20:50:07');
-INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1484008013073489921', '2022-05-15 20:50:07');
-INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1484008292372193281', '2022-05-15 20:50:07');
-INSERT INTO `sys_user_role` VALUES ('1', '1', '2022-10-30 17:35:55');
-INSERT INTO `sys_user_role` VALUES ('1', '1479338174086205442', '2022-10-30 17:35:55');
-INSERT INTO `sys_user_role` VALUES ('1484059335881662465', '1484008391340990466', '2022-10-30 17:45:06');
+INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1425011630752735234', '2022-12-19 21:15:50');
+INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1484008120518975489', '2022-12-19 21:15:50');
+INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1484008013073489921', '2022-12-19 21:15:50');
+INSERT INTO `sys_user_role` VALUES ('1425004256210038785', '1484008292372193281', '2022-12-19 21:15:50');
+INSERT INTO `sys_user_role` VALUES ('1', '1', '2023-01-15 17:41:05');
+INSERT INTO `sys_user_role` VALUES ('1', '1479338174086205442', '2023-01-15 17:41:05');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
