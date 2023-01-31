@@ -13,7 +13,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,7 +37,7 @@ public class SysUser extends BaseEntity implements Serializable {
     private String id;
 
     @NotBlank(message = "登录名不能为空")
-    @ApiModelProperty("用户登录名称")
+    @ApiModelProperty("登录名")
     private String loginName;
 
     @ApiModelProperty("密码")
@@ -72,11 +71,15 @@ public class SysUser extends BaseEntity implements Serializable {
     @ApiModelProperty("登录方式：0为系统用户")
     private String source = LoginUserSource.LOCAL.getCode();
 
-    //角色集合
+    /**
+     * 角色集合
+     */
     @TableField(exist = false)
     Set<SysRole> roles = new HashSet<>();
 
-    //菜单权限集合
+    /**
+     * 菜单权限集合
+     */
     @TableField(exist = false)
     Set<SysPermission> permissions = new HashSet<>();
 }

@@ -5,6 +5,8 @@ import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
 
+import java.util.List;
+
 
 /**
  * @author mornd
@@ -16,6 +18,8 @@ public interface UserService extends IService<SysUser> {
     JsonResult changePwd(String oldPwd, String newPwd);
 
     JsonResult pageList(SysUserVO user);
+
+    List<SysUserVO> export(SysUserVO userVO);
 
     JsonResult insert(SysUserVO user);
 

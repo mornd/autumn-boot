@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -95,6 +96,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         IPage<SysUserVO> page = new Page<>(user.getPageNo(), user.getPageSize());
         IPage<SysUserVO> userPage = baseMapper.pageList(page, user);
         return JsonResult.successData(userPage);
+    }
+
+    /**
+     * 导出数据
+     * @param userVO
+     * @return
+     */
+    @Override
+    public List<SysUserVO> export(SysUserVO userVO) {
+        List<SysUserVO> result = baseMapper.export(userVO);
+        return result;
     }
 
     /**

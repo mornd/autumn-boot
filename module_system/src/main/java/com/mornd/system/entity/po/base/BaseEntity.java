@@ -41,6 +41,7 @@ public class BaseEntity implements Serializable {
      * 修改人
      */
     private String modifiedBy;
+
     /**
      * 逻辑删除
      */

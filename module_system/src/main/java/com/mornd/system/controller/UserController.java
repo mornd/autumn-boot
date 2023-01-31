@@ -9,6 +9,7 @@ import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
 import com.mornd.system.service.RoleService;
 import com.mornd.system.service.UserService;
+import com.mornd.system.utils.ExcelUtil;
 import com.mornd.system.utils.SecretUtil;
 import com.mornd.system.utils.SecurityUtil;
 import com.mornd.system.validation.SelectValidGroup;
@@ -138,5 +139,12 @@ public class UserController {
     public JsonResult getAllRoles() {
         List<SysRole> roles = roleService.getAllRoles();
         return JsonResult.successData(roles);
+    }
+
+    @ApiOperation("导出excel")
+    @PostMapping("/export")
+    public void export(SysUserVO userVO) {
+        List<SysUserVO> result = userService.export(userVO);
+        ExcelUtil.export(result, SysUserVO.class, "系统用户");
     }
 }

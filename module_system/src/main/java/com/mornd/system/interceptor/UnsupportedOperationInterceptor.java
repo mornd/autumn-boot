@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
  */
 @Slf4j
 @Component
-public class CannotBeModifiedInterceptor implements HandlerInterceptor {
+public class UnsupportedOperationInterceptor implements HandlerInterceptor {
     /**
      * 非系统不能修改或删除数据
      * @param request 请求

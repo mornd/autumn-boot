@@ -82,9 +82,9 @@ spring:
         # 请求页面路径
         url-pattern: /druid/*
         # 监控页用户名
-        #login-username: admin
+        login-username: admin
         # 登录页密码
-        #login-password: admin
+        login-password: 123456
         # 是否开启重置按钮
         reset-enable: true
         # ip黑名单
