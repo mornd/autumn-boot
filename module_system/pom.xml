@@ -6,12 +6,12 @@
         <!-- 继承父模块 -->
         <groupId>com.mornd</groupId>
         <artifactId>autumn_boot</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0</version>
     </parent>
 
     <groupId>com.mornd</groupId>
     <artifactId>module_system</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <name>module_system</name>
     <description>module_system project for Spring Boot</description>
 
@@ -20,16 +20,10 @@
     </properties>
 
     <dependencies>
-        <!--<dependency>
-            <groupId>com.mornd</groupId>
-            <artifactId>module_commons</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>-->
-
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <groupId>com.mornd</groupId>
+            <artifactId>module_mail</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <!-- 对象存储 oss sdk -->
@@ -44,34 +38,6 @@
             <groupId>com.aliyun</groupId>
             <artifactId>aliyun-java-sdk-core</artifactId>
             <version>4.3.3</version>
-        </dependency>
-
-        <!-- 工具包 -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>5.7.8</version>
-        </dependency>
-
-        <!-- swagger2 文档 -->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>2.9.2</version>
-        </dependency>
-
-        <!-- swagger  美化 ui 黑 -->
-<!--        <dependency>-->
-<!--            <groupId>com.github.xiaoymin</groupId>-->
-<!--            <artifactId>knife4j-spring-ui</artifactId>-->
-<!--            <version>2.0.7</version>-->
-<!--        </dependency>-->
-
-        <!-- swagger 美化 ui 蓝 -->
-        <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>swagger-bootstrap-ui</artifactId>
-            <version>1.9.6</version>
         </dependency>
 
         <!-- 七牛云 sdk -->
@@ -126,11 +92,6 @@
             <groupId>nl.basjes.parse.useragent</groupId>
             <artifactId>yauaa</artifactId>
             <version>5.23</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- 第三方登录 -->

@@ -3,6 +3,8 @@ autumn:
   author: mornd
   version: 1.1
   application-name: autumn-boot
+  # 用户注册成功时是否发送通知邮件
+  user-mail-notification: true
   # 文件存储位置 (1：本地 2：七牛云 3：阿里云oss)
   upload-storage: 1
   # 文件路径 示例（ Windows配置D:/autumn/uploadPath，Linux配置 /home/autumn/uploadPath）
@@ -152,6 +154,40 @@ spring:
         max-idle: 10
         # 最小空闲连接，默认0
         min-idle: 5
+    client-type: lettuce
+
+  rabbitmq:
+    # 用户名
+    username: guest
+    # 密码
+    password: guest
+    # 服务器地址
+    host: 127.0.0.1
+    # 端口
+    port: 5672
+    # 消息确认回调
+    publisher-confirm-type: correlated
+    # 消息失败回调
+    publisher-returns: true
+    listener:
+      simple:
+        # 开启手动确认
+        acknowledge-mode: manual
+
+  # 邮件配置
+  mail:
+    # 邮件服务器地址
+    host: smtp.163.com
+    # 端口
+    port: 25
+    # 协议
+    protocol: smtp
+    # 发送者邮箱地址
+    username: xxx
+    # 授权码
+    password: xxx
+    # 编码格式
+    default-encoding: utf-8
 
 # mybatis-plus 配置
 mybatis-plus:

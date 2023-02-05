@@ -26,6 +26,9 @@ import java.util.Set;
  */
 @Data
 public class SysUserVO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @ExcelIgnore
     @NotBlank(message = "ID不能为空", groups = {UpdateValidGroup.class, ValidGroupA.class})
     private String id;

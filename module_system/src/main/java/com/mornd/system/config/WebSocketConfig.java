@@ -35,7 +35,6 @@ import javax.annotation.Resource;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
     @Resource
     private TokenProperties tokenProperties;
     @Resource

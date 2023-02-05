@@ -2,14 +2,12 @@ package com.mornd.system.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mornd
  * @dateTime 2022/10/22 - 17:32
  */
 @Data
-@Component
 @ConfigurationProperties(prefix = "autumn")
 public class AutumnConfig {
     private String author;
@@ -17,4 +15,9 @@ public class AutumnConfig {
     private String applicationName;
     private Integer uploadStorage;
     private String profile;
+
+    /**
+     * 用户注册成功时是否发送通知邮件
+     */
+    private boolean userMailNotification;
 }

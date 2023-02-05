@@ -7,17 +7,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.context.WebServerApplicationContext;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.boot.web.server.WebServer;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.net.InetAddress;
 
 /**
- * @Author mornd
+ * @author mornd
+ * @dateTime 2021/8/10 - 10:20
+ * 主启动类
  */
+
 @Slf4j
+@EnableCaching
+@EnableScheduling
 @SpringBootApplication
 @EnableTransactionManagement
 public class ModuleSystemApplication implements ApplicationListener<WebServerInitializedEvent> {

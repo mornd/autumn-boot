@@ -8,28 +8,38 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mornd.system.AmqpMail;
+import com.mornd.system.MailConstants;
+import com.mornd.system.config.AutumnConfig;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.entity.dto.AuthUser;
+import com.mornd.system.entity.po.MailLog;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.UserWithRole;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
 import com.mornd.system.exception.BadRequestException;
+import com.mornd.system.mapper.MailLogMapper;
 import com.mornd.system.mapper.UserMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
 import com.mornd.system.service.OnlineUserService;
 import com.mornd.system.service.UploadService;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.AuthUtil;
+import com.mornd.system.utils.AutumnUUID;
 import com.mornd.system.utils.SecurityUtil;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +49,7 @@ import java.util.Set;
  * @dateTime 2021/8/10 - 15:56
  */
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements UserService {
     @Resource
     private UserWithRoleMapper userWithRoleMapper;
@@ -51,6 +61,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     private BCryptPasswordEncoder passwordEncoder;
     @Resource
     private UploadService uploadService;
+    @Resource
+    private AutumnConfig autumnConfig;
+    @Resource
+    private MailLogMapper mailLogMapper;
+
+    @Resource
+    private RabbitTemplate rabbitTemplate;
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
     private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
@@ -111,15 +128,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
 
     /**
      * 新增
-     * @param user
+     * @param userVO
      * @return
      */
     @Override
-    public JsonResult insert(SysUserVO user) {
-        if(this.queryLoginNameExists(user.getLoginName(), null)) throw new BadRequestException("登录名已重复");
-        if(queryPhoneExists(user.getPhone(), null)) throw new BadRequestException("手机号码已重复");
+    public JsonResult insert(SysUserVO userVO) {
+        if(this.queryLoginNameExists(userVO.getLoginName(), null)) throw new BadRequestException("登录名已重复");
+        if(queryPhoneExists(userVO.getPhone(), null)) throw new BadRequestException("手机号码已重复");
         SysUser sysUser = new SysUser();
-        BeanUtils.copyProperties(user, sysUser);
+        BeanUtils.copyProperties(userVO, sysUser);
         sysUser.setId(null);
         //设置默认密码
         sysUser.setPassword(passwordEncoder.encode(SecurityConst.USER_DEFAULT_PWD));
@@ -128,8 +145,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         baseMapper.insert(sysUser);
 
         //角色相关
-        if(ObjectUtils.isNotEmpty(user.getRoles())) {
-            user.getRoles().forEach(id -> {
+        if(ObjectUtils.isNotEmpty(userVO.getRoles())) {
+            userVO.getRoles().forEach(id -> {
                 UserWithRole uw = new UserWithRole();
                 uw.setUserId(sysUser.getId());
                 uw.setRoleId(id);
@@ -137,6 +154,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
+
+        // 邮件通知
+        if(autumnConfig.isUserMailNotification() && StringUtils.hasText(sysUser.getEmail())) {
+            String msgId = AutumnUUID.fastUUID();
+            MailLog mailLog = new MailLog();
+            mailLog.setMsgId(msgId);
+            mailLog.setUserId(sysUser.getId());
+            mailLog.setStatus(MailConstants.DELIVERING);
+            mailLog.setExchange(MailConstants.EXCHANGE_NAME);
+            mailLog.setRouteKey(MailConstants.ROUTING_KEY_NAME);
+            mailLog.setTryCount(0);
+            // 往后推迟几分钟
+            mailLog.setTryTime(LocalDateTime.now().plusMinutes(MailConstants.MSG_TIMEOUT));
+            mailLog.setCreateTime(LocalDateTime.now());
+
+            mailLogMapper.insert(mailLog);
+
+            AmqpMail amqpMail = new AmqpMail();
+            amqpMail.setUsername(sysUser.getRealName());
+            amqpMail.setLoginName(sysUser.getLoginName());
+            amqpMail.setMail(sysUser.getEmail());
+            amqpMail.setCreatedTime(LocalDateTime.now());
+
+            //rabbitTemplate.convertAndSend(MailConstants.QUEUE_NAME, amqpMail); // 简单模式
+
+            // 实体类必须实现 Serializable 接口
+            rabbitTemplate.convertAndSend(MailConstants.EXCHANGE_NAME,
+                    MailConstants.ROUTING_KEY_NAME,
+                    amqpMail,
+                    new CorrelationData(msgId));
+        }
+
         return JsonResult.success("用户添加成功，密码为系统默认");
     }
 

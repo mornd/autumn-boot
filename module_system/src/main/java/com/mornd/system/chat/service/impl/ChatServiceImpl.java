@@ -58,18 +58,20 @@ public class ChatServiceImpl implements ChatService {
                     Wrappers.lambdaQuery(SysUser.class)
                             .eq(SysUser::getLoginName, name)
             );
-            ChatUser chatUser = new ChatUser(sysUser);
-            List<ChatRecord> lastRecord = chatRecordMapper.getRecord(loginUser.getLoginName(), name, true);
-            Optional<ChatRecord> first = lastRecord.stream().findFirst();
-            first.ifPresent((record) -> {
-                // 获取未读消息的总数
-                if(!loginUser.getLoginName().equals(name)) {
-                    chatUser.setUnread(chatRecordMapper.unreadCount(loginUser.getLoginName(), name));
-                }
-                chatUser.setLastDate(record.getCreateTime());
-                chatUser.setLastMessage((record.getChatMessage() != null) ? record.getChatMessage().getContent() : "");
-                result.add(chatUser);
-            });
+            if(sysUser != null) {
+                ChatUser chatUser = new ChatUser(sysUser);
+                List<ChatRecord> lastRecord = chatRecordMapper.getRecord(loginUser.getLoginName(), name, true);
+                Optional<ChatRecord> first = lastRecord.stream().findFirst();
+                first.ifPresent((record) -> {
+                    // 获取未读消息的总数
+                    if(!loginUser.getLoginName().equals(name)) {
+                        chatUser.setUnread(chatRecordMapper.unreadCount(loginUser.getLoginName(), name));
+                    }
+                    chatUser.setLastDate(record.getCreateTime());
+                    chatUser.setLastMessage((record.getChatMessage() != null) ? record.getChatMessage().getContent() : "");
+                    result.add(chatUser);
+                });
+            }
         });
 
         // 按最后聊天时间排序

@@ -12,7 +12,7 @@
 
     <groupId>com.mornd</groupId>
     <artifactId>autumn_boot</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
 
     <name>autumn-后台管理</name>
@@ -22,6 +22,7 @@
     <modules>
         <module>module_system</module>
         <module>module_commons</module>
+        <module>module_mail</module>
     </modules>
 
     <properties>
@@ -31,10 +32,12 @@
     </properties>
 
     <dependencies>
+
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.boot</groupId>-->
 <!--            <artifactId>spring-boot-starter</artifactId>-->
 <!--        </dependency>-->
+
         <!-- MySQL 数据库连接驱动 -->
         <dependency>
             <groupId>mysql</groupId>
@@ -56,10 +59,12 @@
             <version>3.4.2</version>
         </dependency>
 
-        <!--<dependency>
+        <!-- Advanced Message Queue 高级消息队列协议 -->
+        <!-- 安装 windows 版本 rabbitmq 参考：https://blog.csdn.net/tirster/article/details/121938987 -->
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>-->
+        </dependency>
 
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
@@ -157,6 +162,46 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- swagger2 文档 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+        <!-- swagger  美化 ui 黑 -->
+        <!--        <dependency>-->
+        <!--            <groupId>com.github.xiaoymin</groupId>-->
+        <!--            <artifactId>knife4j-spring-ui</artifactId>-->
+        <!--            <version>2.0.7</version>-->
+        <!--        </dependency>-->
+
+        <!-- swagger 美化 ui 蓝 -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>swagger-bootstrap-ui</artifactId>
+            <version>1.9.6</version>
+        </dependency>
+
+        <!-- 工具包 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.7.8</version>
+        </dependency>
+
+        <!-- 工具类 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
         <!-- 处理 json -->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -164,6 +209,11 @@
             <version>1.2.79</version>
         </dependency>
 
+        <!-- spring boot 整合 邮件 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
     </dependencies>
 
 

@@ -29,6 +29,8 @@ public interface SecurityConst {
             "/css/**",
             "/js/**",
             "/index.html",
+
+            "/testCommons"
     };
 
     //系统角色前缀

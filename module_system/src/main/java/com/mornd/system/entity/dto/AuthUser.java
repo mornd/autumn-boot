@@ -1,9 +1,11 @@
 package com.mornd.system.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mornd.system.constant.EntityConst;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.entity.po.SysUser;
+import com.mornd.system.utils.AuthorityDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -58,6 +60,7 @@ public class AuthUser implements UserDetails, Serializable {
 
     @Override
     @JsonIgnore // 注解作用：序列化时忽略该方法 用于将该对象存入redis中 不加该注解，redis反序列化时会报错
+    //@JsonDeserialize(using = AuthorityDeserializer.class)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // 获取角色的编码值，添加至权限集合 authorities 中
         List<SimpleGrantedAuthority> roleAuthorities = sysUser.getRoles().stream()
@@ -70,6 +73,7 @@ public class AuthUser implements UserDetails, Serializable {
                 .filter(p -> StringUtils.hasText(p.getCode()))
                 .map(p -> new SimpleGrantedAuthority(p.getCode()))
                 .collect(Collectors.toList());
+
         // 合并
         roleAuthorities.addAll(perAuthorities);
 
