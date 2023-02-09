@@ -8,13 +8,13 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mornd.system.AmqpMail;
-import com.mornd.system.MailConstants;
+import com.mornd.system.entity.AmqpMail;
+import com.mornd.system.constants.MailConstants;
 import com.mornd.system.config.AutumnConfig;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
+import com.mornd.system.entity.MailLog;
 import com.mornd.system.entity.dto.AuthUser;
-import com.mornd.system.entity.po.MailLog;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.UserWithRole;
@@ -30,6 +30,7 @@ import com.mornd.system.service.UserService;
 import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.AutumnUUID;
 import com.mornd.system.utils.SecurityUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +38,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.util.concurrent.FailureCallback;
+import org.springframework.util.concurrent.SuccessCallback;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -48,6 +51,8 @@ import java.util.Set;
  * @author mornd
  * @dateTime 2021/8/10 - 15:56
  */
+
+@Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements UserService {
@@ -157,33 +162,61 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
 
         // 邮件通知
         if(autumnConfig.isUserMailNotification() && StringUtils.hasText(sysUser.getEmail())) {
+            // 消息 id
             String msgId = AutumnUUID.fastUUID();
+
+            CorrelationData correlationData = new CorrelationData(msgId);
+
+            // 发送的消息实体
+            AmqpMail amqpMail = new AmqpMail();
+            amqpMail.setMsgId(msgId);
+            amqpMail.setUserId(sysUser.getId());
+            amqpMail.setUsername(sysUser.getRealName());
+            amqpMail.setLoginName(sysUser.getLoginName());
+            amqpMail.setMail(sysUser.getEmail());
+            amqpMail.setCreatedTime(new Date());
+
+            // 邮件日志
             MailLog mailLog = new MailLog();
-            mailLog.setMsgId(msgId);
+            mailLog.setMsgId(correlationData.getId());
             mailLog.setUserId(sysUser.getId());
-            mailLog.setStatus(MailConstants.DELIVERING);
             mailLog.setExchange(MailConstants.EXCHANGE_NAME);
-            mailLog.setRouteKey(MailConstants.ROUTING_KEY_NAME);
-            mailLog.setTryCount(0);
-            // 往后推迟几分钟
-            mailLog.setTryTime(LocalDateTime.now().plusMinutes(MailConstants.MSG_TIMEOUT));
+            mailLog.setRoutingKey(MailConstants.ROUTING_KEY_NAME);
+            mailLog.setStatus(MailLog.MailLogStatus.DELIVERING.ordinal());
             mailLog.setCreateTime(LocalDateTime.now());
 
             mailLogMapper.insert(mailLog);
 
-            AmqpMail amqpMail = new AmqpMail();
-            amqpMail.setUsername(sysUser.getRealName());
-            amqpMail.setLoginName(sysUser.getLoginName());
-            amqpMail.setMail(sysUser.getEmail());
-            amqpMail.setCreatedTime(LocalDateTime.now());
+            correlationData.getFuture().addCallback(new SuccessCallback<CorrelationData.Confirm>() {
+                @Override
+                public void onSuccess(CorrelationData.Confirm confirm) {
+                    if(confirm.isAck()) {
+                        log.info("消息id：{}投递到交换机成功", correlationData.getId());
+                    } else {
+                        log.error("消息id：{}投递到交换机失败", correlationData.getId());
 
-            //rabbitTemplate.convertAndSend(MailConstants.QUEUE_NAME, amqpMail); // 简单模式
+                        MailLog log = new MailLog(correlationData.getId(), MailLog.MailLogStatus.TO_EXCHANGE_ERROR.ordinal(),
+                                "消息投递到交换机失败：" + confirm.getReason());
+                        mailLogMapper.updateById(log);
+                    }
+                }
+            }, new FailureCallback() {
+                @Override
+                public void onFailure(Throwable t) {
+                    String errorMsg = t.getMessage();
+                    log.error("消息{}投递发生异常：{}", correlationData.getId(), errorMsg);
 
-            // 实体类必须实现 Serializable 接口
+                    MailLog log = new MailLog(correlationData.getId(), MailLog.MailLogStatus.TO_EXCHANGE_ERROR.ordinal(),
+                            "消息投递到交换机失败：" + errorMsg);
+                    mailLogMapper.updateById(log);
+                }
+            });
+
+            // 实体类 amqpMail 必须实现 Serializable 接口
             rabbitTemplate.convertAndSend(MailConstants.EXCHANGE_NAME,
                     MailConstants.ROUTING_KEY_NAME,
                     amqpMail,
-                    new CorrelationData(msgId));
+                    correlationData);
         }
 
         return JsonResult.success("用户添加成功，密码为系统默认");

@@ -1,17 +1,22 @@
 package com.mornd.system.config;
 
-import com.mornd.system.MailConstants;
-import com.mornd.system.entity.po.MailLog;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mornd.system.entity.AmqpMail;
+import com.mornd.system.entity.MailLog;
 import com.mornd.system.mapper.MailLogMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.context.annotation.Bean;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 /**
  * @author: mornd
@@ -21,92 +26,65 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Configuration
-public class RabbitMQConfig {
+public class RabbitMQConfig implements ApplicationContextAware {
 
     @Resource
     private MailLogMapper mailLogMapper;
 
-    /**
-     * 连接工厂
-     */
-    @Resource
-    public CachingConnectionFactory cachingConnectionFactory;
-
-    /**
-     * 配置手动确认消息
-     * @return
-     */
-    @Bean
-    public RabbitTemplate rabbitTemplate() {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(cachingConnectionFactory);
-        /**
-         * 设置消息确认回调，确认消息是否到达 broker
-         * data：消息唯一标识
-         * ack：确认结果 true：投递成功，false：投递失败
-         * cause：失败原因
-         */
-        rabbitTemplate.setConfirmCallback((data, ack, cause) -> {
-            String msgId = data.getId();
-            if(ack) {
-                // 更改数据库状态为投递成功
-                MailLog mailLog = new MailLog();
-                mailLog.setMsgId(msgId);
-                mailLog.setStatus(MailConstants.SUCCESS);
-                mailLog.setUpdateTime(LocalDateTime.now());
-                mailLogMapper.updateById(mailLog);
-                log.info("消息id：{}投递成功", msgId);
-            } else {
-                //todo 失败处理
-                log.error("消息id：{}投递失败：{}", msgId, cause);
-            }
-        });
-        //rabbitTemplate.setReturnCallback((Message message, int replyCode, String replyText, String exchange, String routingKey) -> {});
-
-        rabbitTemplate.setReturnsCallback((returnedMessage) -> {
-            // 消息主题
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        RabbitTemplate rabbitTemplate = applicationContext.getBean(RabbitTemplate.class);
+        // returnCallback 消息到达交换机但是没到队列 (比如：没有匹配的路由键)
+        rabbitTemplate.setReturnsCallback((returnedMessage -> {
             Message message = returnedMessage.getMessage();
-            // 响应码
-            int replyCode = returnedMessage.getReplyCode();
-            // 描述
-            String replyText = returnedMessage.getReplyText();
-            // 交换机
+
+            // 消息id
+            Map<String, Object> headers = message.getMessageProperties().getHeaders();
+            String msgId = (String) headers.get("spring_returned_message_correlation");
+
+            // 消息
+            byte[] body = message.getBody();
+            String msgBody = new String(body, StandardCharsets.UTF_8);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            AmqpMail amqpMail1 = null;
+            try {
+                // 这里我是知道 mq 使用 jackson 转换的，所以这里才用 objectMapper 对象
+                amqpMail1 = objectMapper.readValue(msgBody, AmqpMail.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
             String exchange = returnedMessage.getExchange();
-            // 路由键
+            int replyCode = returnedMessage.getReplyCode();
+            String replyText = returnedMessage.getReplyText();
             String routingKey = returnedMessage.getRoutingKey();
+            log.error("消息投递失败，消息：{}，回执码：{}，失败消息：{}，交换机：{}，路由键：{}",
+                    message, replyCode, replyText, exchange, routingKey);
 
-            //todo
-            log.error("消息{}投递到queue时失败", message.getBody());
-        });
+            // 更新数据库
+            MailLog mailLog = new MailLog(msgId, MailLog.MailLogStatus.TO_QUEUE_ERROR.ordinal(),
+                    "消息投递到队列失败：" + replyText);
+            mailLogMapper.updateById(mailLog);
+        }));
 
-        return rabbitTemplate;
-    }
+        /**
+         * 这里是消息投递到交换机的回执
+         * 这里是全局处理，或者在 convertAndSend 时局部处理
+         * 若这里处理了，局部可不用处理，否则局部和这里的全局回调方法都会执行
+         */
+//        rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
+//            @Override
+//            public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+//                if(ack) {
+//                    log.info("消息id：{}投递到交换机成功", correlationData.getId());
+//            } else {
+//                log.error("消息id：{}投递到交换机失败：{}", correlationData.getId(), cause);
+//                }
+//            }
+//        });
 
-    /**
-     * 队列
-     * @return
-     */
-    @Bean
-    public Queue queue() {
-        return new Queue(MailConstants.QUEUE_NAME);
-    }
-
-    /**
-     * 交换机
-     * @return
-     */
-    @Bean
-    public DirectExchange directExchange() {
-        return new DirectExchange(MailConstants.EXCHANGE_NAME);
-    }
-
-    /**
-     * 绑定关系
-     * @return
-     */
-    @Bean
-    public Binding binding() {
-        return BindingBuilder.bind(queue())
-                .to(directExchange())
-                .with(MailConstants.ROUTING_KEY_NAME);
+        // 发布者声明 amqp 的消息序列方式
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
     }
 }

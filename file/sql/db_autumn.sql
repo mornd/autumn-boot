@@ -342,11 +342,11 @@ DROP TABLE IF EXISTS `mail_log`;
 CREATE TABLE `mail_log`  (
                              `msg_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息id',
                              `user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '接收者id',
-                             `status` tinyint(1) NULL DEFAULT NULL COMMENT '状态(0：消息投递中，1：投递成功，2：投递失败)',
-                             `route_key` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '路由键',
+                             `status` tinyint(1) NULL DEFAULT NULL COMMENT '状态(0：消息投递中，1：投递成功，2：发送到交换机失败，3：发送到队列失败，4：消费消息时发生异常失败)',
                              `exchange` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '交换机',
-                             `try_count` int NULL DEFAULT NULL COMMENT '重试次数',
-                             `try_time` datetime NULL DEFAULT NULL COMMENT '重试时间',
+                             `routing_key` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '路由键',
+                             `error_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '错误消息',
+                             `handled` tinyint(1) NULL DEFAULT 0 COMMENT '是否已经处理了(0：未处理1：已处理)',
                              `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
                              `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
                              PRIMARY KEY (`msg_id`) USING BTREE

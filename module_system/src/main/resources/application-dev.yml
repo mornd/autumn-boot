@@ -165,14 +165,41 @@ spring:
     host: 127.0.0.1
     # 端口
     port: 5672
-    # 消息确认回调
+    # 虚拟主机名
+    virtual-host: /
+    # 消息确认回调 publisher-confirm-type 类型：
+    # simple：同步等待同步结果，直到超时
+    # correlated：异步回调，定义ConfirmCallback，MQ返回结果时调用
     publisher-confirm-type: correlated
-    # 消息失败回调
+    # true：开启功能，需定义 ReturnCallback 回调函数
     publisher-returns: true
+    template:
+      # 定义消息路由失败时策略，true：调用ReturnCallback，false：直接丢弃
+      mandatory: true
+    # 消费者部分
     listener:
       simple:
-        # 开启手动确认
-        acknowledge-mode: manual
+        # manual 手动确认，手动调用 api 发送 ack
+        # auto：自动确认，spring 通过 aop 检查 listener 代码是否抛出异常
+        # none：关闭ack，MQ 假定消费者获取消息后会成功处理，因此消息投递后会立即删除
+        acknowledge-mode: auto
+        # 每次取1条，消费完才能接着去取下一条
+        prefetch: 1
+
+        retry:
+          # 开启消费者消费失败重试
+          enabled: true
+          # 初始的失败等待时长 1s
+          initial-interval: 1000
+          # 如果multiplier: 3，initial-interval: 1000，max-attempts: 4，则时间是 00,01,04,13,40
+          #  下次失败的等待时长倍数，下次等待时长 = multiplier + last-interval
+          multiplier: 3
+          # 最大重试次数
+          max-attempts: 4
+          # true：无状态，false：有状态，如果业务中包含事务，这里改为 false 保留事务
+          stateless: true
+          # 重试的最大等待时间
+          max-interval: 20000ms
 
   # 邮件配置
   mail:
