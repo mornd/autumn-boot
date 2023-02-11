@@ -189,17 +189,17 @@ spring:
         retry:
           # 开启消费者消费失败重试
           enabled: true
-          # 初始的失败等待时长 1s
-          initial-interval: 1000
-          # 如果multiplier: 3，initial-interval: 1000，max-attempts: 4，则时间是 00,01,04,13,40
+          # 初始的失败等待时长，单位ms，默认1000ms
+          initial-interval: 5000
+          # 如果initial-interval: 5000,multiplier: 2,max-attempts: 5 则时间点是 1:00,1:05,1:15,1:35,2:15
           #  下次失败的等待时长倍数，下次等待时长 = multiplier + last-interval
-          multiplier: 3
+          multiplier: 2
           # 最大重试次数
-          max-attempts: 4
-          # true：无状态，false：有状态，如果业务中包含事务，这里改为 false 保留事务
+          max-attempts: 5
+          # true：无状态，false：有状态，如果业务中包含事务，这里则改为 false 保留事务
           stateless: true
           # 重试的最大等待时间
-          max-interval: 20000ms
+          max-interval: 120000ms
 
   # 邮件配置
   mail:

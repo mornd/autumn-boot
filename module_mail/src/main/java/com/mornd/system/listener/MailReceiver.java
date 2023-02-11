@@ -24,7 +24,9 @@ import org.thymeleaf.context.Context;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 
 /**
@@ -118,6 +120,8 @@ public class MailReceiver {
         Context context = new Context();
         context.setVariable("username", amqpMail.getUsername());
         context.setVariable("loginName", amqpMail.getLoginName());
+        context.setVariable("dateTime",
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(amqpMail.getCreatedTime()));
 
         // mail  是邮件 html 模板的文件名
         String mail = templateEngine.process("mail", context);

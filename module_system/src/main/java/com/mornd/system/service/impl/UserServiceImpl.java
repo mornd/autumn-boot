@@ -187,6 +187,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
 
             mailLogMapper.insert(mailLog);
 
+            /**
+             * 这里单独配置消息失败的策略
+             */
             correlationData.getFuture().addCallback(new SuccessCallback<CorrelationData.Confirm>() {
                 @Override
                 public void onSuccess(CorrelationData.Confirm confirm) {
@@ -204,7 +207,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 @Override
                 public void onFailure(Throwable t) {
                     String errorMsg = t.getMessage();
-                    log.error("消息{}投递发生异常：{}", correlationData.getId(), errorMsg);
+                    log.error("消息id：{}投递发生异常：{}", correlationData.getId(), errorMsg);
 
                     MailLog log = new MailLog(correlationData.getId(), MailLog.MailLogStatus.TO_EXCHANGE_ERROR.ordinal(),
                             "消息投递到交换机失败：" + errorMsg);

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author: mornd
  * @dateTime: 2023/2/4 - 14:05
+ * spring AutoConfiguration 配置类
  */
 
 @Configuration

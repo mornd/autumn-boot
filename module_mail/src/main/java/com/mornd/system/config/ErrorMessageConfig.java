@@ -31,9 +31,9 @@ public class ErrorMessageConfig {
                 // 绑定死信交换机
 //                .deadLetterExchange("")
 //                .deadLetterRoutingKey("")
-                // 声明惰性队列
+                // 声明惰性队列(队列消息存入磁盘，而不是放在内存中)
                 //.lazy()
-                // 声明仲裁队列
+                // 声明仲裁队列(用于集群配置)
                 //.quorum()
                 .build();
     }

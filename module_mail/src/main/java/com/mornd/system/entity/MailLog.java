@@ -42,7 +42,6 @@ public class MailLog {
     private String exchange;
     private String routingKey;
     private String errorMessage;
-    private Integer handled;
     private LocalDateTime updateTime;
     private LocalDateTime createTime;
 
