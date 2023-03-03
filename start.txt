@@ -1,0 +1,6 @@
+更换MySQL、redis、mq连接的url，用户名，密码，端口再启动项目
+需将application.yml文件的active属性改为dev
+yml文件中值为xxx的需要另外配置   qiniu: xxx
+sql文件在file\sql\db_autumn.sql中
+默认账号：tom    密码：000
+用户密码统一都是：000
