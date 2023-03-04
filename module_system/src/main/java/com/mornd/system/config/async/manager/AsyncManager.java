@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class AsyncManager
 {
     /**
-     * 操作延迟10毫秒
+     * 操作延迟10毫秒 （作用：礼让，让核心业务线程优先执行）
      */
     private final int OPERATE_DELAY_TIME = 10;
 
@@ -29,10 +29,19 @@ public class AsyncManager
      */
     private AsyncManager(){}
 
-    private static AsyncManager me = new AsyncManager();
+    //private static AsyncManager me = new AsyncManager();
+
+    private static volatile AsyncManager me;
 
     public static AsyncManager me()
     {
+        if(me == null) {
+         synchronized (AsyncManager.class) {
+             if(me == null) {
+                 me = new AsyncManager();
+             }
+         }
+        }
         return me;
     }
 

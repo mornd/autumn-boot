@@ -79,7 +79,8 @@ public class UserController {
         return userService.insert(user);
     }
 
-    @PreAuthorize("hasAnyRole('super_admin')")  // 拥有任意角色就可访问, "ROLE_" 的前缀可不加，看源码就知道, security 会补上前缀
+    // hasAnyRole 用来判定有 ROLE_ 前缀的权限
+    @PreAuthorize("hasAnyRole('super_admin')")  // 拥有其中任意一个角色就可访问,"ROLE_"的前缀可加可不加，看源码 security 会补上前缀
     @RepeatSubmit
     @LogStar("管理员修改用户")
     @ApiOperation("修改")
