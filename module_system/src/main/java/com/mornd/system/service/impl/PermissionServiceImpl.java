@@ -84,7 +84,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         } else {
             // 非系统用户赋值一个默认角色
             LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery();
-            qw.in(SysRole::getId, GlobalConst.GITEE_DEFAULT_ROLE_ID);
+            qw.eq(SysRole::getCode, SecurityConst.GITEE_ROLE);
             qw.eq(SysRole::getEnabled, EntityConst.ENABLED);
             List<SysRole> roles = roleService.list(qw);
             pers = this.getPersByRoleIds(roles.stream().map(SysRole::getId).collect(Collectors.toList()),

@@ -32,7 +32,7 @@ public class PermissionController {
     @Resource
     private PermissionService permissionService;
 
-    @LogStar("获取左侧菜单树")
+    @LogStar(value = "获取左侧菜单树", BusinessType = LogType.SELECT)
     @ApiOperation("获取当前登录用户左侧菜单树(包含启用、禁用状态)")
     @GetMapping("/leftTree")
     public JsonResult getLeftTree(){
@@ -40,7 +40,7 @@ public class PermissionController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:menu')")
-    @LogStar("获取菜单列表")
+    @LogStar(value = "获取菜单列表", BusinessType = LogType.SELECT)
     @ApiOperation("获取菜单管理的菜单表格")
     @GetMapping("/tableTree")
     public JsonResult tableTree(){
@@ -85,7 +85,7 @@ public class PermissionController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:menu:update')")
-    @LogStar("更改菜单状态")
+    @LogStar(value = "更改菜单状态", BusinessType = LogType.UPDATE)
     @ApiOperation("更改状态")
     @PutMapping("/changeState/{id}/{state}")
     public JsonResult changeStatus(@PathVariable(value = "id") @NotBlank(message = "id不能为空")
@@ -97,7 +97,7 @@ public class PermissionController {
 
     @PreAuthorize("hasAnyAuthority('system:menu:add')")
     @RepeatSubmit
-    @LogStar("新增菜单")
+    @LogStar(value = "新增菜单", BusinessType = LogType.INSERT)
     @ApiOperation("新增菜单")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysPermission sysPermission) {
@@ -106,7 +106,7 @@ public class PermissionController {
 
     @PreAuthorize("hasAnyAuthority('system:menu:update')")
     @RepeatSubmit
-    @LogStar("编辑菜单")
+    @LogStar(value = "编辑菜单", BusinessType = LogType.UPDATE)
     @ApiOperation("编辑菜单")
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysPermission sysPermission) {
@@ -114,7 +114,7 @@ public class PermissionController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:menu:delete')")
-    @LogStar("删除菜单")
+    @LogStar(value = "删除菜单", BusinessType = LogType.DELETE)
     @ApiOperation("删除菜单")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id){

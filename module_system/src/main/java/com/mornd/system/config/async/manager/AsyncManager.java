@@ -29,19 +29,10 @@ public class AsyncManager
      */
     private AsyncManager(){}
 
-    //private static AsyncManager me = new AsyncManager();
-
-    private static volatile AsyncManager me;
+    private static AsyncManager me = new AsyncManager();
 
     public static AsyncManager me()
     {
-        if(me == null) {
-         synchronized (AsyncManager.class) {
-             if(me == null) {
-                 me = new AsyncManager();
-             }
-         }
-        }
         return me;
     }
 

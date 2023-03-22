@@ -2,6 +2,7 @@ package com.mornd.system.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.UploadService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +32,7 @@ public class UploadController {
      * @return
      * @throws IOException
      */
-    @LogStar("上传头像")
+    @LogStar(value = "上传头像", BusinessType = LogType.UPLOAD)
     @PostMapping("/avatar")
     public JsonResult uploadAvatar(@RequestBody MultipartFile file, HttpServletRequest request) throws Exception {
         if(file == null || file.getSize() <= 0) return JsonResult.failure("文件为空");

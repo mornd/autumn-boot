@@ -6,7 +6,14 @@ package com.mornd.system.constant.enums;
 public enum LogType {
     LOGIN(1, "登录"),
     LOGOUT(2, "退出"),
-    OTHER(3, "其他");
+    SELECT(3, "查询"),
+    INSERT(4, "新增"),
+    UPDATE(5, "修改"),
+    DELETE(6, "删除"),
+    OTHER(7, "其他"),
+    DOWNLOAD(8, "下载"),
+    UPLOAD(9, "上传"),
+    CLEAR(10, "清空表");
 
     private LogType(Integer code, String type) {
         this.code = code;

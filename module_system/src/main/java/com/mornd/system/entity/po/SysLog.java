@@ -18,8 +18,10 @@ import java.util.Date;
 public class SysLog implements Serializable {
     @ApiModelProperty("主题")
     private String title;
-    @ApiModelProperty("操作用户")
+    @ApiModelProperty("登录名")
     private String username;
+    @ApiModelProperty("用户姓名")
+    private String realName;
     @ApiModelProperty("方法名")
     private String methodName;
     @ApiModelProperty("访问时间")

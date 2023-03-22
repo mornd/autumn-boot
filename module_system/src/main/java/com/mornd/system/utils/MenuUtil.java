@@ -21,9 +21,9 @@ public class MenuUtil {
         return new TreeSet<>((o1, o2) -> {
             /**
              * 排序根目录：定制排序，首先根据sort升序
-             * return -1表示放在红黑树的左边,即逆序输出
-             *        1表示放在红黑树的右边，即顺序输出
-             *        0表示元素相同，仅存放第一个取到元素
+             * return 负数表示放在红黑树的左边,即逆序输出
+             *        正数表示放在红黑树的右边，即顺序输出
+             *        0表示元素相同，treeSet这里仅存放第一个元素
              *        o1 比较 02 表示升序
              */
             int compare = Double.compare(o1.getSort(), o2.getSort());

@@ -6,11 +6,9 @@ import com.mornd.system.annotation.LogStar;
 import com.mornd.system.config.async.factory.AsyncFactory;
 import com.mornd.system.config.async.manager.AsyncManager;
 import com.mornd.system.constant.enums.LogType;
-import com.mornd.system.constant.enums.LoginUserSource;
 import com.mornd.system.entity.po.SysLog;
 import com.mornd.system.utils.AddressUtils;
 import com.mornd.system.utils.IpUtils;
-import com.mornd.system.utils.NetUtil;
 import com.mornd.system.utils.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -62,9 +60,11 @@ public class SysLogAspect {
     @Around("pc()")
     public Object around(ProceedingJoinPoint pjp) throws Throwable {
         long time = 0;
+        boolean record = true;
         Throwable throwable = null;
         Object result = null;
         String username = null;
+        String realName = null;
         Signature signature = pjp.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;
         Method method = methodSignature.getMethod();
@@ -77,30 +77,35 @@ public class SysLogAspect {
             //执行退出方法须在退出前获取用户信息，否则空指针异常
             if(LogType.LOGOUT.equals(logType)) {
                 username = SecurityUtil.getLoginUsername();
-                username = formatUserName(username);
+                realName = SecurityUtil.getLoginUser().getRealName();
             }
             //执行目标方法
             result = pjp.proceed();
             if(!LogType.LOGOUT.equals(logType)) {
                 try {
                     username = SecurityUtil.getLoginUsername();
-                    username = formatUserName(username);
+                    realName = SecurityUtil.getLoginUser().getRealName();
                 } catch (Exception e){
-                    username = "用户名或密码错误的用户";
+                    //username = "用户名或密码错误的用户";
+                    // 用户名密码错误或不是通过token登录的用户暂不记录
+                    record = false;
                 }
             }
             time = System.currentTimeMillis() - beginTime;
+
+            return result;
         } catch (Throwable t) {
             //方法抛出异常
             throw (throwable = t);
         } finally {
             //处理日志
-            handleSysLog(pjp, username, time, throwable, result);
+            if(record) {
+                handleSysLog(pjp, username, realName, time, throwable, result);
+            }
         }
-        return result;
     }
 
-    private void handleSysLog(final JoinPoint joinPoint, String username, long processingTime, final Throwable throwable, Object result) {
+    private void handleSysLog(final JoinPoint joinPoint, String username, String realName, long processingTime, final Throwable throwable, Object result) {
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;
         Method method = methodSignature.getMethod();
@@ -108,6 +113,9 @@ public class SysLogAspect {
         LogStar logStar = method.getAnnotation(LogStar.class);
         //标题
         String title = logStar.value();
+        if("".equals(title)) {
+            title = logStar.title();
+        }
         String url = request.getRequestURI();
 
         //类名
@@ -130,13 +138,14 @@ public class SysLogAspect {
         //日志类型
         sysLog.setType(logStar.BusinessType().getCode());
         sysLog.setUsername(username);
+        sysLog.setRealName(realName);
         sysLog.setMethodName(methodName);
         sysLog.setUrl(url);
         sysLog.setIp(IpUtils.getIpAddr(request));
         sysLog.setExecutionTime(processingTime);
         //操作系统及浏览器
-        sysLog.setOs(NetUtil.getOs(request));
-        sysLog.setBrowser(NetUtil.getBrowser(request));
+        //sysLog.setOs(NetUtil.getOs(request));
+        //sysLog.setBrowser(NetUtil.getBrowser(request));
         sysLog.setAddress(AddressUtils.getRealAddressByIP(sysLog.getIp()));
         if(logStar.isSaveRequestData()) {
             if(StrUtil.isNotBlank(params) && !"[]".equals(params)) {
@@ -163,13 +172,6 @@ public class SysLogAspect {
         sysLog.setVisitDate(new Date());
         // 异步保存至数据库
         AsyncManager.me().execute(AsyncFactory.recordSysLog(sysLog));
-    }
-
-    private String formatUserName(String username) {
-        if(!LoginUserSource.LOCAL.getCode().equals(SecurityUtil.getLoginUser().getSource())) {
-            return String.format("%s(%s)", username, SecurityUtil.getLoginUser().getSource());
-        }
-        return username;
     }
 }
 

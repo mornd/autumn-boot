@@ -44,4 +44,9 @@ public interface SecurityConst {
 
     //新增用户默认密码
     String USER_DEFAULT_PWD = "000";
+
+    /**
+     * gitee 用户登录的默认角色编码
+     */
+    String GITEE_ROLE = "gitee";
 }

@@ -14,6 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface LogStar {
+    @AliasFor("title")
     String value() default "";
     //主题
     @AliasFor("value")

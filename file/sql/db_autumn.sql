@@ -85,7 +85,8 @@ CREATE TABLE `mail_log`  (
 DROP TABLE IF EXISTS `sys_log`;
 CREATE TABLE `sys_log`  (
                             `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT ' 主题',
-                            `username` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作用户名',
+                            `username` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '登录名',
+                            `real_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '姓名',
                             `method_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '方法名',
                             `visit_date` datetime NOT NULL COMMENT '访问时间',
                             `execution_time` bigint NULL DEFAULT NULL COMMENT '操作时长',

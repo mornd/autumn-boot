@@ -1,6 +1,7 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.OnlineUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.OnlineUserService;
@@ -22,7 +23,7 @@ public class OnlineUserController {
     private OnlineUserService onlineUserService;
 
     @PreAuthorize("hasAuthority('onlineUser')")
-    @LogStar("获取在线用户列表")
+    @LogStar(value = "获取在线用户列表", BusinessType = LogType.SELECT)
     @GetMapping
     public JsonResult<?> pageList(@Validated OnlineUser user) {
         return onlineUserService.pageList(user);
@@ -34,7 +35,7 @@ public class OnlineUserController {
      * @return
      */
     @PreAuthorize("hasAuthority('onlineUser:kick')")
-    @LogStar("强制踢人")
+    @LogStar(value = "强制踢人", BusinessType = LogType.DELETE)
     @DeleteMapping("/{id}")
     public JsonResult<?> kick(@PathVariable String id) {
         onlineUserService.kick(id);

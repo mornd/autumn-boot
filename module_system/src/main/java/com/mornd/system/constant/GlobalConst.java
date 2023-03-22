@@ -23,9 +23,4 @@ public class GlobalConst {
      * 保存头像的文件夹名称
      */
     public static final String AVATAR_DIR_NAME = "avatar";
-
-    /**
-     * gitee 用户登录的默认角色 id
-     */
-    public static final String[] GITEE_DEFAULT_ROLE_ID = new String[]{"1584907057962328066"};
 }

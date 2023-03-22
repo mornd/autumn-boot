@@ -1,6 +1,7 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysLogVO;
 import com.mornd.system.service.SysLogService;
@@ -28,7 +29,7 @@ public class SysLogController {
     @Resource
     private SysLogService sysLogService;
 
-    @LogStar("查看操作日志")
+    @LogStar(value = "查看操作日志", BusinessType = LogType.SELECT)
     @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog')")
     @ApiOperation("获取列表数据")
     @GetMapping
@@ -39,7 +40,7 @@ public class SysLogController {
     @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog:clear')")
     @ApiOperation("清空表数据")
     @DeleteMapping
-    @LogStar(value = "清空操作日志表")
+    @LogStar(value = "清空操作日志表", BusinessType = LogType.CLEAR)
     public JsonResult clearAll() {
         sysLogService.clearAll();
         return JsonResult.success();
