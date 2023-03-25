@@ -93,7 +93,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 用户用户名不存在或密码不正确抛出 BadCredentialsException 异常
+     * 用户的用户名不存在或密码不正确抛出 BadCredentialsException 异常
      * 准确来说是密码不匹配才会抛出该异常
      */
     @ExceptionHandler(BadCredentialsException.class)
@@ -124,7 +124,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 处理所有的未知异常
+     * 处理未知异常
      * @param e
      * @return
      */
@@ -132,6 +132,7 @@ public class GlobalExceptionHandler {
     public JsonResult handleException(Throwable e){
         e.printStackTrace();
         log.error(e.getMessage());
+        //return JsonResult.failure("未知错误，请联系管理员");
         return JsonResult.failure(e.getMessage());
     }
 

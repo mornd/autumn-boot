@@ -10,7 +10,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
  * @description:
  */
 public class AutumnException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 14543434L;
 
     /**
      * 错误码,默认 status = 500

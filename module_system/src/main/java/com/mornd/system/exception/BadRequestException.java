@@ -12,6 +12,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
  * 自定义异常处理
  */
 public class BadRequestException extends RuntimeException {
+    private static final long serialVersionUID = 645437658L;
 
     /**
      * 默认 status = 500
