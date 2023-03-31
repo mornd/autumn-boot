@@ -29,7 +29,7 @@ public class JsonResult<T> implements Serializable {
     private Long timestamp = System.currentTimeMillis();
 
     public static JsonResult<Object> success(){
-        return success(defaultSuccessMessage());
+        return success(null);
     }
 
     public static JsonResult<Object> success(String message){
@@ -48,7 +48,7 @@ public class JsonResult<T> implements Serializable {
         JsonResult<Object> jsonResult = new JsonResult<>();
         jsonResult.setSuccess(true);
         jsonResult.setCode(code);
-        jsonResult.setMessage(message);
+        jsonResult.setMessage(message == null ? defaultSuccessMessage() : message);
         jsonResult.setData(data);
         return jsonResult;
     }
@@ -67,9 +67,8 @@ public class JsonResult<T> implements Serializable {
      * @return
      */
     public static JsonResult<Object> successEmpty() {
-        return success((String) null, null);
+        return success("", null);
     }
-
 
     public static JsonResult<Object> failure(){
         return failure(defaultFailureMessage());
@@ -104,7 +103,7 @@ public class JsonResult<T> implements Serializable {
         String method = request.getMethod();
         switch (method.toUpperCase()) {
             case "GET":
-                message = "获取数据成功";
+                message = "";
                 break;
             case "POST":
                 message = ResultMessage.INSERT_MSG;
@@ -129,7 +128,7 @@ public class JsonResult<T> implements Serializable {
         String method = request.getMethod();
         switch (method.toUpperCase()) {
             case "GET":
-                message = "获取数据失败，请重试";
+                message =  ResultMessage.SELECT_FAILURE_MSG;
                 break;
             case "POST":
                 message = ResultMessage.INSERT_FAILURE_MSG;

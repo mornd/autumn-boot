@@ -23,7 +23,9 @@ public class BaseEntity implements Serializable {
     /**
      * 创建时间
      */
+    // 将返回参数序列化
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    // 将请求参数序列化
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date gmtCreate;
     /**

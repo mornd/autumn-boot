@@ -33,6 +33,7 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
         if (log.getVisitDateScope() != null && log.getVisitDateScope().length == 2) {
             qw.between(SysLog::getVisitDate, log.getVisitDateScope()[0], log.getVisitDateScope()[1]);
         }
+        qw.eq(log.getStatus() != null, SysLog::getStatus, log.getStatus());
         qw.eq(log.getType() != null, SysLog::getType, log.getType());
         qw.orderByDesc(SysLog::getVisitDate);
         page = baseMapper.selectPage(page, qw);

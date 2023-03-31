@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mornd.system.process.mapper.ProcessMapper">
+
+    <select id="pageList" resultType="com.mornd.system.process.entity.vo.ProcessVo">
+        SELECT
+            a.id,
+            a.process_code,
+            a.title,
+            a.user_id,
+            a.STATUS,
+            a.process_type_id,
+            a.process_template_id,
+            a.form_values,
+            a.process_instance_id,
+            a.current_auditor,
+            a.description,
+            a.create_id,
+            a.create_time,
+            a.update_id,
+            a.update_time,
+            b.login_name AS user_name,
+            c.NAME AS process_type_name,
+            d.NAME AS process_template_name,
+            e.login_name AS current_auditor_name
+        FROM
+            oa_process a
+                LEFT JOIN sys_user b ON a.user_id = b.id
+                LEFT JOIN oa_process_type c ON a.process_type_id = c.id
+                LEFT JOIN oa_process_template d ON a.process_template_id = d.id
+                LEFT JOIN sys_user e ON a.current_auditor = e.id
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="vo.keyword neq null and vo.keyword neq ''">
+                AND (
+                a.process_code LIKE CONCAT('%',#{vo.keyword},'%')
+                OR a.title LIKE CONCAT('%',#{vo.keyword},'%')
+                OR b.login_name LIKE CONCAT('%',#{vo.keyword},'%')
+                OR c.NAME LIKE CONCAT('%',#{vo.keyword},'%')
+                OR d.NAME LIKE CONCAT('%',#{vo.keyword},'%')
+                OR e.login_name LIKE CONCAT('%',#{vo.keyword},'%')
+                    )
+            </if>
+            <if test="vo.status != null">
+                AND a.status = #{vo.status}
+            </if>
+        </trim>
+    </select>
+</mapper>

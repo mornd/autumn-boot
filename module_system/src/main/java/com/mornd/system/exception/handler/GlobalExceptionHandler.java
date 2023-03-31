@@ -14,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.ObjectUtils;
+import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -56,14 +57,15 @@ public class GlobalExceptionHandler {
                                                           HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
-        log.error("请求地址'{}',不支持'{}'请求", requestURI, e.getMethod());
-        return JsonResult.failure(e.getMessage());
+        String msg = String.format("请求地址'%s',不支持'%s'请求", requestURI, e.getMethod());
+        log.error(msg);
+        return JsonResult.failure(msg);
     }
 
     @ExceptionHandler(DataAccessException.class)
-    public JsonResult handleException(DataAccessException e){
-        e.printStackTrace();
-        log.info("数据访问异常：{}",e.getMessage());
+    public JsonResult handleException(DataAccessException e, HttpServletRequest request){
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生数据访问异常.", requestURI, e);
         return JsonResult.failure("数据访问异常");
     }
 
@@ -107,9 +109,9 @@ public class GlobalExceptionHandler {
      * 处理自定义异常
      */
     @ExceptionHandler(value = AutumnException.class)
-    public JsonResult handleAutumnException(AutumnException e) {
-        // 打印堆栈信息
-        log.error(e.getDetailMessage());
+    public JsonResult handleAutumnException(AutumnException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生自定义AutumnException异常.", requestURI, e);
         return JsonResult.failure(e.getCode(), e.getMessage());
     }
 
@@ -117,9 +119,9 @@ public class GlobalExceptionHandler {
      * 处理自定义异常
      */
     @ExceptionHandler(value = BadRequestException.class)
-    public JsonResult handleBadRequestException(BadRequestException e) {
-        // 打印堆栈信息
-        log.error(e.getMessage());
+    public JsonResult handleBadRequestException(BadRequestException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生自定义BadRequestException异常.", requestURI, e);
         return JsonResult.failure(e.getStatus(), e.getMessage());
     }
 
@@ -129,9 +131,11 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(Throwable.class)
-    public JsonResult handleException(Throwable e){
+    public JsonResult handleException(Throwable e, HttpServletRequest request){
         e.printStackTrace();
         log.error(e.getMessage());
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生未知异常.", requestURI, e);
         //return JsonResult.failure("未知错误，请联系管理员");
         return JsonResult.failure(e.getMessage());
     }
@@ -159,6 +163,30 @@ public class GlobalExceptionHandler {
             }
             jsonResult.setMessage(sb.toString());
         }
+        log.info("参数校验错误：{}", jsonResult.getMessage());
+        return jsonResult;
+    }
+
+    /**
+     * 数据校验异常
+     * @param exception
+     * @return
+     */
+    @ExceptionHandler(BindException.class)
+    public JsonResult handleConstraintViolationException(BindException exception){
+        JsonResult jsonResult = new JsonResult();
+        jsonResult.setSuccess(false);
+        jsonResult.setCode(JsonResultCode.VIOLATION_EXCEPTION);
+        List<ObjectError> allErrors = exception.getAllErrors();
+        StringBuilder sb = new StringBuilder();
+        Iterator<ObjectError> iterator = allErrors.iterator();
+        while (iterator.hasNext()){
+            sb.append(iterator.next().getDefaultMessage());
+            if(iterator.hasNext()){
+                sb.append("，");
+            }
+        }
+        jsonResult.setMessage(sb.toString());
         log.info("参数校验错误：{}", jsonResult.getMessage());
         return jsonResult;
     }

@@ -40,7 +40,7 @@ public class UserController {
     @Resource
     private RoleService roleService;
 
-    @LogStar(value = "获取当前登录用户信息", BusinessType = LogType.SELECT)
+    @LogStar(value = "获取当前登录用户信息", businessType = LogType.SELECT)
     @ApiOperation("获取当前登录用户信息")
     @GetMapping("/getLoginUser")
     public JsonResult getUserInfo(){
@@ -56,7 +56,7 @@ public class UserController {
         return JsonResult.successData(matches);
     }
 
-    @LogStar(value = "修改密码", BusinessType = LogType.UPDATE)
+    @LogStar(value = "修改密码", businessType = LogType.UPDATE)
     @ApiOperation("修改密码")
     @PostMapping("/changePwd")
     public JsonResult changePwd(@RequestBody @Validated ChangePwdDTO pwd) {
@@ -64,7 +64,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:user')") // any 代表拥有任意一个权限就可访问改接口
-    @LogStar(value = "获取用户列表", BusinessType = LogType.SELECT)
+    @LogStar(value = "获取用户列表", businessType = LogType.SELECT)
     @ApiOperation("获取用户表格数据")
     @GetMapping
     public JsonResult pageList(@Validated(SelectValidGroup.class) SysUserVO user) {
@@ -73,7 +73,7 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('system:user:add')")
     @RepeatSubmit
-    @LogStar(value = "新增用户", BusinessType = LogType.INSERT)
+    @LogStar(value = "新增用户", businessType = LogType.INSERT)
     @ApiOperation("新增")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysUserVO user) {
@@ -83,7 +83,7 @@ public class UserController {
     // hasAnyRole 用来判定有 ROLE_ 前缀的权限
     @PreAuthorize("hasAnyRole('super_admin')")  // 拥有其中任意一个角色就可访问,"ROLE_"的前缀可加可不加，看源码 security 会补上前缀
     @RepeatSubmit
-    @LogStar(value = "管理员修改用户", BusinessType = LogType.UPDATE)
+    @LogStar(value = "管理员修改用户", businessType = LogType.UPDATE)
     @ApiOperation("修改")
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
@@ -92,7 +92,7 @@ public class UserController {
 
     //@PreAuthorize("hasAnyAuthority('system:user:update')")
     @RepeatSubmit
-    @LogStar(value = "用户修改个人信息", BusinessType = LogType.UPDATE)
+    @LogStar(value = "用户修改个人信息", businessType = LogType.UPDATE)
     @ApiOperation("用户个人修改信息")
     @PutMapping("/userUpdate")
     public JsonResult userUpdate(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
@@ -100,7 +100,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:user:delete')")
-    @LogStar(value = "删除用户", BusinessType = LogType.DELETE)
+    @LogStar(value = "删除用户", businessType = LogType.DELETE)
     @ApiOperation("删除")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id) {
@@ -108,7 +108,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:user:changeStatus')")
-    @LogStar(value = "修改用户状态", BusinessType = LogType.UPDATE)
+    @LogStar(value = "修改用户状态", businessType = LogType.UPDATE)
     @ApiOperation("更改状态")
     @PutMapping("/changeState/{id}/{state}")
     public JsonResult changeStatus(@PathVariable(value = "id") @NotBlank(message = "id不能为空")
@@ -143,10 +143,10 @@ public class UserController {
         return JsonResult.successData(roles);
     }
 
-    @LogStar(title = "导出用户excel", BusinessType = LogType.DOWNLOAD)
+    @LogStar(title = "导出用户excel", businessType = LogType.DOWNLOAD)
     @ApiOperation("导出excel")
     @PostMapping("/export")
-    public void export(SysUserVO userVO) {
+    public void export(@RequestBody SysUserVO userVO) {
         List<SysUserVO> result = userService.export(userVO);
         ExcelUtil.export(result, SysUserVO.class, "系统用户");
     }

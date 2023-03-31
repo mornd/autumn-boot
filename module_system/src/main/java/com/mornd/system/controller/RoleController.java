@@ -40,7 +40,7 @@ public class RoleController {
     private PermissionService permissionService;
 
     @PreAuthorize("hasAnyAuthority('system:role')")
-    @LogStar(value = "获取角色列表", BusinessType = LogType.SELECT)
+    @LogStar(value = "获取角色列表", businessType = LogType.SELECT)
     @ApiOperation("分页查询")
     @GetMapping
     public JsonResult pageList(SysRoleVO role) {
@@ -61,7 +61,7 @@ public class RoleController {
 
     @PreAuthorize("hasAnyAuthority('system:role:add')")
     @RepeatSubmit
-    @LogStar(value = "添加角色", BusinessType = LogType.INSERT)
+    @LogStar(value = "添加角色", businessType = LogType.INSERT)
     @ApiOperation("添加角色")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysRole role) {
@@ -70,7 +70,7 @@ public class RoleController {
 
     @PreAuthorize("hasAnyAuthority('system:role:update')")
     @RepeatSubmit
-    @LogStar(value = "修改角色", BusinessType = LogType.UPDATE)
+    @LogStar(value = "修改角色", businessType = LogType.UPDATE)
     @ApiOperation("修改角色")
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysRole role) {
@@ -78,7 +78,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:delete')")
-    @LogStar(value = "删除角色", BusinessType = LogType.DELETE)
+    @LogStar(value = "删除角色", businessType = LogType.DELETE)
     @ApiOperation("删除角色")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id) {
@@ -86,7 +86,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:update')")
-    @LogStar(value = "更改角色状态", BusinessType = LogType.UPDATE)
+    @LogStar(value = "更改角色状态", businessType = LogType.UPDATE)
     @ApiOperation("更改状态")
     @PutMapping("/changeState/{id}/{state}")
     public JsonResult changeStatus(@PathVariable(value = "id") @NotBlank(message = "id不能为空")
@@ -111,7 +111,7 @@ public class RoleController {
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:update')")
-    @LogStar(value = "给角色授权权限", BusinessType = LogType.INSERT)
+    @LogStar(value = "给角色授权权限", businessType = LogType.INSERT)
     @ApiOperation("绑定角色对应的权限")
     @PutMapping("/bindPersById")
     public JsonResult bindPersById(@RequestBody @Validated(BindValidGroup.class) SysRoleVO role) {

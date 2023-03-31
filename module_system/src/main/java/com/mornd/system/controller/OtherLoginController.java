@@ -1,12 +1,10 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.Anonymous;
-import com.mornd.system.annotation.LogStar;
 import com.mornd.system.annotation.RateLimiter;
 import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.RegexpConstant;
 import com.mornd.system.constant.enums.LimitType;
-import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.dto.OtherLoginUseDTO;
 import com.mornd.system.entity.dto.PhoneMsgLoginDTO;
 import com.mornd.system.entity.result.JsonResult;
@@ -40,7 +38,6 @@ public class OtherLoginController {
         return otherLoginService.preLoginByGitee();
     }
 
-    @LogStar(title = "gitee用户登录", BusinessType = LogType.LOGIN)
     @PostMapping("/loginByGitee")
     public JsonResult loginByGitee(@RequestBody @Validated OtherLoginUseDTO user) {
         return otherLoginService.loginByGitee(user);
@@ -70,7 +67,6 @@ public class OtherLoginController {
      * @param loginDTO
      * @return
      */
-    @LogStar(title = "短信登录", BusinessType = LogType.LOGIN)
     @RateLimiter(limitType = LimitType.IP)
     @PostMapping("/phoneMsgLogin")
     public JsonResult phoneMsgLogin(@Validated @RequestBody PhoneMsgLoginDTO loginDTO) {

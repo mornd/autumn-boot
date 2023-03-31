@@ -1,8 +1,10 @@
 package com.mornd.system.config.async;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,8 +49,9 @@ public class ThreadPoolConfig
     /**
      * 自定义线程名称
      */
-    private String threadNamePrefix = "autumn-threadPool";
+    private String threadNamePrefix = "autumn-threadPool_";
 
+    @Primary
     @Bean(name = "threadPoolTaskExecutor")
     public ThreadPoolTaskExecutor threadPoolTaskExecutor()
     {

@@ -29,7 +29,7 @@ public class SysLogController {
     @Resource
     private SysLogService sysLogService;
 
-    @LogStar(value = "查看操作日志", BusinessType = LogType.SELECT)
+    @LogStar(value = "查看操作日志", businessType = LogType.SELECT)
     @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog')")
     @ApiOperation("获取列表数据")
     @GetMapping
@@ -40,7 +40,7 @@ public class SysLogController {
     @PreAuthorize("hasAnyAuthority('systemMonitor:sysLog:clear')")
     @ApiOperation("清空表数据")
     @DeleteMapping
-    @LogStar(value = "清空操作日志表", BusinessType = LogType.CLEAR)
+    @LogStar(value = "清空操作日志表", businessType = LogType.CLEAR)
     public JsonResult clearAll() {
         sysLogService.clearAll();
         return JsonResult.success();

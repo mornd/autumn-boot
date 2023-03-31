@@ -4,16 +4,15 @@ package com.mornd.system.constant.enums;
  * 日志类型枚举
  */
 public enum LogType {
-    LOGIN(1, "登录"),
-    LOGOUT(2, "退出"),
-    SELECT(3, "查询"),
-    INSERT(4, "新增"),
-    UPDATE(5, "修改"),
-    DELETE(6, "删除"),
-    OTHER(7, "其他"),
-    DOWNLOAD(8, "下载"),
-    UPLOAD(9, "上传"),
-    CLEAR(10, "清空表");
+    SELECT(1, "查询"),
+    INSERT(2, "新增"),
+    UPDATE(3, "修改"),
+    DELETE(4, "删除"),
+    OTHER(5, "其他"),
+    DOWNLOAD(6, "下载"),
+    UPLOAD(7, "上传"),
+    CLEAR(8, "清空表"),
+    PUBLISH(9, "发布");
 
     private LogType(Integer code, String type) {
         this.code = code;

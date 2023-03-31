@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/monitor/server")
 public class ServerController
 {
-    @LogStar(title = "服务器监控", BusinessType = LogType.SELECT)
+    @LogStar(title = "服务器监控", businessType = LogType.SELECT)
     @PreAuthorize("hasAnyAuthority('systemMonitor:server')")
     @GetMapping()
     public JsonResult getInfo() throws Exception

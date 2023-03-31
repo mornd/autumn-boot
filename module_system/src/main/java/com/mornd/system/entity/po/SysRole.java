@@ -31,24 +31,24 @@ public class SysRole extends BaseEntity {
     @TableId(type = IdType.ASSIGN_ID)
     @NotBlank(message = "角色ID不能为空",groups = {UpdateValidGroup.class, BindValidGroup.class})
     private String id;
-    
+
     @NotBlank(message = "角色名称不能为空")
     @ApiModelProperty("名称")
     private String name;
-    
+
     @NotBlank(message = "角色编码不能为空")
     @ApiModelProperty("编码")
     private String code;
-    
+
     @NotNull(message = "角色状态不能为空")
     @ApiModelProperty("状态")
     private Integer enabled;
-    
+
     @NotNull(message = "角色排序不能为空")
     @ApiModelProperty("排序")
     private Integer sort;
-    
-    @Size(max = 50, message = "备注信息过长(长度需大于等于50)")
+
+    @Size(max = 500, message = "备注信息过长")
     @ApiModelProperty("备注")
     private String remark;
 

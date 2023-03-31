@@ -19,17 +19,18 @@ public class BadRequestException extends RuntimeException {
      */
     private Integer status = INTERNAL_SERVER_ERROR.value();
 
+    public BadRequestException() {}
+
     public BadRequestException(String message){
         super(message);
     }
 
     public BadRequestException(HttpStatus status, String message){
-        super(message);
-        this.status = status.value();
+        this(status.value(), message);
     }
 
     public BadRequestException(Integer statusValue, String message) {
-        super(message);
+        this(message);
         this.status = statusValue;
     }
 

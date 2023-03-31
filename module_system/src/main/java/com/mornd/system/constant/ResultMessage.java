@@ -16,6 +16,7 @@ public interface ResultMessage {
     String UPDATE_MSG = "修改成功";
     String DELETE_MSG = "删除成功";
 
+    String SELECT_FAILURE_MSG = "获取数据失败，请重试";
     String INSERT_FAILURE_MSG = "添加失败，请重试";
     String UPDATE_FAILURE_MSG = "修改失败，请重试";
     String DELETE_FAILURE_MSG = "删除删除，请重试";

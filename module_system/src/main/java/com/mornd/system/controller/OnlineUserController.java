@@ -23,7 +23,7 @@ public class OnlineUserController {
     private OnlineUserService onlineUserService;
 
     @PreAuthorize("hasAuthority('onlineUser')")
-    @LogStar(value = "获取在线用户列表", BusinessType = LogType.SELECT)
+    @LogStar(value = "获取在线用户列表", businessType = LogType.SELECT)
     @GetMapping
     public JsonResult<?> pageList(@Validated OnlineUser user) {
         return onlineUserService.pageList(user);
@@ -35,7 +35,7 @@ public class OnlineUserController {
      * @return
      */
     @PreAuthorize("hasAuthority('onlineUser:kick')")
-    @LogStar(value = "强制踢人", BusinessType = LogType.DELETE)
+    @LogStar(value = "强制踢人", businessType = LogType.DELETE)
     @DeleteMapping("/{id}")
     public JsonResult<?> kick(@PathVariable String id) {
         onlineUserService.kick(id);

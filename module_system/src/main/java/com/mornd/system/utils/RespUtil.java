@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
@@ -22,7 +23,7 @@ public class RespUtil {
      * @param response
      * @param jsonResult
      */
-    public static void writeResult(HttpServletResponse response, JsonResult jsonResult) {
+    public static void writeResult(HttpServletResponse response, JsonResult jsonResult) throws IOException {
         // 设置响应状态
         //response.setStatus(jsonResult.getCode());
         // 防止响应数据中文乱码
@@ -32,8 +33,9 @@ public class RespUtil {
         try (PrintWriter writer = response.getWriter();) {
             writer.write(new ObjectMapper().writeValueAsString(jsonResult));
             writer.flush();
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        } catch (IOException e) {
+            log.error("服务器响应结果时发生异常", e);
+            throw new IOException(e);
         }
     }
 }

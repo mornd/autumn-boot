@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -33,6 +34,8 @@ public class SysLog implements Serializable {
     private Integer type;
     @ApiModelProperty("参数")
     private String params;
+    @ApiModelProperty("状态(0:访问成功1:访问失败)")
+    private Integer status;
     @ApiModelProperty("访问ip")
     private String ip;
     @ApiModelProperty("访问地址")
@@ -47,4 +50,10 @@ public class SysLog implements Serializable {
     private String exceptionMsg;
     @ApiModelProperty("访问结果")
     private String result;
+
+    @Getter
+    public enum Status {
+        SUCCESS,
+        FAILURE,
+    }
 }

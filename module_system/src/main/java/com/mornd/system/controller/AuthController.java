@@ -1,7 +1,6 @@
 package com.mornd.system.controller;
 
 import com.mornd.system.annotation.Anonymous;
-import com.mornd.system.annotation.LogStar;
 import com.mornd.system.annotation.RateLimiter;
 import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.GlobalConst;
@@ -10,7 +9,6 @@ import com.mornd.system.constant.RegexpConstant;
 import com.mornd.system.constant.enums.LimitType;
 import com.mornd.system.entity.dto.ForgetPwdFormDTO;
 import com.mornd.system.entity.dto.LoginUserDTO;
-import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.service.PhoneMsgService;
@@ -60,15 +58,12 @@ public class AuthController {
     @RateLimiter(time = 10, count = 5, limitType = LimitType.IP, message = "登录太过于频繁，请稍后重试")
     @ApiOperation("用户登录")
     @PostMapping("/userLogin")
-    @LogStar(value = "用户登录", BusinessType = LogType.LOGIN)
     public JsonResult userLogin(@RequestBody @Validated LoginUserDTO loginUserDTO){
         return authService.userLogin(loginUserDTO);
     }
-
     @Anonymous
     @ApiOperation("用户注销")
     @PostMapping("/userLogout")
-    @LogStar(value = "用户注销", BusinessType = LogType.LOGOUT)
     public JsonResult userLogout(HttpServletRequest request){
         return authService.userLogout(request);
     }

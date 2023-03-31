@@ -32,7 +32,7 @@ public class UploadController {
      * @return
      * @throws IOException
      */
-    @LogStar(value = "上传头像", BusinessType = LogType.UPLOAD)
+    @LogStar(value = "上传头像", businessType = LogType.UPLOAD)
     @PostMapping("/avatar")
     public JsonResult uploadAvatar(@RequestBody MultipartFile file, HttpServletRequest request) throws Exception {
         if(file == null || file.getSize() <= 0) return JsonResult.failure("文件为空");

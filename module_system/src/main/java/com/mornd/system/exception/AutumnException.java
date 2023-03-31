@@ -1,8 +1,6 @@
 package com.mornd.system.exception;
 
-import org.springframework.http.HttpStatus;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import com.mornd.system.constant.JsonResultCode;
 
 /**
  * @author: mornd
@@ -15,7 +13,7 @@ public class AutumnException extends RuntimeException {
     /**
      * 错误码,默认 status = 500
      */
-    private Integer code = INTERNAL_SERVER_ERROR.value();
+    private Integer code = JsonResultCode.COMMON_EXCEPTION;
 
     /**
      * 错误提示
@@ -37,18 +35,21 @@ public class AutumnException extends RuntimeException {
 
     public AutumnException(String message)
     {
-        this.message = message;
-    }
-
-    public AutumnException(HttpStatus status, String message){
-        this.code = status.value();
+        super();
         this.message = message;
     }
 
     public AutumnException(Integer code, String message)
     {
+        this(message);
         this.code = code;
-        this.message = message;
+    }
+
+    public AutumnException(Integer code, String message, String detailMessage)
+    {
+        this(message);
+        this.code = code;
+        this.detailMessage = detailMessage;
     }
 
     public Integer getCode()
@@ -67,7 +68,10 @@ public class AutumnException extends RuntimeException {
         return detailMessage;
     }
 
-
+    public AutumnException setCode(Integer code) {
+        this.code = code;
+        return this;
+    }
 
     public AutumnException setMessage(String message)
     {

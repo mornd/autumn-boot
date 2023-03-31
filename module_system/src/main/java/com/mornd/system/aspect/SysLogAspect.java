@@ -1,11 +1,10 @@
 package com.mornd.system.aspect;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.config.async.factory.AsyncFactory;
 import com.mornd.system.config.async.manager.AsyncManager;
-import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysLog;
 import com.mornd.system.utils.AddressUtils;
 import com.mornd.system.utils.IpUtils;
@@ -21,7 +20,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -59,53 +57,44 @@ public class SysLogAspect {
      */
     @Around("pc()")
     public Object around(ProceedingJoinPoint pjp) throws Throwable {
+        Date visit = new Date();
         long time = 0;
-        boolean record = true;
         Throwable throwable = null;
         Object result = null;
-        String username = null;
-        String realName = null;
-        Signature signature = pjp.getSignature();
-        MethodSignature methodSignature = (MethodSignature) signature;
-        Method method = methodSignature.getMethod();
-        //获取日志注解信息
-        LogStar logStar = method.getAnnotation(LogStar.class);
-        LogType logType = logStar.BusinessType();
+        // 状态
+        int status = SysLog.Status.SUCCESS.ordinal();
         try {
             long beginTime = System.currentTimeMillis();
 
-            //执行退出方法须在退出前获取用户信息，否则空指针异常
-            if(LogType.LOGOUT.equals(logType)) {
-                username = SecurityUtil.getLoginUsername();
-                realName = SecurityUtil.getLoginUser().getRealName();
-            }
-            //执行目标方法
+            //执行业务目标方法
             result = pjp.proceed();
-            if(!LogType.LOGOUT.equals(logType)) {
-                try {
-                    username = SecurityUtil.getLoginUsername();
-                    realName = SecurityUtil.getLoginUser().getRealName();
-                } catch (Exception e){
-                    //username = "用户名或密码错误的用户";
-                    // 用户名密码错误或不是通过token登录的用户暂不记录
-                    record = false;
-                }
-            }
-            time = System.currentTimeMillis() - beginTime;
 
+            time = System.currentTimeMillis() - beginTime;
             return result;
         } catch (Throwable t) {
+            status = SysLog.Status.FAILURE.ordinal();
             //方法抛出异常
             throw (throwable = t);
         } finally {
+            String username = SecurityUtil.getLoginUsername();
+            String realName = SecurityUtil.getLoginUser().getRealName();
             //处理日志
-            if(record) {
-                handleSysLog(pjp, username, realName, time, throwable, result);
-            }
+            handleSysLog(pjp, username, realName, visit, time, status, throwable, result);
         }
     }
 
-    private void handleSysLog(final JoinPoint joinPoint, String username, String realName, long processingTime, final Throwable throwable, Object result) {
+    /**
+     * 日志记录入库
+     * @param joinPoint
+     * @param username
+     * @param realName
+     * @param visit
+     * @param processingTime
+     * @param status
+     * @param throwable
+     * @param result
+     */
+    private void handleSysLog(final JoinPoint joinPoint, String username, String realName, Date visit, long processingTime, int status, final Throwable throwable, Object result) {
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;
         Method method = methodSignature.getMethod();
@@ -136,40 +125,41 @@ public class SysLogAspect {
         SysLog sysLog = new SysLog();
         sysLog.setTitle(title);
         //日志类型
-        sysLog.setType(logStar.BusinessType().getCode());
+        sysLog.setType(logStar.businessType().getCode());
         sysLog.setUsername(username);
         sysLog.setRealName(realName);
         sysLog.setMethodName(methodName);
         sysLog.setUrl(url);
         sysLog.setIp(IpUtils.getIpAddr(request));
         sysLog.setExecutionTime(processingTime);
+        sysLog.setStatus(status);
+        //访问时间
+        sysLog.setVisitDate(visit);
         //操作系统及浏览器
         //sysLog.setOs(NetUtil.getOs(request));
         //sysLog.setBrowser(NetUtil.getBrowser(request));
         sysLog.setAddress(AddressUtils.getRealAddressByIP(sysLog.getIp()));
+        // 报错记录长度限制
+        final int restriction = 5000;
         if(logStar.isSaveRequestData()) {
-            if(StrUtil.isNotBlank(params) && !"[]".equals(params)) {
-                sysLog.setParams(params.length() > 1000 ? params.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : params);
+            if(params != null) {
+                sysLog.setParams(params.length() > restriction ? params.substring(0, restriction) + "——内容过长，以下内容已经忽略..." : params);
             }
         }
         if(logStar.isSaveResponseData()) {
-            //方法执行结果
-            if (result != null) {
+            if(result != null) {
+                //方法执行结果
                 String res = JSON.toJSONString(result);
-                sysLog.setResult(res.length() > 1000 ? res.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : res);
+                sysLog.setResult(res.length() > restriction ? res.substring(0, restriction) + "——内容过长，以下内容已经忽略..." : res);
             }
         }
 
         //异常信息
-        if(throwable != null) {
+        if (throwable != null) {
             String msg = throwable.getMessage();
-            if(!StringUtils.hasText(msg)) {
-                msg = "抛出异常，无异常信息";
-            }
-            sysLog.setExceptionMsg(msg.length() > 1000 ? msg.substring(0, 1000) + "——内容过长，以下内容已经忽略..." : msg);
+            sysLog.setExceptionMsg(msg.length() > restriction ? msg.substring(0, restriction) + "——内容过长，以下内容已经忽略..." : msg);
         }
-        //访问时间
-        sysLog.setVisitDate(new Date());
+
         // 异步保存至数据库
         AsyncManager.me().execute(AsyncFactory.recordSysLog(sysLog));
     }

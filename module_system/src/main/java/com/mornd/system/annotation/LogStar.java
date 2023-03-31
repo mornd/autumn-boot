@@ -20,7 +20,7 @@ public @interface LogStar {
     @AliasFor("value")
     String title() default "";
     //日志操作类型
-    LogType BusinessType() default LogType.OTHER;
+    LogType businessType() default LogType.OTHER;
 
     /**
      * 是否保存请求的参数

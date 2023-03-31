@@ -41,9 +41,9 @@ spring:
   servlet:
     multipart:
       # 最大上传单个文件大小，默认1M
-      max-file-size: 1024MB
+      max-file-size: 50MB
       # 最大总上传的数据大小：默认10M
-      max-request-size: 1024MB
+      max-request-size: 100MB
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -215,6 +215,23 @@ spring:
     password: xxx
     # 编码格式
     default-encoding: utf-8
+
+  # 流程引擎配置
+  activiti:
+    # true：表不存在，自动创建（开发使用）
+    # false：数据库表不变，但版本不对或表缺失会抛出异常（生产使用）
+    # create_drop：启动时创建，关闭时删除（测试使用）
+    # drop_create：启动时先删除表，再创建表（不需要手动关闭引擎）
+    database-schema-update: true
+    # 监测历史表是否存在：activities7 默认不开启历史表
+    db-history-used: true
+    # none：不保存任何历史数据，流程最高效
+    # activity：只保存流程实例和流程行为
+    # audit：除了activity，还保存全部的流程任务以及其属性，audit为history默认值
+    # full：除了audit，还保存其它全部流程相关的细节数据，包括一些流程参数
+    history-level: full
+    # 校验流程文件，默认校验 resources 下的 process 文件夹的流程文件
+    check-process-definitions: true
 
 # mybatis-plus 配置
 mybatis-plus:
