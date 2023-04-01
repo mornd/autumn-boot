@@ -22,9 +22,12 @@
             a.update_id,
             a.update_time,
             b.login_name AS user_name,
+            b.real_name AS user_real_name,
             c.NAME AS process_type_name,
             d.NAME AS process_template_name,
-            e.login_name AS current_auditor_name
+            e.login_name AS current_auditor_name,
+            e.real_name AS current_auditor_real_name,
+            e.phone AS current_auditor_phone
         FROM
             oa_process a
                 LEFT JOIN sys_user b ON a.user_id = b.id
@@ -44,6 +47,12 @@
             </if>
             <if test="vo.status != null">
                 AND a.status = #{vo.status}
+            </if>
+            <if test="vo.createTimeBegin != null">
+                AND a.create_time >= #{vo.createTimeBegin}
+            </if>
+            <if test="vo.createTimeEnd != null">
+                AND a.create_time &lt;= #{vo.createTimeEnd}
             </if>
         </trim>
     </select>

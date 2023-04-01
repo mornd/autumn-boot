@@ -130,7 +130,7 @@ public class ProcessTemplateController extends BaseController {
     @PutMapping("/publish/{id}")
     public JsonResult publish(@PathVariable Long id) {
         boolean result = processTemplateService.publish(id);
-        return result ? success() : failure();
+        return result ? JsonResult.success("发布成功") : JsonResult.failure("发布失败");
     }
 
     /**

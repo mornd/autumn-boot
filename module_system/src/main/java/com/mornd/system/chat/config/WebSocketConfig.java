@@ -1,4 +1,4 @@
-package com.mornd.system.config;
+package com.mornd.system.chat.config;
 
 import com.mornd.system.config.security.components.TokenProperties;
 import com.mornd.system.constant.WebSocketConst;
@@ -17,7 +17,6 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -71,9 +70,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 StompHeaderAccessor accessor =
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-                assert accessor != null;
                 // 判断是否为连接，如果是，需要获取 token，并设置用户对象
-                if(StompCommand.CONNECT.equals(accessor.getCommand())) {
+                if(accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
                     String token = accessor.getFirstNativeHeader(tokenProperties.getTokenHeader());
                     token = getToken(token);
                     if(StringUtils.hasText(token)) {
