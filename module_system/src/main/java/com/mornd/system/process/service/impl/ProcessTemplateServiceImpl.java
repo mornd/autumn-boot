@@ -14,14 +14,15 @@ import com.mornd.system.process.service.ProcessService;
 import com.mornd.system.process.service.ProcessTemplateService;
 import com.mornd.system.process.service.ProcessTypeService;
 import com.mornd.system.utils.SecurityUtil;
-import lombok.RequiredArgsConstructor;
 import org.activiti.engine.repository.Deployment;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -40,14 +41,17 @@ import static com.mornd.system.process.entity.ProcessTemplate.Status.UNPUBLISHED
  */
 
 @Service
-@RequiredArgsConstructor
 @Transactional(rollbackFor = Exception.class)
 public class ProcessTemplateServiceImpl
         extends ServiceImpl<ProcessTemplateMapper, ProcessTemplate>
         implements ProcessTemplateService {
 
-    private final ProcessTypeService processTypeService;
-    private final ProcessService processService;
+    @Resource
+    private  ProcessTypeService processTypeService;
+
+    @Resource
+    @Lazy
+    private  ProcessService processService;
 
     /**
      * 列表查询

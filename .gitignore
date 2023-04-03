@@ -26,5 +26,6 @@ application-prod.yml
 
 
 /.idea/
+/module_system/src/main/java/com/mornd/system/controller/test/
 /module_system/module_system.iml
-/module_system/src/test/java/
+/module_system/src/test/

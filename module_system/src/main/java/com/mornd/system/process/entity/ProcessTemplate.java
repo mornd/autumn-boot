@@ -20,9 +20,15 @@ import javax.validation.constraints.Size;
 @TableName("oa_process_template")
 public class ProcessTemplate extends ProcessBaseEntity {
 
+    /**
+     * 流程模板名称
+     */
     @NotBlank(message = "名称不能为空")
     private String name;
 
+    /**
+     * 图标
+     */
     private String iconUrl;
 
     /**
@@ -50,8 +56,14 @@ public class ProcessTemplate extends ProcessBaseEntity {
     @Size(max = 500, message = "描述过长")
     private String description;
 
+    /**
+     * 状态
+     */
     private Integer status;
 
+    /**
+     * 状态中文
+     */
     @TableField(exist = false)
     private String stateStr;
 

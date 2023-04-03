@@ -26,4 +26,12 @@ public class AutumnUUID {
     public static String fastSimpleUUID() {
         return IdUtil.fastSimpleUUID();
     }
+
+    /**
+     *
+     * @return mDs_XBjr4fgXHH89PB-SL
+     */
+    public static String nanoId() {
+        return IdUtil.nanoId();
+    }
 }

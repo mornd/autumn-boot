@@ -48,6 +48,13 @@ public class ProcessTemplateController extends BaseController {
         return JsonResult.successData(page);
     }
 
+    @GetMapping("get/{id}")
+    @LogStar(title = "通过id查询审批模板数据", businessType = LogType.SELECT)
+    public JsonResult getById(@PathVariable Long id) {
+        ProcessTemplate processTemplate = processTemplateService.getById(id);
+        return JsonResult.successData(processTemplate);
+    }
+
     @LogStar(title = "上传流程模板数据和流程定义文件", businessType = LogType.UPLOAD)
     @PostMapping("/insertAndUploadProcessDefinition")
     /**

@@ -43,15 +43,15 @@ public class ProcessBaseEntity implements Serializable {
     private LocalDateTime updateTime;
 
     @TableField(exist = false)
-    private Integer pageNo;
+    private Long pageNo;
     @TableField(exist = false)
-    private Integer pageSize;
+    private Long pageSize;
 
-    public Integer getPageNo() {
+    public Long getPageNo() {
         return (pageNo == null || pageNo < 1) ? 1 : pageNo;
     }
 
-    public Integer getPageSize() {
+    public Long getPageSize() {
         return (pageSize == null || pageSize < 1) ? 10 : pageSize;
     }
 }

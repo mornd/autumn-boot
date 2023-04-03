@@ -3,6 +3,7 @@ package com.mornd.system.process.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mornd.system.process.entity.Process;
+import com.mornd.system.process.entity.vo.ProcessFormVo;
 import com.mornd.system.process.entity.vo.ProcessVo;
 import org.activiti.engine.repository.Deployment;
 
@@ -19,4 +20,8 @@ public interface ProcessService extends IService<Process> {
     Deployment deployByZip(String filename);
 
     IPage<ProcessVo> pageList(ProcessVo vo);
+
+    void startup(ProcessFormVo vo);
+
+    IPage<ProcessVo> findPending(Process process);
 }
