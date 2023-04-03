@@ -1,7 +1,6 @@
 package com.mornd.system.aspect;
 
 import com.alibaba.fastjson.JSON;
-import com.google.gson.Gson;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.config.async.factory.AsyncFactory;
 import com.mornd.system.config.async.manager.AsyncManager;
@@ -164,4 +163,3 @@ public class SysLogAspect {
         AsyncManager.me().execute(AsyncFactory.recordSysLog(sysLog));
     }
 }
-

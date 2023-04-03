@@ -4,16 +4,56 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mornd.system.process.mapper.ProcessTypeMapper">
     <resultMap id="baseResultMap" type="com.mornd.system.process.entity.ProcessType">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="description" column="description" />
+        <result property="createTime" column="create_time" />
+        <result property="createId" column="create_id" />
+        <result property="updateTime" column="update_time" />
+        <result property="updateId" column="update_id" />
     </resultMap>
 
     <resultMap id="processTemplateList" type="com.mornd.system.process.entity.ProcessType" extends="baseResultMap">
         <collection property="processTemplateList" ofType="com.mornd.system.process.entity.ProcessTemplate">
+            <id property="id" column="b_id"/>
+            <result property="name" column="b_name" />
+            <result property="iconUrl" column="b_iconUrl" />
+            <result property="formProps" column="b_formProps" />
+            <result property="formOptions" column="b_formOptions" />
+            <result property="processDefinitionKey" column="b_processDefinitionKey" />
+            <result property="processDefinitionFileName" column="b_processDefinitionFileName" />
+            <result property="processModelId" column="b_processModelId" />
+            <result property="description" column="b_description" />
+            <result property="processModelId" column="b_processModelId" />
+            <result property="createTime" column="b_createTime" />
+            <result property="createId" column="b_createId" />
+            <result property="updateTime" column="b_updateTime" />
+            <result property="updateId" column="b_updateId" />
         </collection>
     </resultMap>
 
     <select id="findTypeList" resultMap="processTemplateList">
         SELECT
-            *
+            a.id,
+            a.NAME,
+            a.description,
+            a.create_time,
+            a.create_id,
+            a.update_time,
+            a.update_id,
+            b.id AS b_id,
+            b.NAME AS b_name,
+            b.icon_url AS b_iconUrl,
+            b.form_props AS b_formProps,
+            b.form_options AS b_formOptions,
+            b.process_definition_key AS b_processDefinitionKey,
+            b.process_definition_file_name AS b_processDefinitionFileName,
+            b.process_model_id AS b_processModelId,
+            b.description AS b_description,
+            b.create_time AS b_createTime,
+            b.create_id AS b_createId,
+            b.update_time AS b_updateTime,
+            b.update_id AS b_updateId
         FROM
             oa_process_type a
                 LEFT JOIN oa_process_template b ON a.id = b.process_type_id

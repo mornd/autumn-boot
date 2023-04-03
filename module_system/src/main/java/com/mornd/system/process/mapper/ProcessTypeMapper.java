@@ -12,5 +12,5 @@ import org.apache.ibatis.annotations.Param;
  */
 @Mapper
 public interface ProcessTypeMapper extends BaseMapper<ProcessType> {
-    void findTypeList(@Param("page") IPage<ProcessType> page, @Param("processType") ProcessType processType);
+    IPage<ProcessType> findTypeList(@Param("page") IPage<ProcessType> page, @Param("processType") ProcessType processType);
 }
