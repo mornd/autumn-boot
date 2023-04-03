@@ -10,10 +10,12 @@ import com.mornd.system.exception.AutumnException;
 import com.mornd.system.process.entity.ProcessTemplate;
 import com.mornd.system.process.entity.ProcessType;
 import com.mornd.system.process.mapper.ProcessTemplateMapper;
+import com.mornd.system.process.service.ProcessService;
 import com.mornd.system.process.service.ProcessTemplateService;
 import com.mornd.system.process.service.ProcessTypeService;
 import com.mornd.system.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.activiti.engine.repository.Deployment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
@@ -25,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import static com.mornd.system.process.constant.ProcessConst.PROCESS_FILE_SUFFIX;
 import static com.mornd.system.process.constant.ProcessConst.PROCESS_PATH;
@@ -38,11 +41,13 @@ import static com.mornd.system.process.entity.ProcessTemplate.Status.UNPUBLISHED
 
 @Service
 @RequiredArgsConstructor
+@Transactional(rollbackFor = Exception.class)
 public class ProcessTemplateServiceImpl
         extends ServiceImpl<ProcessTemplateMapper, ProcessTemplate>
         implements ProcessTemplateService {
 
     private final ProcessTypeService processTypeService;
+    private final ProcessService processService;
 
     /**
      * 列表查询
@@ -219,15 +224,25 @@ public class ProcessTemplateServiceImpl
         return false;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean publish(Long id) {
         ProcessTemplate entity = super.getById(id);
         if(!entity.getStatus().equals(UNPUBLISHED.ordinal())) {
-            throw new RuntimeException("状态错误");
+            throw new RuntimeException("该数据状态错误");
         }
         entity.setStatus(PUBLISHED.ordinal());
         boolean row = super.updateById(entity);
-
+        /**
+         * 发布流程
+         */
+        if(row) {
+            if(StringUtils.hasText(entity.getProcessDefinitionFileName())) {
+                Deployment deployment =
+                        processService.deployByZip(entity.getProcessDefinitionFileName());
+                return Objects.nonNull(deployment);
+            }
+        }
         return false;
     }
 

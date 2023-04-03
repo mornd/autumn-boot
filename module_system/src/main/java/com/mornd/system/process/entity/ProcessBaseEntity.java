@@ -48,10 +48,10 @@ public class ProcessBaseEntity implements Serializable {
     private Integer pageSize;
 
     public Integer getPageNo() {
-        return pageNo == null ? 1 : pageNo;
+        return (pageNo == null || pageNo < 1) ? 1 : pageNo;
     }
 
     public Integer getPageSize() {
-        return pageSize == null ? 10 : pageSize;
+        return (pageSize == null || pageSize < 1) ? 10 : pageSize;
     }
 }

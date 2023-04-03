@@ -5,10 +5,10 @@
 
 #### 项目源码
 
-|     | 前端源码                                |   后端源码  |
-|---  |-------------------------------------| --- |
-|  github   | https://github.com/mornd/autumn-vue |  https://github.com/mornd/autumn-boot |
-|  码云   | https://gitee.com/mornd/autumn-vue |  https://gitee.com/mornd/autumn-boot |
+|        | 前端源码                                |   后端源码  |
+|--------|-------------------------------------| --- |
+| github | https://github.com/mornd/autumn-vue |  https://github.com/mornd/autumn-boot |
+| gitee  | https://gitee.com/mornd/autumn-vue |  https://gitee.com/mornd/autumn-boot |
 
 ## 演示图
 

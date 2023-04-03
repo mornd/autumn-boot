@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mornd.system.process.mapper.ProcessTypeMapper">
+    <resultMap id="baseResultMap" type="com.mornd.system.process.entity.ProcessType">
+    </resultMap>
+
+    <resultMap id="processTemplateList" type="com.mornd.system.process.entity.ProcessType" extends="baseResultMap">
+        <collection property="processTemplateList" ofType="com.mornd.system.process.entity.ProcessTemplate">
+        </collection>
+    </resultMap>
+
+    <select id="findTypeList" resultMap="processTemplateList">
+        SELECT
+            *
+        FROM
+            oa_process_type a
+                LEFT JOIN oa_process_template b ON a.id = b.process_type_id
+    </select>
+</mapper>

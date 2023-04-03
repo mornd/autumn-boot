@@ -42,6 +42,16 @@ public class ProcessTypeController extends BaseController {
         return JsonResult.successData(page);
     }
 
+    /**
+     * 查询所有审批类型和其对应的模板集合
+     * @return
+     */
+    @GetMapping("/findTypeAndTemplateList")
+    public JsonResult findTypeAndTemplateList(ProcessType processType) {
+        IPage<ProcessType> page =  processTypeService.findTypeList(processType);
+        return JsonResult.successData(page);
+    }
+
     @PostMapping
     @LogStar(title = "添加审批类型", businessType = LogType.INSERT)
     public JsonResult insert(@RequestBody @Validated ProcessType processType) {

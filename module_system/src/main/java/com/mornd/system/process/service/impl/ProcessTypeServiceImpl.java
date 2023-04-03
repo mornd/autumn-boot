@@ -1,12 +1,15 @@
 package com.mornd.system.process.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mornd.system.process.entity.ProcessType;
 import com.mornd.system.process.mapper.ProcessTypeMapper;
 import com.mornd.system.process.service.ProcessTypeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author: mornd
@@ -14,9 +17,17 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class ProcessTypeServiceImpl
         extends ServiceImpl<ProcessTypeMapper, ProcessType>
         implements ProcessTypeService {
+
+    @Override
+    public IPage<ProcessType> findTypeList(ProcessType processType) {
+        IPage<ProcessType> page = new Page<>(processType.getPageNo(), processType.getPageSize());
+        baseMapper.findTypeList(page, processType);
+        return page;
+    }
 
     /**
      * 实体对象
