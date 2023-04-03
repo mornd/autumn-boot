@@ -26,5 +26,5 @@ application-prod.yml
 
 
 /.idea/
-/module_system/src/main/java/com/mornd/system/websocket/
 /module_system/module_system.iml
+/module_system/src/test/java/

@@ -26,8 +26,6 @@ public class ProcessTypeServiceImpl
     public IPage<ProcessType> findTypeList(ProcessType processType) {
         IPage<ProcessType> page = new Page<>(processType.getPageNo(), processType.getPageSize());
         baseMapper.findTypeList(page, processType);
-
-        IPage<ProcessType> typeList = baseMapper.findTypeList(page, processType);
         return page;
     }
 

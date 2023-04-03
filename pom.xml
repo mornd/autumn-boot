@@ -21,7 +21,6 @@
     <!--引入子模块-->
     <modules>
         <module>module_system</module>
-        <module>module_commons</module>
         <module>module_mail</module>
     </modules>
 
