@@ -57,5 +57,7 @@
         FROM
             oa_process_type a
                 LEFT JOIN oa_process_template b ON a.id = b.process_type_id
+        ORDER BY
+            a.id ASC
     </select>
 </mapper>

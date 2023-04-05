@@ -24,11 +24,6 @@ public class ProcessVo extends Process {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTimeEnd;
 
-    /**
-     * 任务id
-     */
-    private String taskId;
-
     private String userName;
     private String userRealName;
 
@@ -39,8 +34,7 @@ public class ProcessVo extends Process {
     /**
      * 当前审批人信息
      */
-    private String currentAuditorName;
     private String currentAuditorRealName;
-    private String currentAuditorPhone;
+    private String currentAuditorInfo;
 
 }

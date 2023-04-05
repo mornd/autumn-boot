@@ -12,5 +12,11 @@ import org.apache.ibatis.annotations.Param;
  */
 @Mapper
 public interface ProcessTypeMapper extends BaseMapper<ProcessType> {
+    /**
+     * 查询流程类型及所属的模板(分页)
+     * @param page
+     * @param processType
+     * @return
+     */
     IPage<ProcessType> findTypeList(@Param("page") IPage<ProcessType> page, @Param("processType") ProcessType processType);
 }

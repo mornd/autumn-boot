@@ -35,7 +35,7 @@ public class ProcessTemplate extends ProcessBaseEntity {
      * 审批类型id
      */
     @NotNull(message = "审批类型不能为空")
-    private Integer processTypeId;
+    private Long processTypeId;
 
     /**
      * 审批类型名称
@@ -43,6 +43,7 @@ public class ProcessTemplate extends ProcessBaseEntity {
     @TableField(exist = false)
     private String processTypeName;
 
+    @NotBlank(message = "表单值不能为空")
     private String formProps;
 
     private String formOptions;

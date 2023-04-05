@@ -1,5 +1,6 @@
 package com.mornd.system.process.service.impl;
 
+import cn.hutool.core.collection.IterUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -11,7 +12,9 @@ import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.exception.AutumnException;
 import com.mornd.system.process.constant.ProcessConst;
 import com.mornd.system.process.entity.Process;
+import com.mornd.system.process.entity.ProcessRecord;
 import com.mornd.system.process.entity.ProcessTemplate;
+import com.mornd.system.process.entity.vo.ApprovalVo;
 import com.mornd.system.process.entity.vo.ProcessFormVo;
 import com.mornd.system.process.entity.vo.ProcessVo;
 import com.mornd.system.process.mapper.ProcessMapper;
@@ -23,17 +26,20 @@ import com.mornd.system.utils.AutumnUUID;
 import com.mornd.system.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.activiti.bpmn.model.*;
+import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -43,6 +49,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+
+import static com.mornd.system.process.entity.Process.ApproveStatus.AGREE;
+import static com.mornd.system.process.entity.Process.ApproveStatus.REJECT;
+import static com.mornd.system.process.entity.Process.Status.COMPLETED;
+import static com.mornd.system.process.entity.Process.Status.PROGRESSING;
 
 /**
  * @author: mornd
@@ -56,11 +67,14 @@ import java.util.zip.ZipInputStream;
 public class ProcessServiceImpl
         extends ServiceImpl<ProcessMapper, Process>
         implements ProcessService {
+
     private final RepositoryService repositoryService;
 
     private final RuntimeService runtimeService;
 
     private final TaskService taskService;
+
+    private final HistoryService historyService;
 
     private final ProcessTemplateService processTemplateService;
 
@@ -72,6 +86,28 @@ public class ProcessServiceImpl
     public IPage<ProcessVo> pageList(ProcessVo vo) {
         IPage<ProcessVo> page = new Page<>(vo.getPageNo(), vo.getPageSize());
         baseMapper.pageList(page, vo);
+        for (ProcessVo record : page.getRecords()) {
+            String auditorId = record.getCurrentAuditorId();
+            if(StringUtils.hasText(auditorId)) {
+                // 获取当前审批人集合，使用逗号拼接成字符串
+                StringBuilder realNameStr = new StringBuilder();
+                StringBuilder infoStr = new StringBuilder();
+                String[] ids = auditorId.split(",");
+                for (int i = 0; i < ids.length; i++) {
+                    if(StringUtils.hasText(ids[i])) {
+                        SysUser sysUser = userService.getById(ids[i]);
+                        realNameStr.append(sysUser.getRealName());
+                        infoStr.append(sysUser.getRealName() + "(" + sysUser.getLoginName() + ")");
+                        if(i < ids.length - 1) {
+                            realNameStr.append(",");
+                            infoStr.append(",");
+                        }
+                    }
+                }
+                record.setCurrentAuditorRealName(realNameStr.toString());
+                record.setCurrentAuditorInfo(infoStr.toString());
+            }
+        }
         return page;
     }
 
@@ -90,17 +126,22 @@ public class ProcessServiceImpl
         Deployment deploy = repositoryService
                 .createDeployment()
                 .addZipInputStream(zipInputStream)
+                //.name("")
                 .deploy();
 
         log.info("流程部署成功");
         log.info("流程部署id：{}", deploy.getId());
         log.info("流程部署名称：{}", deploy.getName());
+        // 可查看表 act_re_deployment 记录
         return deploy;
     }
 
     /**
      * 启动流程实例
      * @param vo
+     * 可能会报的错：
+     * ActivitiObjectNotFoundException: no processes deployed with key 'simpleqingjia'
+     *      你的流程文件xml中process的id属性值与zip文件名不一致
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -117,14 +158,16 @@ public class ProcessServiceImpl
         Process process = new Process();
         // 流程编码
         process.setProcessCode(AutumnUUID.fastSimpleUUID());
+        // 标题
+        process.setTitle(loginUser.getRealName() + "发起《" + processTemplate.getName() + "》申请");
         // 流程状态
-        process.setStatus(Process.Status.PROGRESSING.getCode());
+        process.setStatus(PROGRESSING.getCode());
         //  用户id
         process.setUserId(loginUser.getId());
         // 表单 json 数据
         process.setFormValues(vo.getFormValues());
-        // 标题
-        process.setTitle(loginUser.getRealName() + "发起" + processTemplate.getName() + "申请");
+        process.setProcessTemplateId(processTemplate.getId());
+        process.setProcessTypeId(processTemplate.getProcessTypeId());
         process.setCreateId(loginUser.getId());
         process.setCreateTime(LocalDateTime.now());
 
@@ -156,23 +199,32 @@ public class ProcessServiceImpl
 
         // 查询下一个审批人
         List<Task> taskList = this.getCurrentTaskList(processInstance.getId());
-        List<String> names = new ArrayList<>();
+
+        StringBuilder auditIds = new StringBuilder();
+        StringBuilder auditNames = new StringBuilder();
         for (Task task : taskList) {
             // 获取用户的登录名称
             String assignee = task.getAssignee();
             // 根据登录名称获取真实姓名
             LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery(SysUser.class);
             qw.eq(SysUser::getLoginName, assignee);
-            qw.select(SysUser::getRealName);
+            qw.select(SysUser::getId, SysUser::getRealName, SysUser::getPhone);
             SysUser sysUser = userService.getOne(qw);
-            names.add(sysUser.getRealName());
+            if(sysUser != null) {
+                auditIds.append(sysUser.getId() + ",");
+                auditNames.append(sysUser.getRealName() + ",");
+            }
 
             //todo 消息推送
         }
 
         // 更新 process 表
         process.setProcessInstanceId(processInstance.getId());
-        process.setDescription("等待" + StringUtils.join(names.toArray(), ",") + "审批");
+        if(auditIds.length() > 0) {
+            process.setCurrentAuditorId(auditIds.substring(0, auditIds.length() - 1));
+            process.setDescription("等待" + auditNames.substring(0, auditNames.length() - 1) + "审批");
+        }
+
         boolean update = this.updateById(process);
 
         // 添加审批记录
@@ -185,18 +237,123 @@ public class ProcessServiceImpl
     }
 
     /**
-     * 用户查询自己的待办流程
+     * 开始审批 1：同意 -1：驳回
+     * @param vo
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void approve(ApprovalVo vo) {
+        // 获取任务id
+        String taskId = vo.getTaskId();
+
+        String desc = null;
+        // 获取流程变量
+        Map<String, Object> variables = taskService.getVariables(taskId);
+
+        if(AGREE.getCode().equals(vo.getStatus())) {
+            desc = "已通过";
+            // 可继续添加流程变量
+            Map<String,Object> map = new HashMap<String, Object>();
+            // 完成
+            taskService.complete(taskId, map);
+        } else if(REJECT.getCode().equals(vo.getStatus())) {
+            desc = "驳回";
+            this.endTask(taskId);
+        } else {
+            throw new AutumnException("流程审批状态错误");
+        }
+        // 添加流程记录
+        //todo 1：审批中，-1：驳回
+        processRecordService.insert(vo.getProcessId(), vo.getStatus(), desc);
+
+        // 查询下一个审批人
+        Process process = super.getById(vo.getProcessId());
+        List<Task> taskList = this.getCurrentTaskList(process.getProcessInstanceId());
+        if(IterUtil.isNotEmpty(taskList)) {
+
+            StringBuilder auditIds = new StringBuilder();
+            StringBuilder auditNames = new StringBuilder();
+            for (Task task : taskList) {
+                String assignee = task.getAssignee();
+                // 根据登录名称获取用户的真实姓名
+                LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery(SysUser.class);
+                qw.select(SysUser::getId, SysUser::getRealName, SysUser::getPhone);
+                qw.eq(SysUser::getLoginName, assignee);
+                SysUser sysUser = userService.getOne(qw);
+                if(sysUser != null) {
+                    auditIds.append(sysUser.getId() + ",");
+                    auditNames.append(sysUser.getRealName() + ",");
+                }
+                //todo 消息推送
+            }
+
+            if(auditIds.length() > 0) {
+                process.setCurrentAuditorId(auditIds.substring(0, auditIds.length() - 1));
+                process.setDescription("等待" + auditNames.substring(0, auditNames.length() - 1) + "审批");
+            }
+        } else {
+            // taskList 为空表示没有下一个节点流程结束了，此时再更改流程状态
+            if(AGREE.getCode().equals(vo.getStatus())) {
+                process.setStatus(COMPLETED.getCode());
+                process.setDescription("审批完成(通过)");
+            } else {
+                process.setStatus(REJECT.getCode());
+                process.setDescription("审批完成(驳回)");
+            }
+        }
+        super.updateById(process);
+    }
+
+    @Override
+    public Map<String, Object> show(Long id) {
+        Process process = super.getById(id);
+        if(process == null) {
+            throw new AutumnException("流程为空");
+        }
+
+        // 通过流程id查询流程记录
+        LambdaQueryWrapper<ProcessRecord> qw = Wrappers.lambdaQuery(ProcessRecord.class);
+        qw.eq(ProcessRecord::getProcessId, process.getId());
+        List<ProcessRecord> processRecordList = processRecordService.list(qw);
+
+        // 通过流程模板id获取详情
+        ProcessTemplate processTemplate =
+                processTemplateService.getById(process.getProcessTemplateId());
+
+        // 判断当前用户是否可以审批(比较task集合中是否存在当前登录的用户)
+        String loginUsername = SecurityUtil.getLoginUsername();
+        List<Task> taskList = this.getCurrentTaskList(process.getProcessInstanceId());
+        boolean isApprove = taskList
+                .stream()
+                .anyMatch(i -> loginUsername.equals(i.getAssignee()));
+
+        // 返回结果
+        Map<String,Object> result = new HashMap<String, Object>(4);
+        result.put("process", process);
+        result.put("processRecordList", processRecordList);
+        result.put("processTemplate", processTemplate);
+        result.put("isApprove", isApprove);
+        return result;
+    }
+
+    /**
+     * 用户查询当前待处理流程
      * @param process
      * @return
      */
     @Override
-    public IPage<ProcessVo> findPending(Process process) {
-        SysUser loginUser = SecurityUtil.getLoginUser();
+    public IPage<Process> findPending(Process process) {
         TaskQuery taskQuery =
                 // 根据当前的用户登录名查询
-                taskService.createTaskQuery().taskAssignee(loginUser.getLoginName())
+                taskService.createTaskQuery().taskAssignee(SecurityUtil.getLoginUsername())
                 // 通过创建时间降序
                 .orderByTaskCreateTime().desc();
+
+        // 查询待办总数
+        long count = taskQuery.count();
+        if(count <= 0) {
+            return new Page<>();
+        }
 
         // 自定义分页，Long 转 int
         int pageNo = (int) ((process.getPageNo() - 1) * process.getPageSize());
@@ -204,7 +361,7 @@ public class ProcessServiceImpl
         List<Task> tasks = taskQuery.listPage(pageNo, pageSize);
 
         // 返回结果
-        List<ProcessVo> processVoList = new ArrayList<>();
+        List<Process> processList = new ArrayList<>();
 
         for (Task task : tasks) {
             // 获取流程实例id
@@ -215,24 +372,117 @@ public class ProcessServiceImpl
 
             // 通过流程实例获取业务key，就是 process 表的 id
             String businessKey = processInstance.getBusinessKey();
-            if(businessKey == null) {
-                continue;
-            }
-            // 查询数据库
             Process dbProcess = super.getById(Long.valueOf(businessKey));
-
-            ProcessVo processVo = new ProcessVo();
-            BeanUtils.copyProperties(dbProcess, processVo);
-            processVo.setTaskId(task.getId());
-
-            processVoList.add(processVo);
+            // 添加任务id，用于审批同意或拒绝时携带
+            dbProcess.setTaskId(task.getId());
+            processList.add(dbProcess);
         }
 
         // 封装返回 mp 的 IPage 对象
-        // 待办总数
-        long total = taskQuery.count();
-        IPage<ProcessVo> page = new Page<>(process.getPageNo(), process.getPageSize(), total);
-        page.setRecords(processVoList);
+        IPage<Process> page = new Page<>(process.getPageNo(), process.getPageSize(), count);
+        page.setRecords(processList);
         return page;
+    }
+
+    /**
+     * 用户查询当前已处理流程
+     * @param process
+     * @return
+     */
+    @Override
+    public IPage<Process> findProcessed(Process process) {
+        // 封装查询条件
+        HistoricTaskInstanceQuery instanceQuery =
+                historyService.createHistoricTaskInstanceQuery()
+                .taskAssignee(SecurityUtil.getLoginUsername())
+                .finished().orderByTaskCreateTime().desc();
+
+        long count = instanceQuery.count();
+        if(count <= 0) {
+            return new Page<>();
+        }
+
+        // 自定义分页，Long 转 int
+        int pageNo = (int) ((process.getPageNo() - 1) * process.getPageSize());
+        int pageSize = (int) process.getPageSize().longValue();
+        List<HistoricTaskInstance> historicList = instanceQuery.listPage(pageNo, pageSize);
+
+        List<Process> processList = new ArrayList<>();
+        for (HistoricTaskInstance historic : historicList) {
+            // 获取流程实例id
+            String processInstanceId = historic.getProcessInstanceId();
+            // 根据流程实例id查询流程
+            LambdaQueryWrapper<Process> qw = Wrappers.lambdaQuery(Process.class);
+            qw.eq(Process::getProcessInstanceId, processInstanceId);
+            Process dbProcess = super.getOne(qw);
+            processList.add(dbProcess);
+        }
+
+        // 封装返回 mp 的 IPage 对象
+        IPage<Process> page = new Page<>(process.getPageNo(), process.getPageSize(), count);
+        page.setRecords(processList);
+        return page;
+    }
+
+    /**
+     * 用户查询当前已发起流程
+     * @param process
+     * @return
+     */
+    @Override
+    public IPage<Process> findStarted(Process process) {
+        IPage<Process> page = new Page<>(process.getPageNo(), process.getPageSize());
+        LambdaQueryWrapper<Process> qw = Wrappers.lambdaQuery(Process.class);
+        qw.eq(Process::getUserId, SecurityUtil.getLoginUserId());
+        qw.orderByDesc(Process::getId);
+        super.page(page, qw);
+        return page;
+    }
+
+    /**
+     * 手动更改流向来结束流程
+     * @param taskId
+     */
+    private void endTask(String taskId) {
+        // 根据任务id获取task任务
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        // 获取流程定义模型
+        BpmnModel bpmnModel =
+                repositoryService.getBpmnModel(task.getProcessDefinitionId());
+
+        // 获取结束流向节点
+        List<EndEvent> endEventList =
+                bpmnModel.getMainProcess().findFlowElementsOfType(EndEvent.class);
+
+        if(IterUtil.isEmpty(endEventList)) {
+            return;
+        }
+        FlowNode endFlowNode = endEventList.get(0);
+
+        // 获取当前流向节点
+        FlowNode currentFlowNode =
+                (FlowNode) bpmnModel.getMainProcess().getFlowElement(task.getTaskDefinitionKey());
+
+        // 临时保存当前活动的原始反向
+        List<SequenceFlow> originalOutgoingFlows = new ArrayList<>();
+        originalOutgoingFlows.addAll(currentFlowNode.getOutgoingFlows());
+
+        // 清理当前流动反向
+        currentFlowNode.getOutgoingFlows().clear();
+
+        // 创建新流向
+        SequenceFlow newSequenceFlow = new SequenceFlow();
+        newSequenceFlow.setId("newSequenceFlow");
+        newSequenceFlow.setSourceFlowElement(currentFlowNode);
+        newSequenceFlow.setTargetFlowElement(endFlowNode);
+
+        // 将当前节点指向新方向
+        List<SequenceFlow> newSequenceFlowList = new ArrayList<>();
+        newSequenceFlowList.add(newSequenceFlow);
+
+        currentFlowNode.setOutgoingFlows(newSequenceFlowList);
+
+        // 完成任务
+        taskService.complete(taskId);
     }
 }

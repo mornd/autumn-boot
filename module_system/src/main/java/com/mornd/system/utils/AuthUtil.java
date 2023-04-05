@@ -31,7 +31,7 @@ public class AuthUtil {
      * @return
      */
     public String getLoginUserRedisKey(String token) {
-        return String.format("%s-%s", RedisKey.ONLINE_USER_KEY, token);
+        return RedisKey.ONLINE_USER_KEY + token;
     }
 
     /**

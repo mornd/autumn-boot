@@ -5,13 +5,20 @@ import com.mornd.system.annotation.LogStar;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.controller.base.BaseController;
 import com.mornd.system.entity.result.JsonResult;
+import com.mornd.system.exception.BadRequestException;
 import com.mornd.system.process.entity.Process;
+import com.mornd.system.process.entity.vo.ApprovalVo;
 import com.mornd.system.process.entity.vo.ProcessFormVo;
 import com.mornd.system.process.entity.vo.ProcessVo;
 import com.mornd.system.process.service.ProcessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+import static com.mornd.system.process.entity.Process.ApproveStatus.AGREE;
+import static com.mornd.system.process.entity.Process.ApproveStatus.REJECT;
 
 /**
  * @author: mornd
@@ -39,9 +46,42 @@ public class ProcessController extends BaseController {
     }
 
     @GetMapping("/findPending")
-    @LogStar(title = "用户查询当前流程待办", businessType = LogType.SELECT)
+    @LogStar(title = "用户查询当前待处理流程", businessType = LogType.SELECT)
     public JsonResult findPending(Process process) {
-        IPage<ProcessVo> page = processService.findPending(process);
+        IPage<Process> page = processService.findPending(process);
         return JsonResult.successData(page);
+    }
+
+    @GetMapping("/findProcessed")
+    @LogStar(title = "用户查询当前已处理流程", businessType = LogType.SELECT)
+    public JsonResult findProcessed(Process process) {
+        IPage<Process> page = processService.findProcessed(process);
+        return JsonResult.successData(page);
+    }
+
+    @GetMapping("/findStarted")
+    @LogStar(title = "用户查询当前已发起流程", businessType = LogType.SELECT)
+    public JsonResult findStarted(Process process) {
+        IPage<Process> page = processService.findStarted(process);
+        return JsonResult.successData(page);
+    }
+
+    @GetMapping("/show/{id}")
+    @LogStar(title = "根据流程id查询单个流程详情", businessType = LogType.SELECT)
+    public JsonResult show(@PathVariable Long id) {
+        Map<String, Object> result = processService.show(id);
+        return JsonResult.successData(result);
+    }
+
+    @PostMapping("/approve")
+    @LogStar(title = "开始审批", businessType = LogType.UPDATE)
+    public JsonResult approve(@RequestBody ApprovalVo vo) {
+        if(vo.getStatus().equals(AGREE.getCode())
+                || vo.getStatus().equals(REJECT.getCode())) {
+            processService.approve(vo);
+            return JsonResult.success("操作成功");
+        } else {
+            throw new BadRequestException("流程状态错误");
+        }
     }
 }

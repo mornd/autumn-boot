@@ -15,7 +15,7 @@
             a.process_template_id,
             a.form_values,
             a.process_instance_id,
-            a.current_auditor,
+            a.current_auditor_id,
             a.description,
             a.create_id,
             a.create_time,
@@ -24,16 +24,12 @@
             b.login_name AS user_name,
             b.real_name AS user_real_name,
             c.NAME AS process_type_name,
-            d.NAME AS process_template_name,
-            e.login_name AS current_auditor_name,
-            e.real_name AS current_auditor_real_name,
-            e.phone AS current_auditor_phone
+            d.NAME AS process_template_name
         FROM
             oa_process a
                 LEFT JOIN sys_user b ON a.user_id = b.id
                 LEFT JOIN oa_process_type c ON a.process_type_id = c.id
                 LEFT JOIN oa_process_template d ON a.process_template_id = d.id
-                LEFT JOIN sys_user e ON a.current_auditor = e.id
         <trim prefix="WHERE" prefixOverrides="AND|OR">
             <if test="vo.keyword neq null and vo.keyword neq ''">
                 AND (
@@ -42,7 +38,6 @@
                 OR b.login_name LIKE CONCAT('%',#{vo.keyword},'%')
                 OR c.NAME LIKE CONCAT('%',#{vo.keyword},'%')
                 OR d.NAME LIKE CONCAT('%',#{vo.keyword},'%')
-                OR e.login_name LIKE CONCAT('%',#{vo.keyword},'%')
                     )
             </if>
             <if test="vo.status != null">

@@ -1,5 +1,6 @@
 package com.mornd.system.process.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -55,14 +56,20 @@ public class Process extends ProcessBaseEntity {
     private String processInstanceId;
 
     /**
-     * 当前审批人
+     * 当前审批人id
      */
-    private String currentAuditor;
+    private String currentAuditorId;
 
     /**
      * 描述
      */
     private String description;
+
+    /**
+     * 任务id(用于同意或拒绝流程时携带)
+     */
+    @TableField(exist = false)
+    private String taskId;
 
     @Getter
     @AllArgsConstructor
@@ -86,4 +93,22 @@ public class Process extends ProcessBaseEntity {
 
         Integer code;
     }
+
+    /**
+     * 提交审批状态
+     */
+    @Getter
+    @AllArgsConstructor
+    public enum ApproveStatus {
+        /**
+         * 同意
+         */
+        AGREE(1),
+        /**
+         * 驳回
+         */
+        REJECT(-1);
+        Integer code;
+    }
+
 }

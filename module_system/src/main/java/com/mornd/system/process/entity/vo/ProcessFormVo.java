@@ -2,6 +2,7 @@ package com.mornd.system.process.entity.vo;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -19,13 +20,8 @@ public class ProcessFormVo {
     private Long processTemplateId;
 
     /**
-     * 流程类型id
-     */
-    @NotNull(message = "流程类型id不能为空")
-    private Long processTypeId;
-
-    /**
      * 表单 json 数据
      */
+    @NotBlank(message = "表单值不能为空")
     private String formValues;
 }

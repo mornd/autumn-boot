@@ -36,7 +36,6 @@ public class ProcessTypeController extends BaseController {
         LambdaQueryWrapper<ProcessType> qw = Wrappers.lambdaQuery(ProcessType.class);
         qw.like(StringUtils.hasText(processType.getName()),
                 ProcessType::getName, processType.getName());
-        qw.orderByDesc(ProcessType::getId);
         IPage<ProcessType> page = new Page<>(processType.getPageNo(), processType.getPageSize());
         processTypeService.page(page, qw);
         return JsonResult.successData(page);
@@ -48,7 +47,7 @@ public class ProcessTypeController extends BaseController {
      */
     @GetMapping("/findTypeAndTemplateList")
     public JsonResult findTypeAndTemplateList(ProcessType processType) {
-        IPage<ProcessType> page =  processTypeService.findTypeList(processType);
+        IPage<ProcessType> page = processTypeService.findTypeList(processType);
         return JsonResult.successData(page);
     }
 
@@ -92,7 +91,6 @@ public class ProcessTypeController extends BaseController {
     public JsonResult getAllTypeNames() {
         LambdaQueryWrapper<ProcessType> qw = Wrappers.lambdaQuery(ProcessType.class);
         qw.select(ProcessType::getName, ProcessType::getId);
-        qw.orderByDesc(ProcessType::getId);
         List<ProcessType> list = processTypeService.list(qw);
         return JsonResult.successData(list);
     }

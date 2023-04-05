@@ -108,7 +108,8 @@ public class ProcessTemplateController extends BaseController {
     @LogStar(title = "下载流程定义文件", businessType = LogType.DOWNLOAD)
     @PostMapping("/downloadProcessDefinition/{filename}")
     public void downloadProcessDefinition(@PathVariable String filename, HttpServletResponse response) {
-        // 获取 resources 目录下的输入流方式一
+        // 获取 resources 目录下的输入流
+        // 方式一
 //        InputStream is = this.getClass().getClassLoader()
 //                .getResourceAsStream("process/" + filename); // process前面不能加斜杠
 

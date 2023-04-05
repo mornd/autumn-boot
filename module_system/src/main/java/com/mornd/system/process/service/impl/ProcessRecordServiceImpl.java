@@ -9,6 +9,8 @@ import com.mornd.system.utils.SecurityUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 /**
  * @author: mornd
  * @dateTime: 2023/4/3 - 23:35
@@ -29,6 +31,8 @@ public class ProcessRecordServiceImpl
         processRecord.setDescription(description);
         processRecord.setOperateUserId(loginUser.getId());
         processRecord.setOperateUser(loginUser.getRealName());
+        processRecord.setCreateTime(LocalDateTime.now());
+        processRecord.setCreateId(loginUser.getId());
         return super.save(processRecord);
     }
 }

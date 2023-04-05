@@ -153,9 +153,12 @@ public class SysLogAspect {
             }
         }
 
-        //异常信息
+        //异常信息，这里应该捕捉 Exception
         if (throwable != null) {
             String msg = throwable.getMessage();
+            if(msg == null) {
+                msg = throwable.toString();
+            }
             sysLog.setExceptionMsg(msg.length() > restriction ? msg.substring(0, restriction) + "——内容过长，以下内容已经忽略..." : msg);
         }
 

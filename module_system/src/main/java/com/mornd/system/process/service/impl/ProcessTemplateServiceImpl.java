@@ -66,7 +66,6 @@ public class ProcessTemplateServiceImpl
                 ProcessTemplate::getName, template.getName());
         qw.eq(template.getProcessTypeId() != null,
                 ProcessTemplate::getProcessTypeId, template.getProcessTypeId());
-        qw.orderByDesc(ProcessTemplate::getId);
         baseMapper.selectPage(page, qw);
 
         page.getRecords().stream().filter(i -> i.getProcessTypeId() != null)
@@ -237,11 +236,9 @@ public class ProcessTemplateServiceImpl
         }
         entity.setStatus(PUBLISHED.ordinal());
         boolean row = super.updateById(entity);
-        /**
-         * 发布流程
-         */
         if(row) {
             if(StringUtils.hasText(entity.getProcessDefinitionFileName())) {
+                // 发布流程
                 Deployment deployment =
                         processService.deployByZip(entity.getProcessDefinitionFileName());
                 return Objects.nonNull(deployment);

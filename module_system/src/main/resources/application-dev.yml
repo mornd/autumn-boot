@@ -118,7 +118,7 @@ spring:
           db-type: mysql
           config:
             # 不允许删表
-            drop-table-allow: false
+            #drop-table-allow: false
             # 不允许删除表记录
             #delete-allow: false
 
@@ -218,10 +218,10 @@ spring:
 
   # 流程引擎配置
   activiti:
-    # true：表不存在，自动创建（开发使用）
-    # false：数据库表不变，但版本不对或表缺失会抛出异常（生产使用）
-    # create_drop：启动时创建，关闭时删除（测试使用）
-    # drop_create：启动时先删除表，再创建表（不需要手动关闭引擎）
+    # true：对所有表进行更新，表不存在，自动创建（开发使用）
+    # false：数据库表不变，但版本不对或表缺失会抛出异常（默认值，生产使用）
+    # create_drop：启动时创建表，关闭时删除表（必须手动关闭引擎，才能删除表，测试使用）
+    # drop-create：启动时先删除旧表，然后再创建新表（不需要手动关闭引擎）使用这个参数删除所有流程表时，第一次会报表约束的错，再启动一次就可以了
     database-schema-update: true
     # 监测历史表是否存在：activities7 默认不开启历史表
     db-history-used: true
