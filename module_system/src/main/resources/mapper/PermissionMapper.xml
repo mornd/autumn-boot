@@ -49,7 +49,7 @@
             sp.menu_type != #{excludeMenuType}
         </if>
         <if test="enabledState != null">
-            AND 
+            AND
                 sp.enabled = #{enabledState}
         </if>
         <include refid="findByRoleIdsCommonSql"/>
@@ -61,30 +61,15 @@
         FROM
         sys_permission sp
         WHERE
-        sp.hidden = #{hidden}
-        AND (sp.menu_type = #{catalogue} OR sp.menu_type = #{menu})
+        (sp.menu_type = #{catalogue} OR sp.menu_type = #{menu})
     </select>
-    
+
     <select id="findCatalogues" resultType="com.mornd.system.entity.po.SysPermission">
         SELECT
         <include refid="simpleResultColumns"/>
         FROM
         sys_permission sp
         WHERE
-        sp.hidden = #{hidden}
-        AND sp.menu_type = #{menu}
-    </select>
-    
-    <select id="getAllPers" resultType="com.mornd.system.entity.po.SysPermission">
-        SELECT
-            id,
-            parent_id,
-            title,
-            sort,
-            enabled
-        FROM
-            sys_permission
-        WHERE
-            hidden = #{hidden}
+        sp.menu_type = #{menu}
     </select>
 </mapper>

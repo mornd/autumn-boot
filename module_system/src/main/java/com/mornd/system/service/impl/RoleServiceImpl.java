@@ -62,7 +62,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      * @return
      */
     public Set<SysRole> getCurrentRoles() {
-        return  findByUserId( SecurityUtil.getLoginUserId());
+        return findByUserId(SecurityUtil.getLoginUserId());
     }
 
     /**

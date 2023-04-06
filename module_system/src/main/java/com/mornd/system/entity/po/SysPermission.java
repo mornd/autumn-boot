@@ -93,12 +93,16 @@ public class SysPermission implements Serializable {
     @ApiModelProperty("修改人id")
     private String modifiedBy;
 
-    //子菜单
+    /**
+     * 子集
+     */
     @TableField(exist = false)
     private Set<SysPermission> children;
 
+    /**
+     * 访问该权限所需的角色列表(动态权限配置有用到)
+     */
     @JsonIgnore
     @TableField(exist = false)
-    // 访问该权限所需的角色列表(动态权限配置有用到)
     private List<SysRole> roles;
 }

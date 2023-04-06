@@ -80,6 +80,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         SysUser loginUser = SecurityUtil.getLoginUser();
         Set<SysPermission> pers;
         if(LoginUserSource.LOCAL.getCode().equals(loginUser.getSource())) {
+            // 系统用户
             pers = this.getPersByRoleIds(roleService.getCurrentRoleIds(), true, null);
         } else {
             // 非系统用户赋值一个默认角色
@@ -87,7 +88,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
             qw.eq(SysRole::getCode, SecurityConst.GITEE_ROLE);
             qw.eq(SysRole::getEnabled, EntityConst.ENABLED);
             List<SysRole> roles = roleService.list(qw);
-            pers = this.getPersByRoleIds(roles.stream().map(SysRole::getId).collect(Collectors.toList()),
+            pers = this.getPersByRoleIds(roles.stream()
+                            .map(SysRole::getId).collect(Collectors.toList()),
                     true, null);
         }
 
@@ -100,10 +102,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      */
     @Override
     public List<SysPermission> tableTree() {
-        LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
-        qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
-        List<SysPermission> pers = baseMapper.selectList(qw);
-        return pers;
+        return baseMapper.selectList(null);
     }
 
     /**
@@ -134,22 +133,22 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     }
 
     /**
-     * 只查询目录和菜单集合（排除按钮类型）
+     * 只查询目录和菜单集合（排除按钮类型，包含隐藏菜单）
      * @return
      */
     @Override
     public JsonResult getCatalogueAndMenu() {
-        Set<SysPermission> pers = baseMapper.findCatalogueAndMenu(EnumMenuType.CATALOGUE.getCode(), EnumMenuType.MENU.getCode(), EnumHiddenType.DISPLAY.getCode());
+        Set<SysPermission> pers = baseMapper.findCatalogueAndMenu(EnumMenuType.CATALOGUE.getCode(), EnumMenuType.MENU.getCode());
         return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers));
     }
 
     /**
-     * 只查询目录集合（用于菜单新增或编辑时）
+     * 只查询目录集合（用于菜单新增或编辑时，包含隐藏菜单）
      * @return
      */
     @Override
     public JsonResult getCatalogues() {
-        Set<SysPermission> pers = baseMapper.findCatalogues(EnumMenuType.CATALOGUE.getCode(), EnumHiddenType.DISPLAY.getCode());
+        Set<SysPermission> pers = baseMapper.findCatalogues(EnumMenuType.CATALOGUE.getCode());
         return JsonResult.successData(MenuUtil.toTree(GlobalConst.MENU_PARENT_ID, pers));
     }
 
@@ -159,7 +158,10 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
      */
     @Override
     public Set<SysPermission> getAllPers() {
-        return baseMapper.getAllPers(EnumHiddenType.DISPLAY.getCode());
+        LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery(SysPermission.class);
+        qw.select(SysPermission::getId, SysPermission::getParentId, SysPermission::getTitle, SysPermission::getCode, SysPermission::getSort, SysPermission::getEnabled);
+        qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
+        return new HashSet<>(baseMapper.selectList(qw));
     }
 
     /**
@@ -213,10 +215,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
             //验证父级是否可用
             LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
             qw.eq(SysPermission::getId, sysPermission.getParentId());
-            qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
             SysPermission parent = baseMapper.selectOne(qw);
-            if(parent == null || disabled.equals(parent.getEnabled())) {
-                return JsonResult.failure("操作失败，父级节点不存在或已被禁用");
+            if(parent == null) {
+                return JsonResult.failure("操作失败，父级节点不存在");
             }
             //验证父级是否符合规范
             if(EnumMenuType.CATALOGUE.getCode().equals(sysPermission.getMenuType())
@@ -262,10 +263,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
             //验证父级是否符合规则
             LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
             qw.eq(SysPermission::getId, sysPermission.getParentId());
-            qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
             SysPermission parent = baseMapper.selectOne(qw);
-            if(parent == null || disabled.equals(parent.getEnabled())) {
-                return JsonResult.failure("操作失败，父级节点不存在或已被禁用");
+            if(parent == null) {
+                return JsonResult.failure("操作失败，父级节点不存在");
             }
             if(EnumMenuType.CATALOGUE.getCode().equals(sysPermission.getMenuType())
                     || EnumMenuType.MENU.getCode().equals(sysPermission.getMenuType())) {
@@ -283,7 +283,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         if(EnumHiddenType.HIDDEN.getCode().equals(sysPermission.getHidden()) && !sysPermission.getMenuType().equals(EnumMenuType.BUTTON.getCode())) {
             changeChildrenHiddenState(sysPermission.getId(), EnumHiddenType.HIDDEN.getCode());
         }
-        //按钮类型和启用状态不可以在这一步修改
+        //按钮类型和启用状态不可以修改
         sysPermission.setMenuType(null);
         sysPermission.setEnabled(null);
         sysPermission.setGmtModified(new Date());
@@ -308,21 +308,6 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
         if(disabled.equals(state)) {
             //如果修改为禁用状态则连同所有子节点一起禁用
             this.changeChildrenEnabledState(id, state);
-        } else {
-            //如果该节点的父级不是根节点，那么禁用时需再判断其父级的状态，如果父级是禁用状态则不可启用该节点
-            LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
-            qw.eq(SysPermission::getId, id);
-            qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
-            SysPermission per = baseMapper.selectOne(qw);
-            if(per != null && !GlobalConst.MENU_PARENT_ID.equals(per.getParentId())) {
-                qw = Wrappers.lambdaQuery();
-                qw.eq(SysPermission::getId, per.getParentId());
-                qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
-                SysPermission parent = baseMapper.selectOne(qw);
-                if(disabled.equals(parent.getEnabled())) {
-                    return JsonResult.failure("请先启用父节点");
-                }
-            }
         }
         SysPermission per = new SysPermission();
         per.setId(id);
@@ -340,19 +325,15 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     private void changeChildrenEnabledState(String id, Integer state) {
         LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
         qw.eq(SysPermission::getParentId, id);
-        qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
-        qw.ne(SysPermission::getEnabled, state);
         //查询当前节点的子集
         List<SysPermission> children = baseMapper.selectList(qw);
-        if(!ObjectUtils.isEmpty(children)) {
-            children.forEach(item -> {
-                //执行修改
-                LambdaUpdateWrapper<SysPermission> uw = Wrappers.lambdaUpdate();
-                uw.set(SysPermission::getEnabled, state);
-                uw.eq(SysPermission::getId, item.getId());
-                baseMapper.update(null, uw);
-                changeChildrenEnabledState(item.getId(), state);
-            });
+        for (SysPermission child : children) {
+            //执行修改
+            LambdaUpdateWrapper<SysPermission> uw = Wrappers.lambdaUpdate();
+            uw.set(SysPermission::getEnabled, state);
+            uw.eq(SysPermission::getId, child.getId());
+            baseMapper.update(null, uw);
+            changeChildrenEnabledState(child.getId(), state);
         }
     }
 
@@ -364,19 +345,15 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     private void changeChildrenHiddenState(String id, Integer state) {
         LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
         qw.eq(SysPermission::getParentId, id);
-        qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
-        qw.ne(SysPermission::getHidden, state);
         //查询当前节点的子集
         List<SysPermission> children = baseMapper.selectList(qw);
-        if(!ObjectUtils.isEmpty(children)) {
-            children.forEach(item -> {
-                //执行修改
-                LambdaUpdateWrapper<SysPermission> uw = Wrappers.lambdaUpdate();
-                uw.set(SysPermission::getHidden, state);
-                uw.eq(SysPermission::getId, item.getId());
-                baseMapper.update(null, uw);
-                changeChildrenHiddenState(item.getId(), state);
-            });
+        for (SysPermission child : children) {
+            //执行修改
+            LambdaUpdateWrapper<SysPermission> uw = Wrappers.lambdaUpdate();
+            uw.set(SysPermission::getHidden, state);
+            uw.eq(SysPermission::getId, child.getId());
+            baseMapper.update(null, uw);
+            changeChildrenHiddenState(child.getId(), state);
         }
     }
 
@@ -389,7 +366,6 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     public boolean queryHasChildren(String id) {
         LambdaQueryWrapper<SysPermission> qw = Wrappers.lambdaQuery();
         qw.eq(SysPermission::getParentId, id);
-        qw.eq(SysPermission::getHidden, EnumHiddenType.DISPLAY.getCode());
         Integer count = baseMapper.selectCount(qw);
         return count > 0;
     }
@@ -405,9 +381,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
             return JsonResult.failure("操作失败，该节点下已有子集，请先删除子集");
         }
         baseMapper.deleteById(id);
-        LambdaQueryWrapper<RoleWithPermission> roleWithPerQw = Wrappers.lambdaQuery();
-        roleWithPerQw.eq(RoleWithPermission::getPerId, id);
-        roleWithPermissionMapper.delete(roleWithPerQw);
+        LambdaQueryWrapper<RoleWithPermission> qw = Wrappers.lambdaQuery();
+        qw.eq(RoleWithPermission::getPerId, id);
+        roleWithPermissionMapper.delete(qw);
         //authUtil.delCacheLoginUser();
         return JsonResult.success();
     }

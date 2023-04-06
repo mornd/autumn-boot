@@ -34,17 +34,6 @@ public class MenuUtil {
             } else {
                 return compare;
             }
-            /*if(o1.getSort() < o2.getSort()){
-                return -1;
-            }else if(o1.getSort() > o2.getSort()){
-                return 1;
-            }else {
-                //如果两个比较的sort值相同，再比较id，如果也id相同，则过滤其中一个值
-                if(o1.getId().equals(o2.getId())) return 0;
-                //再根据id的hashCode排序
-                if(o1.getId().hashCode() < o2.getId().hashCode()) return -1;
-                else return 1;
-            }*/
         });
     }
 
@@ -60,7 +49,7 @@ public class MenuUtil {
         Set<SysPermission> result = generateTreeSet();
         for (SysPermission item : hashSet) {
             if (rootId.equals(item.getParentId())) {
-                result.add(findChildren(item, hashSet));
+                result.add(getChildren(item, hashSet));
             }
         }
         return result;
@@ -72,13 +61,13 @@ public class MenuUtil {
      * @param set
      * @return
      */
-    private static SysPermission findChildren(SysPermission permission, Set<SysPermission> set){
+    private static SysPermission getChildren(SysPermission permission, Set<SysPermission> set){
         set.forEach(item -> {
             if (permission.getId().equals(item.getParentId())) {
                 if (permission.getChildren() == null) {
                     permission.setChildren(generateTreeSet());
                 }
-                permission.getChildren().add(findChildren(item, set));
+                permission.getChildren().add(getChildren(item, set));
             }
         });
         return permission;
@@ -131,6 +120,5 @@ public class MenuUtil {
             }
         }
     }
-
 
 }
