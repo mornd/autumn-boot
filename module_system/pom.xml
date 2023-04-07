@@ -150,7 +150,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <!-- 指定主启动类 -->
-                    <mainClass>com.mornd.system.ModuleSystemApplication</mainClass>
+                    <mainClass>com.mornd.ModuleSystemApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

@@ -2,9 +2,9 @@ package com.mornd.system.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mornd.system.entity.AmqpMail;
-import com.mornd.system.entity.MailLog;
-import com.mornd.system.mapper.MailLogMapper;
+import com.mornd.mail.entity.AmqpMail;
+import com.mornd.mail.entity.MailLog;
+import com.mornd.mail.mapper.MailLogMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

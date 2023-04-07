@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mornd.system.process.mapper.ProcessTypeMapper">
-    <resultMap id="baseResultMap" type="com.mornd.system.process.entity.ProcessType">
+<mapper namespace="com.mornd.process.mapper.ProcessTypeMapper">
+    <resultMap id="baseResultMap" type="com.mornd.process.entity.ProcessType">
         <id property="id" column="id" />
         <result property="name" column="name" />
         <result property="description" column="description" />
@@ -13,8 +13,8 @@
         <result property="updateId" column="update_id" />
     </resultMap>
 
-    <resultMap id="processTemplateList" type="com.mornd.system.process.entity.ProcessType" extends="baseResultMap">
-        <collection property="processTemplateList" ofType="com.mornd.system.process.entity.ProcessTemplate">
+    <resultMap id="processTemplateList" type="com.mornd.process.entity.ProcessType" extends="baseResultMap">
+        <collection property="processTemplateList" ofType="com.mornd.process.entity.ProcessTemplate">
             <id property="id" column="b_id"/>
             <result property="name" column="b_name" />
             <result property="iconUrl" column="b_iconUrl" />
