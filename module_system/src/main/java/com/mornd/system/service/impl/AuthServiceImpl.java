@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
             return JsonResult.failure("验证码错误");
         }
 
-        //将密码重新赋新值，防止日志切面读取密码解密后的值
+        //将密码重新赋新值，避免日志切面读取密码解密后的值
         String inputPwd;
         if(loginUserDTO.getDesEncrypt() != null && loginUserDTO.getDesEncrypt()) {
             //密码解密

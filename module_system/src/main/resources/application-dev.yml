@@ -9,6 +9,10 @@ autumn:
   upload-storage: 1
   # 文件路径 示例（ Windows配置D:/autumn/uploadPath，Linux配置 /home/autumn/uploadPath）
   profile: 'D:/autumn/uploadPath'
+  #  前端地址
+  ui-base-url: 'http://localhost:9000'
+  #  oa 移动端地址
+  oa-ui-base-url: 'http://localhost:9002'
 
 server:
   port: 9001
@@ -272,7 +276,7 @@ otherLogin:
   gitee:
     clientId: 'xxx'
     secret: 'xxx'
-    uri: 'http://localhost:9000/giteeLoginCallback'
+    uri: '${autumn.ui-base-url}/giteeLoginCallback'
 
 aliyun:
   oss:
@@ -282,3 +286,9 @@ aliyun:
     accessKeySecret: 'xxx'
     # 桶名称
     bucketName: 'autumn-01'
+
+wechat:
+  mp-app-id: 'xxx'
+  mp-app-secret: 'xxx'
+    # 授权回调获取用户信息接口地址
+  user-info-url: xxx

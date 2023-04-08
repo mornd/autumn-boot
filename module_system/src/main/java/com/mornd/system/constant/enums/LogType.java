@@ -12,7 +12,10 @@ public enum LogType {
     DOWNLOAD(6, "下载"),
     UPLOAD(7, "上传"),
     CLEAR(8, "清空表"),
-    PUBLISH(9, "发布");
+    PUBLISH(9, "发布"),
+    APPROVE(10, "审批"),
+    SYNC(11, "同步"),
+    AUTHORIZATION(12, "授权");
 
     private LogType(Integer code, String type) {
         this.code = code;

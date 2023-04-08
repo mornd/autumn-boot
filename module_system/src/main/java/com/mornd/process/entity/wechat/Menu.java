@@ -6,6 +6,7 @@ import com.mornd.process.entity.ProcessBaseEntity;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class Menu extends ProcessBaseEntity {
      * 名称
      */
     @NotBlank(message = "名称不能为空")
+    @Size(max = 16, message = "名称过长")
     private String name;
 
     /**
@@ -42,6 +44,7 @@ public class Menu extends ProcessBaseEntity {
     /**
      * 菜单KEY值，用于消息接口推送
      */
+    @Size(max = 128, message = "菜单key过长")
     private String menuKey;
 
     /**

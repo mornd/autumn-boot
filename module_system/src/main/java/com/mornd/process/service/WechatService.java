@@ -2,6 +2,7 @@ package com.mornd.process.service;
 
 import com.mornd.process.entity.wechat.Menu;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -18,4 +19,10 @@ public interface WechatService {
     void deleteMenu(Long id);
 
     Menu getMenuById(Long id);
+
+    void syncMenu();
+
+    void deleteAllMenu();
+
+    String authorize(String backUrl);
 }

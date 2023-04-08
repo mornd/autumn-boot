@@ -74,7 +74,7 @@ public class ProcessController extends BaseController {
     }
 
     @PostMapping("/approve")
-    @LogStar(title = "开始审批", businessType = LogType.UPDATE)
+    @LogStar(title = "开始审批", businessType = LogType.APPROVE)
     public JsonResult approve(@RequestBody ApprovalVo vo) {
         if(vo.getStatus().equals(AGREE.getCode())
                 || vo.getStatus().equals(REJECT.getCode())) {

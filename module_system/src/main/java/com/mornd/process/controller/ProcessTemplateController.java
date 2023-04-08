@@ -34,7 +34,7 @@ import static com.mornd.process.constant.ProcessConst.PROCESS_PATH;
  */
 
 @Slf4j
-@Validated // @Valid 不生效
+@Validated // 使用 @Valid 不会生效
 @RestController
 @RequestMapping("/processTemplate")
 @RequiredArgsConstructor

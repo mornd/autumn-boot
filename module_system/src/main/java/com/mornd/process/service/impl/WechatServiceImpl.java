@@ -1,15 +1,27 @@
 package com.mornd.process.service.impl;
 
+import cn.hutool.core.collection.IterUtil;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.mornd.process.config.WechatAccountConfig;
 import com.mornd.process.entity.wechat.Menu;
 import com.mornd.process.service.WechatService;
 import com.mornd.process.mapper.wechat.MenuMapper;
+import com.mornd.system.config.AutumnConfig;
+import com.mornd.system.exception.AutumnException;
 import com.mornd.system.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.api.WxConsts;
+import me.chanjar.weixin.common.error.WxErrorException;
+import me.chanjar.weixin.mp.api.WxMpService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +31,16 @@ import java.util.List;
  * @dateTime: 2023/4/6 - 20:35
  */
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(rollbackFor = Exception.class)
 public class WechatServiceImpl implements WechatService {
 
     private final MenuMapper menuMapper;
+    private final WxMpService wxMpService;
+    private final AutumnConfig autumnConfig;
+    private final WechatAccountConfig accountConfig;
 
 
     /**
@@ -84,6 +100,75 @@ public class WechatServiceImpl implements WechatService {
             }
             menuMapper.deleteById(id);
         }
+    }
+
+    @Override
+    public void syncMenu() {
+        // 将菜单转为 wx 要求的格式
+        List<Menu> menus = this.getMenu();
+
+        JSONArray buttonList = new JSONArray();
+
+        for (Menu menu : menus) {
+            JSONObject one = new JSONObject();
+            one.put("name", menu.getName());
+            if(IterUtil.isEmpty(menu.getChildren())) {
+                one.put("type", menu.getType());
+                one.put("url", autumnConfig.getUiBaseUrl() + menu.getUrl());
+            } else {
+                JSONArray subButton = new JSONArray();
+                for (Menu child : menu.getChildren()) {
+                    JSONObject view = new JSONObject();
+                    view.put("name", child.getName());
+                    view.put("type", child.getType());
+
+                    if("view".equals(child.getType())) {
+                        // h5 页面地址
+                        view.put("url", "http://oa_atguigu.cn/#" + child.getUrl());
+                    } else {
+                        view.put("key", child.getMenuKey());
+                    }
+                    subButton.add(view);
+                }
+                one.put("sub_button", subButton);
+            }
+            buttonList.add(one);
+        }
+
+        JSONObject button = new JSONObject();
+        button.put("button", buttonList);
+
+        // 调用工具方法推送菜单
+        try {
+            String result = wxMpService.getMenuService().menuCreate(button.toString());
+            log.info("同步公众号菜单结果：{}", result);
+        } catch (WxErrorException e) {
+            throw new AutumnException("同步公众号菜单发生异常，" + e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteAllMenu() {
+        try {
+            wxMpService.getMenuService().menuDelete();
+        } catch (WxErrorException e) {
+            throw new AutumnException("删除公众号菜单发生异常，" + e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param backUrl 授权成功跳转的路径
+     * @return
+     */
+    @Override
+    public String authorize(String backUrl) {
+        String redirectUrl = wxMpService.getOAuth2Service()
+                        .buildAuthorizationUrl(accountConfig.getUserInfoUrl(),
+                                WxConsts.OAuth2Scope.SNSAPI_USERINFO,
+                                URLEncoder.encode(backUrl.replace("autumn", "#")));
+        log.info("【微信网页授权】获取code，redirectUrl：{}", redirectUrl);
+        return "redirect:" + redirectUrl;
     }
 
     /**

@@ -300,6 +300,8 @@ public class ProcessServiceImpl
                 process.setStatus(REJECT.getCode());
                 process.setDescription("审批完成(驳回)");
             }
+            // 将当前审批人置空
+            process.setCurrentAuditorId("");
         }
         super.updateById(process);
     }

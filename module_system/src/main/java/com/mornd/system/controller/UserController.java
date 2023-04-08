@@ -46,6 +46,7 @@ public class UserController {
     public JsonResult getUserInfo(){
         SysUser loginUser = SecurityUtil.getLoginUser();
         loginUser.setPassword(null);
+        loginUser.setOpenId(null);
         return JsonResult.successData(loginUser);
     }
 

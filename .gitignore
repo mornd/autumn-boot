@@ -22,6 +22,7 @@ test/
 
 ### add ###
 /test/
+/myfile
 application-prod.yml
 
 

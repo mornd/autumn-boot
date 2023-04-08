@@ -56,6 +56,9 @@ public class SysUser extends BaseEntity implements Serializable {
     @ApiModelProperty("手机号码")
     private String phone;
 
+    @ApiModelProperty("微信openId")
+    private String openId;
+
     @ApiModelProperty("账号状态 0：禁用，1：正常")
     private Integer status;
 
