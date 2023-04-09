@@ -106,7 +106,7 @@ public class OtherLoginServiceImpl implements OtherLoginService {
 
         AuthUser authUser = setGiteeSysUser(userData);
 
-        // Security 上下文手动设置登录用户
+        // Security 上下文手动设置登录用户，不然拦截器会有问题
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(authUser, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);

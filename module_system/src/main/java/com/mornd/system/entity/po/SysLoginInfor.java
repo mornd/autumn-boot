@@ -96,7 +96,9 @@ public class SysLoginInfor implements Serializable {
      */
     public enum Type {
         ACCOUNT(0, "账号"),
-        PHONE_MSG(1, "短信");
+        PHONE_MSG(1, "短信"),
+        GITEE(2, " gitee"),
+        WECHAT(3, "微信");
         @Getter
         private final Integer code;
         @Getter

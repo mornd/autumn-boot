@@ -108,7 +108,7 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
             put("tokenHead", tokenProperties.getTokenHead());
             put("token", token);
         }};
-        // 登录成功
+        // 记录登录日志
         AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(sysUser.getId(), sysUser.getLoginName(), SysLoginInfor.Type.PHONE_MSG, SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
         return JsonResult.success("登录成功", tokenMap);
     }

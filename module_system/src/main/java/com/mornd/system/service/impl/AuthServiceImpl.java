@@ -119,8 +119,6 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public String genericLogin(AuthUser authUser) {
-        // 生成 token
-        String token = tokenProvider.generateToken(authUser);
         if(tokenProperties.getSingleLogin()) {
             // 单用户登录，移除其它登录过的用户 key
             onlineUserService.kick(authUser.getSysUser().getId());
@@ -128,6 +126,9 @@ public class AuthServiceImpl implements AuthService {
 
         //  生成登录用户的 IP，操作系统等
         authUtil.generateLoginInfo(authUser);
+
+        // 生成 token
+        String token = tokenProvider.generateToken(authUser);
 
         // 将登录用户信息存入 redis 中
         redisUtil.setValue(authUtil.getLoginUserRedisKey(token),
