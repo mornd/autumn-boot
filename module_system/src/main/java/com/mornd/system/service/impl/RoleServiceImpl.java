@@ -7,10 +7,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mornd.system.constant.EntityConst;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.constant.enums.EnumHiddenType;
+import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
+import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.RoleWithPermission;
 import com.mornd.system.entity.po.temp.UserWithRole;
@@ -19,9 +22,9 @@ import com.mornd.system.entity.vo.SysRoleVO;
 import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.RoleMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
+import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
 import com.mornd.system.utils.AuthUtil;
-import com.mornd.system.utils.RedisUtil;
 import com.mornd.system.utils.SecurityUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -42,6 +46,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     private RoleWithPermissionMapper roleWithPermissionMapper;
     @Resource
     private UserWithRoleMapper userWithRoleMapper;
+    @Resource
+    private PermissionService permissionService;
     @Resource
     private AuthUtil authUtil;
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
@@ -69,14 +75,34 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      * 工具方法：获取当前用户的角色id集合
      * @return
      */
-    public List<String> getCurrentRoleIds() {
+    public Set<String> getCurrentRoleIds() {
         Set<SysRole> currentRoles = getCurrentRoles();
         if(!ObjectUtils.isEmpty(currentRoles)) {
-            List<String> ids = new ArrayList<>();
+            Set<String> ids = new HashSet<>();
             currentRoles.forEach(i -> ids.add(i.getId()));
             return ids;
         }
         return null;
+    }
+
+    /**
+     * 设置登录用户的角色、权限
+     * @param sysUser
+     */
+    @Override
+    public void setLoginUserPermissions(SysUser sysUser) {
+        Set<SysRole> roles = findByUserId(sysUser.getId());
+        if(!roles.isEmpty()) {
+            Set<String> cacheRoles =
+                    roles.stream().map(SysRole::getCode).collect(Collectors.toSet());
+            Set<SysPermission> pers =
+                    permissionService.getPersByRoleIds(roles.stream().map(SysRole::getId).collect(Collectors.toSet()), false, EntityConst.ENABLED);
+
+            // 添加角色集合
+            sysUser.setRoles(cacheRoles);
+            // 添加菜单权限集合
+            sysUser.setPermissions(pers.stream().map(SysPermission::getCode).filter(Objects::nonNull).collect(Collectors.toSet()));
+        }
     }
 
     /**

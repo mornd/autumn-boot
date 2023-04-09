@@ -7,8 +7,6 @@ import org.springframework.boot.web.servlet.context.ServletWebServerApplicationC
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import javax.annotation.Resource;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * @author mornd
@@ -43,19 +41,17 @@ public class AutumnConfig {
     private static String serverBaseUrl;
 
     /**
+     * 后端服务器ip
+     */
+    private String serverIp;
+
+    /**
      * 获取服务器的ip，端口和前缀
      * http://2.0.0.1:9001
      * @return
      */
     public String getServerBaseUrl() {
         if(serverBaseUrl == null) {
-            String ip = null;
-            try {
-                ip = InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e) {
-                ip = "localhost";
-            }
-
             WebServer webServer = applicationContext.getWebServer();
             int port = webServer.getPort();
             ConfigurableEnvironment environment = applicationContext.getEnvironment();
@@ -63,7 +59,7 @@ public class AutumnConfig {
             if (contextPath == null) {
                 contextPath = "";
             }
-            serverBaseUrl = String.format("http://%s:%s%s", ip, port, contextPath);
+            serverBaseUrl = String.format("http://%s:%s%s", serverIp, port, contextPath);
         }
         return serverBaseUrl;
     }

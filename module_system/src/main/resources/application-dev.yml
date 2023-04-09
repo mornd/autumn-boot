@@ -9,6 +9,8 @@ autumn:
   upload-storage: 1
   # 文件路径 示例（ Windows配置D:/autumn/uploadPath，Linux配置 /home/autumn/uploadPath）
   profile: 'D:/autumn/uploadPath'
+  # 后端服务器ip
+  server-ip: 'localhost'
   #  前端地址
   ui-base-url: 'http://localhost:9000'
   #  oa 移动端地址

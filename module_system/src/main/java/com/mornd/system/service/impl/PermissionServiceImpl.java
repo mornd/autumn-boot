@@ -22,7 +22,6 @@ import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.PermissionMapper;
 import com.mornd.system.service.PermissionService;
 import com.mornd.system.service.RoleService;
-import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.MenuUtil;
 import com.mornd.system.utils.SecurityUtil;
 import org.springframework.stereotype.Service;
@@ -47,25 +46,23 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
     private RoleService roleService;
     @Resource
     private RoleWithPermissionMapper roleWithPermissionMapper;
-    @Resource
-    private AuthUtil authUtil;
 
     private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
     private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
     /**
      * 根据角色id集合获取对应的权限集合(不包括按钮权限类型)
-     * @param ids 角色集合
+     * @param roleIds 角色id集合
      * @param excludeButton 是否排除按钮类型
      * @param enabledState 状态
      * @return
      */
     @Override
-    public Set<SysPermission> getPersByRoleIds(List<String> ids, boolean excludeButton, Integer enabledState) {
-        if(ObjectUtils.isEmpty(ids)) {
+    public Set<SysPermission> getPersByRoleIds(Set<String> roleIds, boolean excludeButton, Integer enabledState) {
+        if(ObjectUtils.isEmpty(roleIds)) {
             return null;
         }
-        return baseMapper.getPersByRoleIds(ids,
+        return baseMapper.getPersByRoleIds(roleIds,
                 enabledState,
                 excludeButton ? EnumMenuType.BUTTON.getCode() : null,
                 EnumHiddenType.DISPLAY.getCode());
@@ -89,7 +86,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper,SysPermi
             qw.eq(SysRole::getEnabled, EntityConst.ENABLED);
             List<SysRole> roles = roleService.list(qw);
             pers = this.getPersByRoleIds(roles.stream()
-                            .map(SysRole::getId).collect(Collectors.toList()),
+                            .map(SysRole::getId).collect(Collectors.toSet()),
                     true, null);
         }
 

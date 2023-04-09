@@ -2,6 +2,7 @@ package com.mornd.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mornd.system.entity.po.SysRole;
+import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysRoleVO;
 
@@ -17,7 +18,7 @@ public interface RoleService extends IService<SysRole> {
 
     Set<SysRole> getCurrentRoles();
 
-    List<String> getCurrentRoleIds();
+    Set<String> getCurrentRoleIds();
 
     JsonResult pageList(SysRoleVO role);
 
@@ -38,4 +39,6 @@ public interface RoleService extends IService<SysRole> {
     JsonResult changeStatus(String id, Integer state);
 
     List<SysRole> getAllRoles();
+
+    void setLoginUserPermissions(SysUser sysUser);
 }

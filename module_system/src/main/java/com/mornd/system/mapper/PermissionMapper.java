@@ -5,7 +5,6 @@ import com.mornd.system.entity.po.SysPermission;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -14,7 +13,7 @@ import java.util.Set;
  */
 @Mapper
 public interface PermissionMapper extends BaseMapper<SysPermission> {
-    Set<SysPermission> getPersByRoleIds(@Param("roles") List<String> currentRoleIds, @Param("enabledState") Integer enabledState, @Param("excludeMenuType") Integer excludeMenuType, @Param("hidden") Integer hidden);
+    Set<SysPermission> getPersByRoleIds(@Param("roles") Set<String> roleIds, @Param("enabledState") Integer enabledState, @Param("excludeMenuType") Integer excludeMenuType, @Param("hidden") Integer hidden);
 
     Set<SysPermission> findCatalogueAndMenu(@Param("catalogue") Integer catalogue, @Param("menu") Integer menu);
 

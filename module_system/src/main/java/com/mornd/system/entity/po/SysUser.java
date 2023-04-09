@@ -15,7 +15,6 @@ import lombok.EqualsAndHashCode;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -78,11 +77,11 @@ public class SysUser extends BaseEntity implements Serializable {
      * 角色集合
      */
     @TableField(exist = false)
-    Set<SysRole> roles = new HashSet<>();
+    Set<String> roles;
 
     /**
      * 菜单权限集合
      */
     @TableField(exist = false)
-    Set<SysPermission> permissions = new HashSet<>();
+    Set<String> permissions;
 }

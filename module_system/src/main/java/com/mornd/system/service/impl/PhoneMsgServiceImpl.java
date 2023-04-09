@@ -1,6 +1,5 @@
 package com.mornd.system.service.impl;
 
-import cn.hutool.core.collection.IterUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mornd.system.config.async.factory.AsyncFactory;
@@ -8,15 +7,12 @@ import com.mornd.system.config.async.manager.AsyncManager;
 import static com.mornd.system.constant.EntityConst.DISABLED;
 
 import com.mornd.system.config.security.components.TokenProperties;
-import com.mornd.system.constant.EntityConst;
 
 import static com.mornd.system.constant.RedisKey.FORGET_PWD_PHONE_MSG_CODE;
 import static com.mornd.system.constant.RedisKey.PHONE_MSG_CODE;
 
 import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.SysLoginInfor;
-import com.mornd.system.entity.po.SysPermission;
-import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.exception.BadRequestException;
@@ -55,9 +51,6 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
     private TokenProperties tokenProperties;
 
     @Resource
-    private PermissionService permissionService;
-
-    @Resource
     private RedisUtil redisUtil;
 
     @Resource
@@ -75,6 +68,10 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
      */
     @Override
     public void sendLoginPhoneMsgCode(final String phone) {
+//        SysUser sysUser = userService.getUserByPhone(phone);
+//        if(sysUser == null) {
+//            throw new BadRequestException("改手机号码不属于本系统");
+//        }
         final String code = generateRandomCode();
         aliyunPhoneMsgUtil.clientSendMsg(phone, code);
         redisUtil.setValue(PHONE_MSG_CODE + phone, code, AliyunPhoneMsgUtil.CODE_TIME_OUT, TimeUnit.MINUTES);
@@ -96,20 +93,12 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
         redisUtil.delete(PHONE_MSG_CODE + phone);
         SysUser sysUser = userService.getUserByPhone(phone);
         if(sysUser == null) {
-            throw new BadRequestException("手机号码不存在");
+            throw new BadRequestException("改手机号码不属于本系统");
         }
         if(DISABLED.equals(sysUser.getStatus())) {
             throw new BadRequestException("该账号已被禁用");
         }
-        //设置角色、权限
-        Set<SysRole> roles = roleService.findByUserId(sysUser.getId());
-        if(IterUtil.isNotEmpty(roles)) {
-            sysUser.setRoles(roles);
-            List<String> ids = new ArrayList<>();
-            roles.forEach(i -> ids.add(i.getId()));
-            Set<SysPermission> pers = permissionService.getPersByRoleIds(ids, false, EntityConst.ENABLED);
-            sysUser.setPermissions(pers);
-        }
+        roleService.setLoginUserPermissions(sysUser);
 
         AuthUser authUser = new AuthUser(sysUser);
         // 执行登录逻辑

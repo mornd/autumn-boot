@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -157,7 +156,7 @@ public class OtherLoginServiceImpl implements OtherLoginService {
         qw3.in(SysPermission::getId, rolePerms.stream().map(RoleWithPermission::getPerId).collect(Collectors.toList()));
         List<SysPermission> perms = permissionService.list(qw3);
 
-        sysUser.setPermissions(new HashSet<>(perms));
+        sysUser.setPermissions(perms.stream().map(SysPermission::getCode).collect(Collectors.toSet()));
         authUser.setSysUser(sysUser);
         return authUser;
     }

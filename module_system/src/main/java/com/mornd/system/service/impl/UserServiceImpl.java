@@ -138,8 +138,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      */
     @Override
     public JsonResult insert(SysUserVO userVO) {
-        if(this.queryLoginNameExists(userVO.getLoginName(), null)) throw new BadRequestException("登录名已重复");
-        if(queryPhoneExists(userVO.getPhone(), null)) throw new BadRequestException("手机号码已重复");
+        if(this.queryLoginNameExists(userVO.getLoginName(), null)) {
+            throw new BadRequestException("登录名已重复");
+        }
+        if(StringUtils.hasText(userVO.getPhone())
+            && queryPhoneExists(userVO.getPhone(), null)) {
+            throw new BadRequestException("手机号码已重复");
+        }
         SysUser sysUser = new SysUser();
         BeanUtils.copyProperties(userVO, sysUser);
         sysUser.setId(null);
@@ -232,8 +237,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      */
     @Override
     public JsonResult update(SysUserVO user) {
-        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) throw new BadRequestException("登录名已重复");
-        if(queryPhoneExists(user.getPhone(), user.getId())) throw new BadRequestException("手机号码已重复");
+        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) {
+            throw new BadRequestException("登录名已重复");
+        }
+        if(StringUtils.hasText(user.getPhone())
+            && queryPhoneExists(user.getPhone(), user.getId())) {
+            throw new BadRequestException("手机号码已重复");
+        }
         SysUser sysUser = new SysUser();
         BeanUtils.copyProperties(user, sysUser);
         sysUser.setStatus(null);
@@ -271,8 +281,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JsonResult userUpdate(SysUserVO user) {
-        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) throw new BadRequestException("登录名已重复");
-        if(queryPhoneExists(user.getPhone(), user.getId())) throw new BadRequestException("手机号码已重复");
+        if(this.queryLoginNameExists(user.getLoginName(), user.getId())) {
+            throw new BadRequestException("登录名已重复");
+        }
+        if(StringUtils.hasText(user.getPhone())
+                && queryPhoneExists(user.getPhone(), user.getId())) {
+            throw new BadRequestException("手机号码已重复");
+        }
         // 更新缓存中的用户
         String onlineUserKeyById = onlineUserService.getOnlineUserKeyById(user.getId());
         AuthUser principal = (AuthUser) SecurityUtil.getAuthentication().getPrincipal();

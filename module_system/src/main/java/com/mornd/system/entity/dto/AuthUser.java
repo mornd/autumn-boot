@@ -1,23 +1,18 @@
 package com.mornd.system.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mornd.system.constant.EntityConst;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.entity.po.SysUser;
-import com.mornd.system.utils.AuthorityDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -63,20 +58,18 @@ public class AuthUser implements UserDetails, Serializable {
     //@JsonDeserialize(using = AuthorityDeserializer.class)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // 获取角色的编码值，添加至权限集合 authorities 中
-        List<SimpleGrantedAuthority> roleAuthorities = sysUser.getRoles().stream()
-                .filter(r -> StringUtils.hasText(r.getCode()))
-                .map(r -> new SimpleGrantedAuthority(SecurityConst.ROLE_PREFIX + r.getCode()))
-                .collect(Collectors.toList());
-
-        // 获取菜单权限的编码值，添加至权限集合 authorities 中
-        List<SimpleGrantedAuthority> perAuthorities = sysUser.getPermissions().stream()
-                .filter(p -> StringUtils.hasText(p.getCode()))
-                .map(p -> new SimpleGrantedAuthority(p.getCode()))
-                .collect(Collectors.toList());
-
-        // 合并
-        roleAuthorities.addAll(perAuthorities);
-
+        List<SimpleGrantedAuthority> roleAuthorities = new ArrayList<>();
+        if(sysUser.getRoles() != null) {
+            // 添加角色的编码值，并添加前缀ROLE_
+            roleAuthorities.addAll(this.sysUser.getRoles().stream()
+                    .map(code -> new SimpleGrantedAuthority(SecurityConst.ROLE_PREFIX + code))
+                    .collect(Collectors.toList()));
+        }
+        if(sysUser.getPermissions() != null) {
+            // 添加菜单权限的编码值
+            roleAuthorities.addAll(this.sysUser.getPermissions().stream()
+                    .map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
+        }
         return roleAuthorities;
     }
 
