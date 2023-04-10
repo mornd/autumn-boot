@@ -1,14 +1,15 @@
 package com.mornd.system.utils;
 
 import com.mornd.system.config.security.components.TokenProperties;
-import com.mornd.system.config.security.components.TokenProvider;
 import com.mornd.system.constant.RedisKey;
 import com.mornd.system.entity.dto.AuthUser;
+import com.mornd.system.service.OnlineUserService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author mornd
@@ -17,13 +18,13 @@ import java.util.Date;
 @Component
 public class AuthUtil {
     @Resource
-    private TokenProvider tokenProvider;
-    @Resource
     private TokenProperties tokenProperties;
     @Resource
     private HttpServletRequest request;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private OnlineUserService onlineUserService;
 
     /**
      * 获取存储在 redis 中的当前登录用户信息 key
@@ -48,23 +49,30 @@ public class AuthUtil {
         return user;
     }
 
-    /**
-     * 清空当前缓存中保存的登录用户信息
-     */
-    public void delCacheLoginUser() {
-        String token = tokenProvider.searchToken(request);
-        redisUtil.delete(getLoginUserRedisKey(token));
+    public void deleteCacheUser() {
+        this.deleteCacheUser(SecurityUtil.getLoginUserId());
     }
 
     /**
-     * 更新缓存用户的信息
-     * @param key
+     * 根据id清空当前缓存中保存的登录用户信息
+     * @param id
+     */
+    public void deleteCacheUser(String id) {
+        onlineUserService.kick(id);
+    }
+
+    /**
+     *  根据用户id，更新缓存的用户信息
+     * @param id
      * @param principal
      */
-    public void updateAuthUser(String key, AuthUser principal) {
-        // 获取key还有多长时间过期
-        long expire = redisUtil.getExpire(key, tokenProperties.getExpirationTimeUnit());
-        // 更新key的值
-        redisUtil.setValue(key, principal, expire, tokenProperties.getExpirationTimeUnit());
+    public void updateCacheUser(String id, AuthUser principal) {
+        Set<String> keys = onlineUserService.getOnlineUserKeyById(id);
+        for (String key : keys) {
+            // 获取key还有多长时间过期
+            long expire = redisUtil.getExpire(key, tokenProperties.getExpirationTimeUnit());
+            // 更新key的值
+            redisUtil.setValue(key, principal, expire, tokenProperties.getExpirationTimeUnit());
+        }
     }
 }

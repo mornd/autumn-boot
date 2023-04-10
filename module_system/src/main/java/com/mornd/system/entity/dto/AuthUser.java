@@ -61,14 +61,15 @@ public class AuthUser implements UserDetails, Serializable {
         List<SimpleGrantedAuthority> roleAuthorities = new ArrayList<>();
         if(sysUser.getRoles() != null) {
             // 添加角色的编码值，并添加前缀ROLE_
-            roleAuthorities.addAll(this.sysUser.getRoles().stream()
-                    .map(code -> new SimpleGrantedAuthority(SecurityConst.ROLE_PREFIX + code))
-                    .collect(Collectors.toList()));
+            List<SimpleGrantedAuthority> roles = this.sysUser.getRoles().stream()
+                    .map(r -> new SimpleGrantedAuthority(SecurityConst.ROLE_PREFIX + r.getCode())).collect(Collectors.toList());
+            roleAuthorities.addAll(roles);
         }
         if(sysUser.getPermissions() != null) {
             // 添加菜单权限的编码值
-            roleAuthorities.addAll(this.sysUser.getPermissions().stream()
-                    .map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
+            List<SimpleGrantedAuthority> pers = this.sysUser.getPermissions().stream()
+                    .map(p -> new SimpleGrantedAuthority(p.getCode())).collect(Collectors.toList());
+            roleAuthorities.addAll(pers);
         }
         return roleAuthorities;
     }

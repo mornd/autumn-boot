@@ -6,6 +6,7 @@ package com.mornd.system.constant;
  * 返回的消息
  */
 public interface ResultMessage {
+    String CRUD_ROOT_USER = "系统根用户不可操作";
     String CRUD_SUPERADMIN = "超级管理员不可操作";
 
     String ACCOUNT_LOGIN_ERR = "账号或密码错误";

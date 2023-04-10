@@ -1,7 +1,10 @@
 package com.mornd.system.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.annotation.RepeatSubmit;
+import com.mornd.system.constant.ResultMessage;
+import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.dto.ChangePwdDTO;
 import com.mornd.system.entity.po.SysRole;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author mornd
@@ -61,7 +65,8 @@ public class UserController {
     @ApiOperation("修改密码")
     @PostMapping("/changePwd")
     public JsonResult changePwd(@RequestBody @Validated ChangePwdDTO pwd) {
-        return userService.changePwd(SecretUtil.desEncrypt(pwd.getOldPwd()), SecretUtil.desEncrypt(pwd.getNewPwd()));
+        userService.changePwd(SecretUtil.desEncrypt(pwd.getOldPwd()), SecretUtil.desEncrypt(pwd.getNewPwd()));
+        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     @PreAuthorize("hasAnyAuthority('system:user')") // any 代表拥有任意一个权限就可访问改接口
@@ -69,7 +74,8 @@ public class UserController {
     @ApiOperation("获取用户表格数据")
     @GetMapping
     public JsonResult pageList(@Validated(SelectValidGroup.class) SysUserVO user) {
-        return userService.pageList(user);
+        IPage<SysUserVO> page = userService.pageList(user);
+        return JsonResult.successData(page);
     }
 
     @PreAuthorize("hasAnyAuthority('system:user:add')")
@@ -78,7 +84,8 @@ public class UserController {
     @ApiOperation("新增")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysUserVO user) {
-        return userService.insert(user);
+        userService.insert(user);
+        return JsonResult.success("用户添加成功，密码为系统默认");
     }
 
     // hasAnyRole 用来判定有 ROLE_ 前缀的权限
@@ -88,7 +95,11 @@ public class UserController {
     @ApiOperation("修改")
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
-        return userService.update(user);
+//        if(SecurityConst.ROOT_USER_ID.equals(id)) {
+//            return JsonResult.failure(ResultMessage.CRUD_ROOT_USER);
+//        }
+        userService.update(user);
+        return JsonResult.success();
     }
 
     //@PreAuthorize("hasAnyAuthority('system:user:update')")
@@ -97,7 +108,8 @@ public class UserController {
     @ApiOperation("用户个人修改信息")
     @PutMapping("/userUpdate")
     public JsonResult userUpdate(@RequestBody @Validated(UpdateValidGroup.class) SysUserVO user) {
-        return userService.userUpdate(user);
+        userService.userUpdate(user);
+        return JsonResult.success();
     }
 
     @PreAuthorize("hasAnyAuthority('system:user:delete')")
@@ -105,7 +117,11 @@ public class UserController {
     @ApiOperation("删除")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id) {
-        return userService.delete(id);
+        if(SecurityConst.ROOT_USER_ID.equals(id)) {
+            return JsonResult.failure(ResultMessage.CRUD_ROOT_USER);
+        }
+        userService.delete(id);
+        return JsonResult.success();
     }
 
     @PreAuthorize("hasAnyAuthority('system:user:changeStatus')")
@@ -116,7 +132,11 @@ public class UserController {
                                         String id,
                                    @PathVariable(value = "state") @Range(min = 0, max = 1, message = "修改的状态值不正确")
                                         Integer state) {
-        return userService.changeStatus(id, state);
+        if(SecurityConst.ROOT_USER_ID.equals(id)) {
+            return JsonResult.failure(ResultMessage.CRUD_ROOT_USER);
+        }
+        userService.changeStatus(id, state);
+        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     @ApiOperation("查询登录名是否重复")
@@ -134,7 +154,8 @@ public class UserController {
     @ApiOperation("获取用户所拥有的角色id")
     @GetMapping("/getRoleById/{id}")
     public JsonResult getRoleById(@PathVariable String id) {
-        return userService.getRoleById(id);
+        Set<String> ids = userService.getRoleById(id);
+        return JsonResult.successData(ids);
     }
 
     @ApiOperation("用户授权角色时获取的所有角色集合(简单列)")

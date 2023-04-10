@@ -70,7 +70,7 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
     public void sendLoginPhoneMsgCode(final String phone) {
 //        SysUser sysUser = userService.getUserByPhone(phone);
 //        if(sysUser == null) {
-//            throw new BadRequestException("改手机号码不属于本系统");
+//            throw new BadRequestException("该手机号码不属于本系统");
 //        }
         final String code = generateRandomCode();
         aliyunPhoneMsgUtil.clientSendMsg(phone, code);
@@ -93,7 +93,7 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
         redisUtil.delete(PHONE_MSG_CODE + phone);
         SysUser sysUser = userService.getUserByPhone(phone);
         if(sysUser == null) {
-            throw new BadRequestException("改手机号码不属于本系统");
+            throw new BadRequestException("该手机号码不属于本系统");
         }
         if(DISABLED.equals(sysUser.getStatus())) {
             throw new BadRequestException("该账号已被禁用");
@@ -146,8 +146,9 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
         qw.eq(SysUser::getPhone, phone);
         qw.set(SysUser::getPassword, encode);
         userService.update(null, qw);
-        // 清除缓存
-        authUtil.delCacheLoginUser();
+        SysUser user = userService.getUserByPhone(phone);
+        // 清除缓存用户
+        authUtil.deleteCacheUser(user.getId());
         return true;
     }
 

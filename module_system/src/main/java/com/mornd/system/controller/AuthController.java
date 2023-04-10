@@ -55,7 +55,7 @@ public class AuthController {
      * @return
      */
     @Anonymous
-    @RateLimiter(time = 10, count = 5, limitType = LimitType.IP, message = "登录太过于频繁，请稍后重试")
+    @RateLimiter(time = 3600, count = 10, limitType = LimitType.IP, message = "登录太过于频繁，请稍后重试")
     @ApiOperation("用户登录")
     @PostMapping("/userLogin")
     public JsonResult userLogin(@RequestBody @Validated LoginUserDTO loginUserDTO){

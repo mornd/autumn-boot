@@ -11,6 +11,7 @@ import com.mornd.system.entity.dto.AuthUser;
 
 import com.mornd.system.config.security.components.TokenProperties;
 import com.mornd.system.entity.dto.OtherLoginUseDTO;
+import com.mornd.system.entity.dto.SessionAuthority;
 import com.mornd.system.entity.po.SysLoginInfor;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
@@ -114,7 +115,7 @@ public class OtherLoginServiceImpl implements OtherLoginService {
         String token = authService.genericLogin(authUser);
 
         // 记录登录日志
-        AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(null, authUser.getUsername(), SysLoginInfor.Type.ACCOUNT, SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
+        AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(null, authUser.getUsername(), SysLoginInfor.Type.GITEE, SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
 
         Map<String,Object> tokenMap = new HashMap<String, Object>(3) {{
             put("tokenHead", tokenProperties.getTokenHead());
@@ -155,8 +156,8 @@ public class OtherLoginServiceImpl implements OtherLoginService {
         qw3.eq(SysPermission::getEnabled, EntityConst.ENABLED);
         qw3.in(SysPermission::getId, rolePerms.stream().map(RoleWithPermission::getPerId).collect(Collectors.toList()));
         List<SysPermission> perms = permissionService.list(qw3);
-
-        sysUser.setPermissions(perms.stream().map(SysPermission::getCode).collect(Collectors.toSet()));
+        List<SessionAuthority> sessionPermissions = perms.stream().map(SessionAuthority::new).collect(Collectors.toList());
+        sysUser.setPermissions(sessionPermissions);
         authUser.setSysUser(sysUser);
         return authUser;
     }

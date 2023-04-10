@@ -5,7 +5,9 @@ package com.mornd.system.constant;
  * @dateTime 2021/11/8 - 10:55
  */
 public interface SecurityConst {
-    //springSecurity的URL白名单
+    /**
+     * springSecurity的URL白名单
+     */
     String[] NONE_SECURITY_URL_PATTERNS = {
             //图标
             "favicon.ico",
@@ -35,6 +37,11 @@ public interface SecurityConst {
 
     //系统角色前缀
     String ROLE_PREFIX = "ROLE_";
+
+    /**
+     * 系统根用户id
+     */
+    String ROOT_USER_ID = "1425004256210038785";
 
     //超级管理员id
     String SUPER_ADMIN_ID = "1425011630752735234";

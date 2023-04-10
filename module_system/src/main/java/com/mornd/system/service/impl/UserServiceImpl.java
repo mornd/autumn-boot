@@ -1,6 +1,5 @@
 package com.mornd.system.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -11,20 +10,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mornd.mail.entity.AmqpMail;
 import com.mornd.mail.constants.MailConstants;
 import com.mornd.system.config.AutumnConfig;
-import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.mail.entity.MailLog;
 import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.SysUser;
-import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.UserWithRole;
-import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysUserVO;
+import com.mornd.system.exception.AutumnException;
 import com.mornd.system.exception.BadRequestException;
 import com.mornd.mail.mapper.MailLogMapper;
 import com.mornd.system.mapper.UserMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
-import com.mornd.system.service.OnlineUserService;
 import com.mornd.system.service.UploadService;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.AuthUtil;
@@ -47,6 +43,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.mornd.system.entity.po.base.BaseEntity.EnableState.DISABLE;
+import static com.mornd.system.entity.po.base.BaseEntity.EnableState.ENABLE;
+
 /**
  * @author mornd
  * @dateTime 2021/8/10 - 15:56
@@ -61,8 +60,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     @Resource
     private AuthUtil authUtil;
     @Resource
-    private OnlineUserService onlineUserService;
-    @Resource
     private BCryptPasswordEncoder passwordEncoder;
     @Resource
     private UploadService uploadService;
@@ -70,11 +67,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     private AutumnConfig autumnConfig;
     @Resource
     private MailLogMapper mailLogMapper;
-
     @Resource
     private RabbitTemplate rabbitTemplate;
-    private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
-    private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
     /**
      * 验证当前密码
@@ -92,20 +86,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      * 修改密码
      * @param oldPwd
      * @param newPwd
-     * @return
      */
     @Override
-    public JsonResult changePwd(String oldPwd, String newPwd) {
+    public void changePwd(String oldPwd, String newPwd) {
         if(verifyCurrentPassword(oldPwd)) {
             SysUser user = new SysUser();
             user.setId(SecurityUtil.getLoginUserId());
             //加密新密码
             user.setPassword(passwordEncoder.encode(newPwd));
             baseMapper.updateById(user);
-            authUtil.delCacheLoginUser();
-            return JsonResult.success(ResultMessage.UPDATE_MSG);
+            authUtil.deleteCacheUser();
+        } else {
+            throw new AutumnException("原密码不匹配");
         }
-        return JsonResult.failure("原密码不匹配");
     }
 
     /**
@@ -114,10 +107,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      * @return
      */
     @Override
-    public JsonResult pageList(SysUserVO user) {
+    public IPage<SysUserVO> pageList(SysUserVO user) {
         IPage<SysUserVO> page = new Page<>(user.getPageNo(), user.getPageSize());
-        IPage<SysUserVO> userPage = baseMapper.pageList(page, user);
-        return JsonResult.successData(userPage);
+        baseMapper.pageList(page, user);
+        return page;
     }
 
     /**
@@ -134,10 +127,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     /**
      * 新增
      * @param userVO
-     * @return
      */
     @Override
-    public JsonResult insert(SysUserVO userVO) {
+    public void insert(SysUserVO userVO) {
         if(this.queryLoginNameExists(userVO.getLoginName(), null)) {
             throw new BadRequestException("登录名已重复");
         }
@@ -226,17 +218,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                     amqpMail,
                     correlationData);
         }
-
-        return JsonResult.success("用户添加成功，密码为系统默认");
     }
 
     /**
      * 管理员修改用户信息
      * @param user
-     * @return
      */
     @Override
-    public JsonResult update(SysUserVO user) {
+    public void update(SysUserVO user) {
         if(this.queryLoginNameExists(user.getLoginName(), user.getId())) {
             throw new BadRequestException("登录名已重复");
         }
@@ -264,23 +253,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 userWithRoleMapper.insert(uw);
             });
         }
-
-        if(SecurityUtil.getLoginUser().getId().equals(user.getId())) {
-            // todo
-            // 删除缓存信息
-            authUtil.delCacheLoginUser();
-        }
-        return JsonResult.success();
+        // 删除缓存信息
+        authUtil.deleteCacheUser(user.getId());
     }
 
     /**
      * 用户自己修改个人信息
      * @param user
-     * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public JsonResult userUpdate(SysUserVO user) {
+    public void userUpdate(SysUserVO user) {
         if(this.queryLoginNameExists(user.getLoginName(), user.getId())) {
             throw new BadRequestException("登录名已重复");
         }
@@ -288,8 +271,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 && queryPhoneExists(user.getPhone(), user.getId())) {
             throw new BadRequestException("手机号码已重复");
         }
-        // 更新缓存中的用户
-        String onlineUserKeyById = onlineUserService.getOnlineUserKeyById(user.getId());
         AuthUser principal = (AuthUser) SecurityUtil.getAuthentication().getPrincipal();
         SysUser cacheUser = principal.getSysUser();
         cacheUser.setLoginName(user.getLoginName());
@@ -297,7 +278,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         cacheUser.setGender(user.getGender());
         cacheUser.setPhone(user.getPhone());
         cacheUser.setEmail(user.getEmail());
-        authUtil.updateAuthUser(onlineUserKeyById, principal);
+        // 更新缓存中的用户
+        authUtil.updateCacheUser(user.getId(), principal);
 
         // 更新数据库
         SysUser sysUser = new SysUser();
@@ -307,8 +289,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         sysUser.setModifiedBy(SecurityUtil.getLoginUserId());
         sysUser.setGmtModified(new Date());
         baseMapper.updateById(sysUser);
-        authUtil.delCacheLoginUser();
-        return JsonResult.success("修改成功，需重新登录");
     }
 
     /**
@@ -327,10 +307,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     /**
      * 删除
      * @param id
-     * @return
      */
     @Override
-    public JsonResult delete(String id) {
+    public void delete(String id) {
         //删除关系表数据
         LambdaQueryWrapper<UserWithRole> qw = Wrappers.lambdaQuery();
         qw.eq(UserWithRole::getUserId, id);
@@ -342,34 +321,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         SysUser sysUser = baseMapper.selectOne(qw2);
         //执行删除
         baseMapper.deleteById(id);
-        if(SecurityUtil.getLoginUserId().equals(id)) {
-            authUtil.delCacheLoginUser();
-        }
         // 删除头像
         uploadService.deleteAvatar(sysUser.getAvatar());
-        return JsonResult.success();
+        // 删除缓存中的用户
+        authUtil.deleteCacheUser(id);
     }
 
     /**
      * 修改启用状态
      * @param id
      * @param state
-     * @return
      */
     @Override
-    public JsonResult changeStatus(String id, Integer state) {
+    public void changeStatus(String id, Integer state) {
         //参数校验
-        if(!enabled.equals(state) && !disabled.equals(state)) {
-            return JsonResult.failure("修改的状态值不正确");
+        if(!ENABLE.getCode().equals(state) && !DISABLE.getCode().equals(state)) {
+            throw new AutumnException("修改的状态值不正确");
         }
         LambdaUpdateWrapper<SysUser> uw = Wrappers.lambdaUpdate();
         uw.set(SysUser::getStatus, state);
         uw.eq(SysUser::getId, id);
         baseMapper.update(null, uw);
-        if(SecurityUtil.getLoginUserId().equals(id)) {
-            authUtil.delCacheLoginUser();
-        }
-        return JsonResult.success(ResultMessage.UPDATE_MSG);
+        // 删除缓存用户
+        authUtil.deleteCacheUser(id);
     }
 
     /**
@@ -382,7 +356,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     public boolean queryLoginNameExists(String name, String id) {
         LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery();
         qw.eq(SysUser::getLoginName, name);
-        if(StrUtil.isNotBlank(id)) {
+        if(StringUtils.hasText(id)) {
             qw.ne(SysUser::getId, id);
         }
         int count = baseMapper.selectCount(qw);
@@ -390,9 +364,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     }
 
     @Override
-    public JsonResult getRoleById(String id) {
+    public Set<String> getRoleById(String id) {
         Set<String> ids = baseMapper.getRoleById(id);
-        return JsonResult.successData(ids);
+        return ids;
     }
 
     @Override
@@ -412,7 +386,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     public boolean queryPhoneExists(String phone, String id) {
         LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery(SysUser.class);
         qw.eq(SysUser::getPhone, phone);
-        qw.ne(StrUtil.isNotBlank(id), SysUser::getId, id);
+        qw.ne(StringUtils.hasText(id), SysUser::getId, id);
         int count = baseMapper.selectCount(qw);
         return count > 0;
     }

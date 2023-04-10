@@ -19,6 +19,7 @@ import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.SysLoginInfor;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.exception.AutumnException;
+import com.mornd.system.exception.BadRequestException;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.SecurityUtil;
@@ -36,6 +37,8 @@ import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.mornd.system.constant.EntityConst.DISABLED;
 
 /**
  * @author: mornd
@@ -156,7 +159,7 @@ public class WechatServiceImpl implements WechatService {
             String result = wxMpService.getMenuService().menuCreate(button.toString());
             log.info("同步公众号菜单结果：{}", result);
         } catch (WxErrorException e) {
-            throw new AutumnException("同步公众号菜单发生异常，" + e.getMessage());
+            throw new AutumnException("同步公众号菜单发生异常：" + e.getMessage());
         }
     }
 
@@ -234,6 +237,9 @@ public class WechatServiceImpl implements WechatService {
         qw.eq(SysUser::getPhone, vo.getPhone());
         SysUser sysUser = userService.getOne(qw);
         if(sysUser != null) {
+            if(DISABLED.equals(sysUser.getStatus())) {
+                throw new BadRequestException("该账号已被禁用");
+            }
             LambdaUpdateWrapper<SysUser> uw = Wrappers.lambdaUpdate(SysUser.class);
             uw.set(SysUser::getOpenId, vo.getOpenId());
             uw.eq(SysUser::getId, sysUser.getId());

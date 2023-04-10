@@ -98,23 +98,29 @@ public class OnlineUserServiceImpl implements OnlineUserService {
      */
     @Override
     public boolean kick(String id) {
-        String key = getOnlineUserKeyById(id);
-        return key != null && redisUtil.delete(key);
+        Set<String> keys = getOnlineUserKeyById(id);
+        if(!keys.isEmpty()) {
+            for (String key : keys) {
+                redisUtil.delete(key);
+            }
+        }
+        return true;
     }
 
-    public String getOnlineUserKeyById(String id) {
+    public Set<String> getOnlineUserKeyById(String id) {
+        Set<String> onlineKeys = new HashSet<>();
         if(StringUtils.hasText(id)) {
             Set<String> keys = redisUtil.keys(RedisKey.ONLINE_USER_KEY + "*");
             for (String key : keys) {
                 try {
                     AuthUser authUser = (AuthUser) redisUtil.getValue(key);
                     if(id.equals(authUser.getSysUser().getId())) {
-                        return key;
+                        onlineKeys.add(key);
                     }
                 } catch (Exception e) {
                 }
             }
         }
-        return null;
+        return onlineKeys;
     }
 }

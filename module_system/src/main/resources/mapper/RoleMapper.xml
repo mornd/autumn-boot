@@ -34,7 +34,7 @@
             id,
             code,
             `name`,
-            enabled
+            sort
         FROM
             sys_role sr
         WHERE
@@ -47,8 +47,9 @@
         WHERE
             user_id = #{userId}
         )
+        ORDER BY sort
     </select>
-    
+
     <select id="getPersById" resultType="java.lang.String">
         SELECT
             srp.per_id
@@ -64,18 +65,5 @@
             WHERE
                 sp.id = srp.per_id
                 AND sp.hidden = #{hidden}) > 0
-    </select>
-    
-    <select id="getAllRoles" resultType="com.mornd.system.entity.po.SysRole">
-        SELECT
-            id,
-            code,
-            name,
-            enabled,
-            sort
-        FROM
-            sys_role
-        ORDER BY
-            sort  
     </select>
 </mapper>

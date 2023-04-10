@@ -1,6 +1,5 @@
 package com.mornd.system.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -11,14 +10,14 @@ import com.mornd.system.constant.EntityConst;
 import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.SecurityConst;
 import com.mornd.system.constant.enums.EnumHiddenType;
+import com.mornd.system.entity.dto.SessionAuthority;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
 import com.mornd.system.entity.po.SysUser;
-import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.entity.po.temp.RoleWithPermission;
 import com.mornd.system.entity.po.temp.UserWithRole;
-import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.entity.vo.SysRoleVO;
+import com.mornd.system.exception.AutumnException;
 import com.mornd.system.mapper.RoleWithPermissionMapper;
 import com.mornd.system.mapper.RoleMapper;
 import com.mornd.system.mapper.UserWithRoleMapper;
@@ -29,10 +28,14 @@ import com.mornd.system.utils.SecurityUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.mornd.system.entity.po.base.BaseEntity.EnableState.DISABLE;
+import static com.mornd.system.entity.po.base.BaseEntity.EnableState.ENABLE;
 
 
 /**
@@ -50,8 +53,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     private PermissionService permissionService;
     @Resource
     private AuthUtil authUtil;
-    private Integer enabled = BaseEntity.EnableState.ENABLE.getCode();
-    private Integer disabled = BaseEntity.EnableState.DISABLE.getCode();
 
     /**
      * 根据用户id查询其对应的角色信息
@@ -59,15 +60,15 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      * @return
      */
     @Override
-    public Set<SysRole> findByUserId(String userId) {
-        return baseMapper.findByUserId(userId, enabled);
+    public List<SysRole> findByUserId(String userId) {
+        return baseMapper.findByUserId(userId, ENABLE.getCode());
     }
 
     /**
      * 工具方法：获取当前用户的所有可用权限
      * @return
      */
-    public Set<SysRole> getCurrentRoles() {
+    public List<SysRole> getCurrentRoles() {
         return findByUserId(SecurityUtil.getLoginUserId());
     }
 
@@ -75,14 +76,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      * 工具方法：获取当前用户的角色id集合
      * @return
      */
-    public Set<String> getCurrentRoleIds() {
-        Set<SysRole> currentRoles = getCurrentRoles();
-        if(!ObjectUtils.isEmpty(currentRoles)) {
-            Set<String> ids = new HashSet<>();
-            currentRoles.forEach(i -> ids.add(i.getId()));
-            return ids;
-        }
-        return null;
+    public List<String> getCurrentRoleIds() {
+        List<SysRole> currentRoles = getCurrentRoles();
+        return currentRoles.stream().map(SysRole::getId).collect(Collectors.toList());
     }
 
     /**
@@ -91,17 +87,20 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      */
     @Override
     public void setLoginUserPermissions(SysUser sysUser) {
-        Set<SysRole> roles = findByUserId(sysUser.getId());
+        List<SysRole> roles = findByUserId(sysUser.getId());
         if(!roles.isEmpty()) {
-            Set<String> cacheRoles =
-                    roles.stream().map(SysRole::getCode).collect(Collectors.toSet());
-            Set<SysPermission> pers =
-                    permissionService.getPersByRoleIds(roles.stream().map(SysRole::getId).collect(Collectors.toSet()), false, EntityConst.ENABLED);
+            List<SessionAuthority> sessionRoles = roles.stream()
+                            .map(SessionAuthority::new).collect(Collectors.toList());
+
+            Set<SysPermission> pers = permissionService.getPersByRoleIds(roles.stream()
+                            .map(SysRole::getId).collect(Collectors.toList()), false, EntityConst.ENABLED);
 
             // 添加角色集合
-            sysUser.setRoles(cacheRoles);
+            sysUser.setRoles(sessionRoles);
             // 添加菜单权限集合
-            sysUser.setPermissions(pers.stream().map(SysPermission::getCode).filter(Objects::nonNull).collect(Collectors.toSet()));
+            sysUser.setPermissions(pers.stream()
+                            .map(SessionAuthority::new)
+                            .filter(p -> StringUtils.hasText(p.getCode())).collect(Collectors.toList()));
         }
     }
 
@@ -111,62 +110,67 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      * @return
      */
     @Override
-    public JsonResult pageList(SysRoleVO role) {
+    public IPage<SysRole> pageList(SysRoleVO role) {
         IPage<SysRole> page = new Page<>(role.getPageNo(),role.getPageSize());
         LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery();
         //筛选条件
-        qw.like(StrUtil.isNotBlank(role.getName()), SysRole::getName, role.getName());
-        qw.like(StrUtil.isNotBlank(role.getCode()), SysRole::getCode, role.getCode());
-        qw.eq(!ObjectUtils.isEmpty(role.getEnabled()), SysRole::getEnabled, role.getEnabled());
+        qw.like(StringUtils.hasText(role.getName()), SysRole::getName, role.getName());
+        qw.like(StringUtils.hasText(role.getCode()), SysRole::getCode, role.getCode());
+        qw.eq(role.getEnabled() != null, SysRole::getEnabled, role.getEnabled());
         //排序
         qw.orderByAsc(SysRole::getSort, SysRole::getGmtCreate);
-        IPage<SysRole> pageResult = baseMapper.selectPage(page, qw);
-        return JsonResult.successData(pageResult);
+        baseMapper.selectPage(page, qw);
+        return page;
     }
 
     /**
      * 新增
      * @param role
-     * @return
      */
     @Override
-    public JsonResult insert(SysRole role) {
-        if(queryNameExists(role.getName(), null)) return JsonResult.failure("名称已重复");
-        if(queryCodeExists(role.getCode(), null)) return JsonResult.failure("编码已重复");
+    public void insert(SysRole role) {
+        if(queryNameExists(role.getName(), null)) {
+            throw new AutumnException("名称已重复");
+        }
+        if(queryCodeExists(role.getCode(), null)) {
+            throw new AutumnException("编码已重复");
+        }
         role.setId(null);
         role.setCreateBy(SecurityUtil.getLoginUserId());
         role.setGmtCreate(new Date());
         baseMapper.insert(role);
-        return JsonResult.success();
     }
 
     /**
      * 更新
      * @param role
-     * @return
      */
     @Override
-    public JsonResult update(SysRole role) {
-        if(SecurityConst.SUPER_ADMIN_ID.equals(role.getId())) return JsonResult.failure(ResultMessage.CRUD_SUPERADMIN);
-        if(queryNameExists(role.getName(), role.getId())) return JsonResult.failure("名称已重复");
-        if(queryCodeExists(role.getCode(), role.getId())) return JsonResult.failure("编码已重复");
+    public void update(SysRole role) {
+        if(SecurityConst.SUPER_ADMIN_ID.equals(role.getId())) {
+            throw new AutumnException(ResultMessage.CRUD_SUPERADMIN);
+        }
+        if(queryNameExists(role.getName(), role.getId())) {
+            throw new AutumnException("名称已重复");
+        }
+        if(queryCodeExists(role.getCode(), role.getId())) {
+            throw new AutumnException("编码已重复");
+        }
         role.setModifiedBy(SecurityUtil.getLoginUserId());
         role.setEnabled(null);
         role.setGmtModified(new Date());
         baseMapper.updateById(role);
         //authUtil.delCacheLoginUser();
-        return JsonResult.success();
     }
 
     /**
      * 删除
      * @param id
-     * @return
      */
     @Override
-    public JsonResult delete(String id) {
+    public void delete(String id) {
         if(SecurityConst.SUPER_ADMIN_ID.equals(id)) {
-            return JsonResult.failure(ResultMessage.CRUD_SUPERADMIN);
+            throw new AutumnException(ResultMessage.CRUD_SUPERADMIN);
         }
         //解除其他关联关系
         this.deleteUserAssociated(id);
@@ -176,7 +180,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
         userWithRoleMapper.deleteById(id);
         roleWithPermissionMapper.deleteById(id);
         //authUtil.delCacheLoginUser();
-        return JsonResult.success();
     }
 
     /**
@@ -185,21 +188,20 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      * @return
      */
     @Override
-    public JsonResult getPersById(String id) {
+    public Set<String> getPersById(String id) {
         Set<String> perIds = baseMapper.getPersById(id, EnumHiddenType.DISPLAY.getCode());
-        return JsonResult.successData(perIds);
+        return perIds;
     }
 
     /**
      * 角色绑定权限
      * @param id
      * @param perIds
-     * @return
      */
     @Override
-    public JsonResult bindPersById(String id, Set<String> perIds) {
+    public void bindPersById(String id, Set<String> perIds) {
         if(SecurityConst.SUPER_ADMIN_ID.equals(id)) {
-            return JsonResult.failure(ResultMessage.CRUD_SUPERADMIN);
+            throw new AutumnException(ResultMessage.CRUD_SUPERADMIN);
         }
         //先删除所有关联的数据
         this.deletePerAssociated(id);
@@ -214,7 +216,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
             }
         }
         //authUtil.delCacheLoginUser();
-        return JsonResult.success();
     }
 
     /**
@@ -247,7 +248,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     public boolean queryNameExists(String name, String id) {
         LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery();
         qw.eq(SysRole::getName, name);
-        if(StrUtil.isNotBlank(id)) {
+        if(StringUtils.hasText(id)) {
             qw.ne(SysRole::getId, id);
         }
         Integer count = baseMapper.selectCount(qw);
@@ -264,7 +265,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
     public boolean queryCodeExists(String code, String id) {
         LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery();
         qw.eq(SysRole::getCode, code);
-        if(StrUtil.isNotBlank(id)) {
+        if(StringUtils.hasText(id)) {
             qw.ne(SysRole::getId, id);
         }
         Integer count = baseMapper.selectCount(qw);
@@ -275,22 +276,20 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      * 修改状态值
      * @param id
      * @param state
-     * @return
      */
     @Override
-    public JsonResult changeStatus(String id, Integer state) {
-        //参数校验
-        if(!enabled.equals(state) && !disabled.equals(state)) {
-            return JsonResult.failure("修改的状态值不正确");
-        }
+    public void changeStatus(String id, Integer state) {
         if(SecurityConst.SUPER_ADMIN_ID.equals(id)) {
-            return JsonResult.failure(ResultMessage.CRUD_SUPERADMIN);
+            throw new AutumnException(ResultMessage.CRUD_SUPERADMIN);
+        }
+        //参数校验
+        if(!ENABLE.getCode().equals(state) && !DISABLE.getCode().equals(state)) {
+            throw new AutumnException("修改的状态值不正确");
         }
         LambdaUpdateWrapper<SysRole> uw = Wrappers.lambdaUpdate();
         uw.set(SysRole::getEnabled, state);
         uw.eq(SysRole::getId, id);
         baseMapper.update(null, uw);
-        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     /**
@@ -299,6 +298,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, SysRole> implements
      */
     @Override
     public List<SysRole> getAllRoles() {
-        return baseMapper.getAllRoles();
+        LambdaQueryWrapper<SysRole> qw = Wrappers.lambdaQuery(SysRole.class);
+        qw.select(SysRole::getId, SysRole::getName, SysRole::getEnabled, SysRole::getSort);
+        qw.orderByAsc(SysRole::getSort);
+        return baseMapper.selectList(qw);
     }
 }

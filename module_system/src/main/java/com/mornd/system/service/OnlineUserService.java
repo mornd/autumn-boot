@@ -5,6 +5,7 @@ import com.mornd.system.entity.po.OnlineUser;
 import com.mornd.system.entity.result.JsonResult;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author mornd
@@ -19,5 +20,5 @@ public interface OnlineUserService {
 
     boolean kick(String id);
 
-    String getOnlineUserKeyById(String id);
+    Set<String> getOnlineUserKeyById(String id);
 }

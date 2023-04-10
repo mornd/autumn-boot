@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.mornd.system.constant.enums.LoginUserSource;
+import com.mornd.system.entity.dto.SessionAuthority;
 import com.mornd.system.entity.po.base.BaseEntity;
 import com.mornd.system.validation.UpdateValidGroup;
 import io.swagger.annotations.ApiModel;
@@ -15,7 +16,7 @@ import lombok.EqualsAndHashCode;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author mornd
@@ -77,11 +78,11 @@ public class SysUser extends BaseEntity implements Serializable {
      * 角色集合
      */
     @TableField(exist = false)
-    Set<String> roles;
+    List<SessionAuthority> roles;
 
     /**
      * 菜单权限集合
      */
     @TableField(exist = false)
-    Set<String> permissions;
+    List<SessionAuthority> permissions;
 }

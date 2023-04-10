@@ -9,7 +9,6 @@ import com.mornd.system.constant.enums.UploadStorageType;
 import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.exception.BadRequestException;
-import com.mornd.system.service.OnlineUserService;
 import com.mornd.system.service.UploadService;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.*;
@@ -34,8 +33,6 @@ public class UploadServiceImpl implements UploadService {
     private UserService userService;
     @Resource
     private AutumnConfig autumnConfig;
-    @Resource
-    private OnlineUserService onlineUserService;
     @Resource
     private AuthUtil authUtil;
 
@@ -80,13 +77,10 @@ public class UploadServiceImpl implements UploadService {
         // 删除之前的头像
         this.deleteAvatar(user.getAvatar());
 
-        if(id.equals(SecurityUtil.getLoginUserId())) {
-            // 更新缓存中的用户信息
-            String key =  onlineUserService.getOnlineUserKeyById(id);
-            AuthUser principal = (AuthUser) SecurityUtil.getAuthentication().getPrincipal();
-            principal.getSysUser().setAvatar(url);
-            authUtil.updateAuthUser(key, principal);
-        }
+        AuthUser principal = (AuthUser) SecurityUtil.getAuthentication().getPrincipal();
+        principal.getSysUser().setAvatar(url);
+        // 更新缓存中的用户信息
+        authUtil.updateCacheUser(id, principal);
 
         // 更新数据库
         user.setAvatar(url);

@@ -1,8 +1,10 @@
 package com.mornd.system.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.GlobalConst;
+import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.po.SysRole;
@@ -44,7 +46,8 @@ public class RoleController {
     @ApiOperation("分页查询")
     @GetMapping
     public JsonResult pageList(SysRoleVO role) {
-        return roleService.pageList(role);
+        IPage<SysRole> page = roleService.pageList(role);
+        return JsonResult.successData(page);
     }
 
     @ApiOperation("查询名称是否重复")
@@ -65,7 +68,8 @@ public class RoleController {
     @ApiOperation("添加角色")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysRole role) {
-        return roleService.insert(role);
+        roleService.insert(role);
+        return JsonResult.success();
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:update')")
@@ -74,7 +78,8 @@ public class RoleController {
     @ApiOperation("修改角色")
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysRole role) {
-        return roleService.update(role);
+        roleService.update(role);
+        return JsonResult.success();
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:delete')")
@@ -82,7 +87,8 @@ public class RoleController {
     @ApiOperation("删除角色")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id) {
-        return roleService.delete(id);
+        roleService.delete(id);
+        return JsonResult.success();
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:update')")
@@ -93,7 +99,8 @@ public class RoleController {
                                         String id,
                                    @PathVariable(value = "state") @Range(min = 0, max = 1, message = "修改的状态值不正确")
                                         Integer state) {
-        return roleService.changeStatus(id, state);
+        roleService.changeStatus(id, state);
+        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     @ApiOperation("查询所有权限")
@@ -107,7 +114,8 @@ public class RoleController {
     @ApiOperation("根据角色id查询所属的权限")
     @GetMapping("/getPersById/{id}")
     public JsonResult getPersById(@PathVariable String id) {
-        return roleService.getPersById(id);
+        Set<String> persById = roleService.getPersById(id);
+        return JsonResult.successData(persById);
     }
 
     @PreAuthorize("hasAnyAuthority('system:role:update')")
@@ -115,6 +123,7 @@ public class RoleController {
     @ApiOperation("绑定角色对应的权限")
     @PutMapping("/bindPersById")
     public JsonResult bindPersById(@RequestBody @Validated(BindValidGroup.class) SysRoleVO role) {
-        return roleService.bindPersById(role.getId(), role.getPerIds());
+        roleService.bindPersById(role.getId(), role.getPerIds());
+        return JsonResult.success();
     }
 }

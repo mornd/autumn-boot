@@ -3,6 +3,7 @@ package com.mornd.system.controller;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.GlobalConst;
+import com.mornd.system.constant.ResultMessage;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.entity.po.SysPermission;
 import com.mornd.system.entity.result.JsonResult;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author mornd
@@ -51,19 +53,22 @@ public class PermissionController {
     @ApiOperation("根据条件筛选菜单数据")
     @GetMapping("/filterTableTree")
     public JsonResult filterTableTree(SysPermission sysPermission) {
-        return permissionService.filterTableTree(sysPermission);
+        Set<SysPermission> sysPermissions = permissionService.filterTableTree(sysPermission);
+        return JsonResult.successData(sysPermissions);
     }
 
     @ApiOperation("查询目录和菜单集合")
     @GetMapping("/getCatalogueAndMenu")
     public JsonResult getCatalogueAndMenu() {
-        return permissionService.getCatalogueAndMenu();
+        Set<SysPermission> catalogueAndMenu = permissionService.getCatalogueAndMenu();
+        return JsonResult.successData(catalogueAndMenu);
     }
 
     @ApiOperation("查询目录集合")
     @GetMapping("/getCatalogues")
     public JsonResult findCatalogues() {
-        return permissionService.getCatalogues();
+        Set<SysPermission> catalogues = permissionService.getCatalogues();
+        return JsonResult.successData(catalogues);
     }
 
     @ApiOperation("查询标题是否重复")
@@ -92,7 +97,8 @@ public class PermissionController {
                                         String id,
                                    @PathVariable(value = "state") @Range(min = 0, max = 1, message = "修改的状态值不正确")
                                         Integer state) {
-        return permissionService.changeStatus(id, state);
+        permissionService.changeStatus(id, state);
+        return JsonResult.success(ResultMessage.UPDATE_MSG);
     }
 
     @PreAuthorize("hasAnyAuthority('system:menu:add')")
@@ -101,7 +107,8 @@ public class PermissionController {
     @ApiOperation("新增菜单")
     @PostMapping
     public JsonResult insert(@RequestBody @Validated SysPermission sysPermission) {
-        return permissionService.insert(sysPermission);
+        permissionService.insert(sysPermission);
+        return JsonResult.success();
     }
 
     @PreAuthorize("hasAnyAuthority('system:menu:update')")
@@ -110,7 +117,8 @@ public class PermissionController {
     @ApiOperation("编辑菜单")
     @PutMapping
     public JsonResult update(@RequestBody @Validated(UpdateValidGroup.class) SysPermission sysPermission) {
-        return permissionService.update(sysPermission);
+        permissionService.update(sysPermission);
+        return JsonResult.success();
     }
 
     @PreAuthorize("hasAnyAuthority('system:menu:delete')")
@@ -118,6 +126,7 @@ public class PermissionController {
     @ApiOperation("删除菜单")
     @DeleteMapping("/{id}")
     public JsonResult delete(@PathVariable String id){
-        return permissionService.delete(id);
+        permissionService.delete(id);
+        return JsonResult.success();
     }
 }
