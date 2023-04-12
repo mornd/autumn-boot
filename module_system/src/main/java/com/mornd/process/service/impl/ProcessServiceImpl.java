@@ -13,6 +13,7 @@ import com.mornd.process.entity.vo.ProcessVo;
 import com.mornd.process.mapper.ProcessMapper;
 import com.mornd.process.service.ProcessService;
 import com.mornd.process.service.ProcessTemplateService;
+import com.mornd.process.service.WechatMessageService;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.exception.AutumnException;
 import com.mornd.process.constant.ProcessConst;
@@ -81,6 +82,7 @@ public class ProcessServiceImpl
     private final UserService userService;
 
     private final ProcessRecordService processRecordService;
+    private final WechatMessageService wechatMessageService;
 
     @Override
     public IPage<ProcessVo> pageList(ProcessVo vo) {
@@ -211,11 +213,12 @@ public class ProcessServiceImpl
             qw.select(SysUser::getId, SysUser::getRealName, SysUser::getPhone);
             SysUser sysUser = userService.getOne(qw);
             if(sysUser != null) {
-                auditIds.append(sysUser.getId() + ",");
-                auditNames.append(sysUser.getRealName() + ",");
+                auditIds.append(sysUser.getId()).append(",");
+                auditNames.append(sysUser.getRealName()).append(",");
             }
 
             //todo 消息推送
+            wechatMessageService.pushPendingMessage(process.getId(), sysUser.getId(), task.getId());
         }
 
         // 更新 process 表
@@ -284,7 +287,9 @@ public class ProcessServiceImpl
                     auditIds.append(sysUser.getId() + ",");
                     auditNames.append(sysUser.getRealName() + ",");
                 }
+
                 //todo 消息推送
+                wechatMessageService.pushProcessedMessage(process.getId(), process.getUserId(), desc);
             }
 
             if(auditIds.length() > 0) {
