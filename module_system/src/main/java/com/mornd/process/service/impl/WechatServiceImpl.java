@@ -32,6 +32,7 @@ import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
@@ -80,6 +81,8 @@ public class WechatServiceImpl implements WechatService {
     public void insertMenu(Menu menu) {
         if(menu.getParentId() == null) {
             menu.setParentId(0L);
+        } else if(!StringUtils.hasText(menu.getType())) {
+            throw new AutumnException("菜单类型不能为空");
         }
         menu.setCreateId(SecurityUtil.getLoginUserId());
         menu.setCreateTime(LocalDateTime.now());
@@ -130,7 +133,7 @@ public class WechatServiceImpl implements WechatService {
             one.put("name", menu.getName());
             if(IterUtil.isEmpty(menu.getChildren())) {
                 one.put("type", menu.getType());
-                one.put("url", autumnConfig.getUiBaseUrl() + menu.getUrl());
+                one.put("url", autumnConfig.getOaUiBaseUrl() + "/#" + menu.getUrl());
             } else {
                 JSONArray subButton = new JSONArray();
                 for (Menu child : menu.getChildren()) {
@@ -139,7 +142,7 @@ public class WechatServiceImpl implements WechatService {
                     view.put("type", child.getType());
 
                     if("view".equals(child.getType())) {
-                        // oa 移动端页面地址
+                        // oa 移动端页面地址 加#是因为前端使用hash模式路由
                         view.put("url", autumnConfig.getOaUiBaseUrl() + "/#" + child.getUrl());
                     } else {
                         view.put("key", child.getMenuKey());
@@ -174,55 +177,59 @@ public class WechatServiceImpl implements WechatService {
 
     /**
      *
-     * @param backUrl 授权成功跳转的路径
+     * @param backUrl 授权成功跳转的路径 (前端使用encodeURIComponent()函数将#号编码就行)
      * @return
      */
     @Override
     public String authorize(String backUrl) {
-        log.info("开始微信授权，回调地址为：{}", backUrl);
+        // http://localhost:9002/#/list/0
+        log.info("开始微信授权，ui回调地址为：{}", backUrl);
         String redirectUrl = wxMpService.getOAuth2Service()
                         .buildAuthorizationUrl(accountConfig.getUserInfoUrl(),
                                 WxConsts.OAuth2Scope.SNSAPI_USERINFO,
-                                URLEncoder.encode(backUrl.replace("autumnoa", "#")));
-        log.info("【微信网页授权】获取code，redirectUrl：{}", redirectUrl);
+                                URLEncoder.encode(backUrl));
+        // https://open.weixin.qq.com/connect/oauth2/authorize?appid=xxx&redirect_uri=http%3A%2F%2F1localhost%3A9001%2Fprocess%2FwechatMT%2FuserInfo&response_type=code&scope=snsapi_userinfo&state=http%3A%2F%2Flocalhost%3A9002%2F%23%2Flist%2F0&connect_redirect=1#wechat_redirect
+        log.info("【微信网页授权】请求地址：{}", redirectUrl);
         return "redirect:" + redirectUrl;
     }
 
     /**
      * 微信用户登录并返回token
      * @param code
-     * @param backUrl
+     * @param state
      * @return
      */
     @Override
-    public String userInfo(String code, String backUrl) {
-        log.info("微信获取用户信息，code：{}，backUrl：{}", code, backUrl);
+    public String userInfo(String code, String state) {
+        //code：xxx，state：http://localhost:9002/#/list/0
+        log.info("微信用户登录系统,code：{}，state：{}", code, state);
         try {
             WxOAuth2AccessToken accessToken = wxMpService.getOAuth2Service().getAccessToken(code);
             String openId = accessToken.getOpenId();
-            System.out.println("openId--->" + openId);
 
             // 获取微信用户信息
             WxOAuth2UserInfo userInfo = wxMpService.getOAuth2Service().getUserInfo(accessToken, null);
-            System.out.println("wxmpuserInfo---->" + JSON.toJSONString(userInfo));
+            log.info("微信用户信息====>{}", JSON.toJSONString(userInfo));
 
             // 根据 openId 查询数据库
             LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery(SysUser.class);
             qw.eq(SysUser::getOpenId, openId);
-            qw.select(SysUser::getOpenId);
             SysUser sysUser = userService.getOne(qw);
             if(sysUser != null) {
                 // 执行登录逻辑
                 String token = authService.genericLogin(new AuthUser(sysUser));
                 // 记录登录日志
                 AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(sysUser.getId(), sysUser.getLoginName(), SysLoginInfor.Type.WECHAT, SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
-                String symbol = backUrl.contains("?") ? "&" : "?";
-                return String.format("redirect:%s%stoken=%s&openId=%s", backUrl, symbol, token, openId);
+                String symbol = state.contains("?") ? "&" : "?";
+                String uiHomeUrl = String.format("%s%stoken=%s&openId=%s", state, symbol, token, openId);
+                //http://localhost:9002/#/list/0?token=xxx&openId=xxx
+                log.info("回调前端页面url====>{}", uiHomeUrl);
+                return "redirect:" + uiHomeUrl;
             }
         } catch (WxErrorException e) {
             log.info("获取微信用户信息失败：{}", e.getMessage());
         }
-        throw new AutumnException("获取微信用户信息失败");
+        throw new AutumnException("get wechat user error");
     }
 
     /**

@@ -26,7 +26,7 @@ public interface WechatService {
 
     String authorize(String backUrl);
 
-    String userInfo(String code, String backUrl);
+    String userInfo(String code, String state);
 
     String bindPhone(BindPhoneVo vo);
 }

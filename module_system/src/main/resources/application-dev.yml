@@ -13,7 +13,7 @@ autumn:
   server-ip: 'localhost'
   #  前端地址
   ui-base-url: 'http://localhost:9000'
-  #  oa 移动端地址
+  #  oa 移动端页面地址
   oa-ui-base-url: 'http://localhost:9002'
 
 server:

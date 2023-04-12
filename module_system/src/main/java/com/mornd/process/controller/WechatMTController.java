@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotBlank;
 
 /**
  * @author: mornd
@@ -19,35 +18,37 @@ import javax.validation.constraints.NotBlank;
  */
 
 @Controller
-@Validated
 @RequestMapping("/process/wechatMT")
 @RequiredArgsConstructor
 public class WechatMTController extends BaseController {
     private final WechatService wechatService;
 
+    /**
+     * 微信授权
+     * @param backUrl 前端回调地址
+     * @return
+     */
     @Anonymous
     @GetMapping("/authorize")
-    public String authorize(@RequestParam("backUrl")
-                                @NotBlank(message = "url不能为空")
-                                String backUrl) {
+    public String authorize(@RequestParam("backUrl") String backUrl) {
         return wechatService.authorize(backUrl);
     }
 
     /**
      * 获取微信登录用户信息
-     * @param code
-     * @param backUrl
+     * @param code 固定值
+     * @param state 固定值 ui界面回调地址
      * @return
      */
     @Anonymous
     @GetMapping("/userInfo")
     public String userInfo(@RequestParam("code") String code,
-                           @RequestParam("backUrl") String backUrl) {
-        return wechatService.userInfo(code, backUrl);
+                           @RequestParam("state") String state) {
+        return wechatService.userInfo(code, state);
     }
 
     /**
-     * 微信账号绑定手机号
+     * 微信登录绑定手机号
      * @return
      */
     @Anonymous

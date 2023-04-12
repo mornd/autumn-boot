@@ -149,7 +149,8 @@
 
     <build>
         <!-- 指定 jar 包名称 -->
-        <finalName>${project.name}</finalName>
+<!--        <finalName>${project.name}</finalName>-->
+        <finalName>autumn-server</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
