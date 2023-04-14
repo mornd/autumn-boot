@@ -8,6 +8,7 @@ import com.mornd.process.entity.vo.ProcessFormVo;
 import com.mornd.process.entity.vo.ProcessVo;
 import org.activiti.engine.repository.Deployment;
 
+import java.io.FileNotFoundException;
 import java.util.Map;
 
 /**
@@ -17,6 +18,12 @@ import java.util.Map;
 public interface ProcessService extends IService<Process> {
 
     IPage<ProcessVo> pageList(ProcessVo vo);
+
+    /**
+     * 获取流程文件位置
+     * @return
+     */
+    String getProcessFilePath() throws FileNotFoundException;
 
     /**
      * 流程部署

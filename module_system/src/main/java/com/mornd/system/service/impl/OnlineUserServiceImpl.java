@@ -5,7 +5,6 @@ import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.OnlineUser;
 import com.mornd.system.entity.result.JsonResult;
 import com.mornd.system.service.OnlineUserService;
-import com.mornd.system.utils.AuthUtil;
 import com.mornd.system.utils.PageUtil;
 import com.mornd.system.utils.RedisUtil;
 import org.springframework.stereotype.Service;
@@ -24,8 +23,6 @@ import java.util.stream.Collectors;
 public class OnlineUserServiceImpl implements OnlineUserService {
     @Resource
     private RedisUtil redisUtil;
-    @Resource
-    private AuthUtil authUtil;
 
     /**
      * 获取所有在线用户
@@ -122,5 +119,11 @@ public class OnlineUserServiceImpl implements OnlineUserService {
             }
         }
         return onlineKeys;
+    }
+
+    @Override
+    public void clear() {
+        Set<String> keys = redisUtil.keys(RedisKey.ONLINE_USER_KEY + "*");
+        redisUtil.delete(keys);
     }
 }

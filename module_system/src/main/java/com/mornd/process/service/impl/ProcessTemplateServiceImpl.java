@@ -18,7 +18,6 @@ import org.activiti.engine.repository.Deployment;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +30,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static com.mornd.process.constant.ProcessConst.PROCESS_FILE_SUFFIX;
-import static com.mornd.process.constant.ProcessConst.PROCESS_PATH;
 import static com.mornd.process.entity.ProcessTemplate.Status.PUBLISHED;
 import static com.mornd.process.entity.ProcessTemplate.Status.UNPUBLISHED;
 
@@ -173,8 +171,8 @@ public class ProcessTemplateServiceImpl
      */
     private void uploadProcessDefinition(MultipartFile file) throws IOException {
         String filename = file.getOriginalFilename();
-        // 获取 target/classes 目录位置
-        String resourcePath = this.getClassesResourceProcessPath();
+        // 获取 target/classes/process 目录位置
+        String resourcePath = processService.getProcessFilePath();
         File processFile = new File(resourcePath);
         if(!processFile.exists()) {
             processFile.mkdirs();
@@ -193,7 +191,7 @@ public class ProcessTemplateServiceImpl
     private boolean deleteResourceFile(String filename) {
         File file = null;
         try {
-            file = new File(getClassesResourceProcessPath(), filename);
+            file = new File(processService.getProcessFilePath(), filename);
         } catch (FileNotFoundException e) {
             log.error("流程定义文件不存在", e);
             return true;
@@ -202,18 +200,6 @@ public class ProcessTemplateServiceImpl
             return file.delete();
         }
         return true;
-    }
-
-    /**
-     * 获取 target/classes 目录下存放流程文件夹的位置
-     * E:\xxx\autumn_boot\module_system\target\classes\process
-     * @return
-     * @throws FileNotFoundException
-     */
-    private String getClassesResourceProcessPath() throws FileNotFoundException {
-        return new File(ResourceUtils.getURL("classpath:")
-                .getPath(), PROCESS_PATH)
-                .getAbsolutePath();
     }
 
     @Transactional(rollbackFor = Exception.class)

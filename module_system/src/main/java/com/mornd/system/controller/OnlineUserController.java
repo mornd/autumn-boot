@@ -41,4 +41,12 @@ public class OnlineUserController {
         onlineUserService.kick(id);
         return JsonResult.success("操作成功");
     }
+
+    @PreAuthorize("hasRole('super_admin')")
+    @LogStar(value = "清空所有在线用户", businessType = LogType.CLEAR)
+    @DeleteMapping("/clear")
+    public JsonResult<?> clear() {
+        onlineUserService.clear();
+        return JsonResult.success("操作成功");
+    }
 }

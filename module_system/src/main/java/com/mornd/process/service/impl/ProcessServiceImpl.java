@@ -16,7 +16,6 @@ import com.mornd.process.service.ProcessTemplateService;
 import com.mornd.process.service.WechatMessageService;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.exception.AutumnException;
-import com.mornd.process.constant.ProcessConst;
 import com.mornd.process.entity.Process;
 import com.mornd.process.entity.ProcessRecord;
 import com.mornd.process.entity.ProcessTemplate;
@@ -40,10 +39,13 @@ import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +53,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
+import static com.mornd.process.constant.ProcessConst.PROCESS_DIR_NAME;
+import static com.mornd.process.constant.ProcessConst.PROCESS_PATH;
 import static com.mornd.process.entity.Process.ApproveStatus.AGREE;
 import static com.mornd.process.entity.Process.ApproveStatus.REJECT;
 import static com.mornd.process.entity.Process.Status.COMPLETED;
@@ -82,6 +86,7 @@ public class ProcessServiceImpl
     private final UserService userService;
 
     private final ProcessRecordService processRecordService;
+
     private final WechatMessageService wechatMessageService;
 
     @Override
@@ -114,26 +119,56 @@ public class ProcessServiceImpl
     }
 
     /**
+     * 获取 target/classes/process 目录下存放流程文件夹的位置
+     * E:\xxx\autumn_boot\module_system\target\classes\process
+     * @return /mornd/xxx/file:/mornd/autumn/autumn-server.jar!/BOOT-INF/classes!/process
+     * @throws FileNotFoundException
+     */
+    @Override
+    public String getProcessFilePath() throws FileNotFoundException {
+        return new File(ResourceUtils.getURL("classpath:")
+                .getPath(), PROCESS_DIR_NAME)
+                .getAbsolutePath();
+    }
+
+    /**
      * 流程部署
      * @param filename 文件名
      * @return
      */
     @Override
     public Deployment deployByZip(String filename) {
-        InputStream inputStream = this.getClass()
-                .getClassLoader()
-                .getResourceAsStream(ProcessConst.PROCESS_DIR_NAME + File.separator + filename);
+        Deployment deploy = null;
+        File processFile = null;
+        try {
+            processFile = new File(getProcessFilePath(), filename);
+        } catch (FileNotFoundException e) {
+            log.error(e.getMessage());
+            throw new AutumnException("流程文件不存在");
+        }
 
-        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
-        Deployment deploy = repositoryService
-                .createDeployment()
-                .addZipInputStream(zipInputStream)
-                //.name("")
-                .deploy();
+        try (InputStream inputStream = Files.newInputStream(processFile.toPath());) {
+            ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+            deploy = repositoryService.createDeployment()
+                    .addZipInputStream(zipInputStream)
+                    .deploy();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new AutumnException("流程发布失败");
+        }
 
-        log.info("流程部署成功");
-        log.info("流程部署id：{}", deploy.getId());
-        log.info("流程部署名称：{}", deploy.getName());
+        // 这种方式在windows可用，linux环境会读取不到文件
+//        InputStream inputStream = this.getClass().getClassLoader() // 必须使用 ClassLoader 对象调用，如果用 Class 对象调用则返回 null
+//                .getResourceAsStream(ProcessConst.PROCESS_DIR_NAME + File.separator + filename);
+//        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+//        Deployment deploy = repositoryService
+//                .createDeployment()
+//                .addZipInputStream(zipInputStream)
+//                //.name("")
+//                .deploy();
+
+        log.info("流程部署成功，id为：{}", deploy.getId());
+        //log.info("流程部署名称：{}", deploy.getName());
         // 可查看表 act_re_deployment 记录
         return deploy;
     }
@@ -218,7 +253,7 @@ public class ProcessServiceImpl
             }
 
             //todo 消息推送
-            wechatMessageService.pushPendingMessage(process.getId(), sysUser.getId(), task.getId());
+            wechatMessageService.pushPendingMessage(process, sysUser.getId(), task.getId());
         }
 
         // 更新 process 表
@@ -289,7 +324,7 @@ public class ProcessServiceImpl
                 }
 
                 //todo 消息推送
-                wechatMessageService.pushProcessedMessage(process.getId(), process.getUserId(), desc);
+                wechatMessageService.pushProcessedMessage(process, process.getUserId(), desc);
             }
 
             if(auditIds.length() > 0) {

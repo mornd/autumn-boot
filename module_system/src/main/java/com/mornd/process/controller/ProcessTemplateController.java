@@ -1,11 +1,13 @@
 package com.mornd.process.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.mornd.process.service.ProcessService;
 import com.mornd.process.service.ProcessTemplateService;
 import com.mornd.system.annotation.LogStar;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.controller.base.BaseController;
 import com.mornd.system.entity.result.JsonResult;
+import com.mornd.system.exception.AutumnException;
 import com.mornd.system.exception.BadRequestException;
 import com.mornd.process.entity.ProcessTemplate;
 import com.mornd.system.validation.UpdateValidGroup;
@@ -19,14 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotBlank;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
-import static com.mornd.process.constant.ProcessConst.PROCESS_FILE_SUFFIX;
-import static com.mornd.process.constant.ProcessConst.PROCESS_PATH;
+import static com.mornd.process.constant.ProcessConst.*;
 
 /**
  * @author: mornd
@@ -40,6 +39,8 @@ import static com.mornd.process.constant.ProcessConst.PROCESS_PATH;
 @RequiredArgsConstructor
 public class ProcessTemplateController extends BaseController {
     private final ProcessTemplateService processTemplateService;
+
+    private final ProcessService processService;
 
     @GetMapping
     @LogStar(title = "查询审批模块列表", businessType = LogType.SELECT)
@@ -108,16 +109,25 @@ public class ProcessTemplateController extends BaseController {
     @LogStar(title = "下载流程定义文件", businessType = LogType.DOWNLOAD)
     @PostMapping("/downloadProcessDefinition/{filename}")
     public void downloadProcessDefinition(@PathVariable String filename, HttpServletResponse response) {
-        // 获取 resources 目录下的输入流
+        // 获取 resources 目录下的输入流(但这两种方式在 linux 操作系统中会读取不到文件)
         // 方式一
 //        InputStream is = this.getClass().getClassLoader()
 //                .getResourceAsStream("process/" + filename); // process前面不能加斜杠
 
         // 方式二          /process/xxx.bpmn20.zip
-        ClassPathResource classPathResource =
-                new ClassPathResource(PROCESS_PATH + File.separator + filename);
-        try (
-            InputStream is = classPathResource.getInputStream();
+//        ClassPathResource classPathResource =
+//                new ClassPathResource(PROCESS_PATH + File.separator + filename);
+//        InputStream is = classPathResource.getInputStream();
+
+        File processFile = null;
+
+        try {
+            processFile = new File(processService.getProcessFilePath() + filename);
+        } catch (FileNotFoundException e) {
+            throw new AutumnException("流程文件不存在");
+        }
+
+        try (InputStream is = Files.newInputStream(processFile.toPath());
              OutputStream os = response.getOutputStream();) {
             byte[] bytes = StreamUtils.copyToByteArray(is);
             response.reset();

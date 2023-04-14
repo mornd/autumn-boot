@@ -21,4 +21,6 @@ public interface OnlineUserService {
     boolean kick(String id);
 
     Set<String> getOnlineUserKeyById(String id);
+
+    void clear();
 }

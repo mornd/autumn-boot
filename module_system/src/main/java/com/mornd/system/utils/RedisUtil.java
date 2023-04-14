@@ -86,7 +86,7 @@ public class RedisUtil {
     }
 
     /**
-     * 删除
+     * 删除集合中全部
      * @param keys
      * @return
      */
@@ -101,9 +101,6 @@ public class RedisUtil {
      * @return
      */
     public long increment(String key, long factor){
-        if(factor < 0){
-            throw new RuntimeException("递增因子必须大于0");
-        }
         return redisTemplate.opsForValue().increment(key, factor);
     }
 
@@ -114,9 +111,6 @@ public class RedisUtil {
      * @return
      */
     public long decrement(String key, long factor){
-        if (factor < 0) {
-            throw new RuntimeException("递减因子必须大于0");
-        }
         return redisTemplate.opsForValue().increment(key, -factor);
     }
 

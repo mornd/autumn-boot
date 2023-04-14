@@ -12,15 +12,16 @@ import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.exception.AutumnException;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.SecurityUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
@@ -31,17 +32,21 @@ import java.util.Map;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class WechatMessageServiceImpl implements WechatMessageService {
-    private final ProcessService processService;
-    private final UserService userService;
-    private final ProcessTemplateService processTemplateService;
-    private final AutumnConfig autumnConfig;
-    private final WxMpService wxMpService;
+//    @Lazy 该注解可以解决与 processService 之间的循环依赖，但不推荐
+//    @Resource
+//    private ProcessService processService;
+    @Resource
+    private UserService userService;
+    @Resource
+    private ProcessTemplateService processTemplateService;
+    @Resource
+    private AutumnConfig autumnConfig;
+    @Resource
+    private WxMpService wxMpService;
 
     @Override
-    public void pushPendingMessage(Long processId, String userId, String taskId) {
-        Process process = processService.getById(processId);
+    public void pushPendingMessage(Process process, String userId, String taskId) {
         // 流程模板信息
         ProcessTemplate processTemplate = processTemplateService.getById(process.getProcessTemplateId());
         // 当前审批人
@@ -61,7 +66,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
                 // 模板id wx开发文档获取
                 .templateId("AM5ycpby2SFVfLGDko9F3BjXp_TRle6-y11qtk-mi1E")
                 // 用户点击模板后要访问的地址
-                .url(autumnConfig.getOaUiBaseUrl() + "/#/show/" + processId + "/" + taskId)
+                .url(autumnConfig.getOaUiBaseUrl() + "/#/show/" + process.getId() + "/" + taskId)
                 .build();
 
         JSONObject form = JSON.parseObject(process.getFormValues());
@@ -98,8 +103,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
     }
 
     @Override
-    public void pushProcessedMessage(Long processId, String userId, String status) {
-        Process process = processService.getById(processId);
+    public void pushProcessedMessage(Process process, String userId, String status) {
         // 流程模板信息
         ProcessTemplate processTemplate = processTemplateService.getById(process.getProcessTemplateId());
         // 提交人
@@ -119,7 +123,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
                 // 模板id wx开发文档获取
                 .templateId("rbfATKbJkocOc339lZKwPJlJvBW4rvn8SGP-KenhPiA")
                 // 用户点击模板后要访问的地址 参数0只是为了占位
-                .url(autumnConfig.getOaUiBaseUrl() + "/#/show/" + processId + "/0")
+                .url(autumnConfig.getOaUiBaseUrl() + "/#/show/" + process.getId() + "/0")
                 .build();
 
         JSONObject form = JSON.parseObject(process.getFormValues());
