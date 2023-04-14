@@ -122,7 +122,7 @@ public class ProcessTemplateController extends BaseController {
         File processFile = null;
 
         try {
-            processFile = new File(processService.getProcessFilePath() + filename);
+            processFile = new File(processService.getProcessFilePath() + File.separator + filename);
         } catch (FileNotFoundException e) {
             throw new AutumnException("流程文件不存在");
         }
