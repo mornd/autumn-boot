@@ -3,6 +3,8 @@ package com.mornd.process.controller;
 import com.mornd.process.entity.vo.BindPhoneVo;
 import com.mornd.process.service.WechatService;
 import com.mornd.system.annotation.Anonymous;
+import com.mornd.system.annotation.RateLimiter;
+import com.mornd.system.constant.enums.LimitType;
 import com.mornd.system.controller.base.BaseController;
 import com.mornd.system.entity.result.JsonResult;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class WechatMTController extends BaseController {
      * @return
      */
     @Anonymous
+    @RateLimiter(time = 86400, count = 10, limitType = LimitType.IP, message = "访问太频繁了哦，请稍后再试")
     @GetMapping("/authorize")
     public String authorize(@RequestParam("backUrl") String backUrl) {
         return wechatService.authorize(backUrl);
@@ -42,6 +45,7 @@ public class WechatMTController extends BaseController {
      */
     @Anonymous
     @GetMapping("/userInfo")
+    @RateLimiter(time = 86400, count = 10, limitType = LimitType.IP, message = "访问太频繁了哦，请稍后再试")
     public String userInfo(@RequestParam("code") String code,
                            @RequestParam("state") String state) {
         return wechatService.userInfo(code, state);
@@ -53,6 +57,7 @@ public class WechatMTController extends BaseController {
      */
     @Anonymous
     @ResponseBody
+    @RateLimiter(time = 86400, count = 10, limitType = LimitType.IP, message = "访问太频繁了哦，请稍后再试")
     @PostMapping("/bindPhone")
     public JsonResult bindPhone(@Validated @RequestBody BindPhoneVo vo) {
         String token = wechatService.bindPhone(vo);

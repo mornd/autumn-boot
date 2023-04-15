@@ -5,6 +5,7 @@ import com.mornd.process.entity.vo.ApprovalVo;
 import com.mornd.process.entity.vo.ProcessVo;
 import com.mornd.process.service.ProcessService;
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.controller.base.BaseController;
 import com.mornd.system.entity.result.JsonResult;
@@ -38,6 +39,7 @@ public class ProcessController extends BaseController {
         return JsonResult.successData(page);
     }
 
+    @RepeatSubmit
     @PostMapping("/startup")
     @LogStar(title = "启动流程实例")
     public JsonResult startup(@RequestBody @Validated ProcessFormVo vo) {
@@ -73,6 +75,7 @@ public class ProcessController extends BaseController {
         return JsonResult.successData(result);
     }
 
+    @RepeatSubmit
     @PostMapping("/approve")
     @LogStar(title = "开始审批", businessType = LogType.APPROVE)
     public JsonResult approve(@RequestBody ApprovalVo vo) {

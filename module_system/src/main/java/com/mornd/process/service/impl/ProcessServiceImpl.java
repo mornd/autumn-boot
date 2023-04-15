@@ -252,7 +252,7 @@ public class ProcessServiceImpl
                 auditNames.append(sysUser.getRealName()).append(",");
             }
 
-            //todo 消息推送
+            //todo 推送消息给审批人
             wechatMessageService.pushPendingMessage(process, sysUser.getId(), task.getId());
         }
 
@@ -323,10 +323,9 @@ public class ProcessServiceImpl
                     auditNames.append(sysUser.getRealName() + ",");
                 }
 
-                //todo 消息推送
-                wechatMessageService.pushProcessedMessage(process, process.getUserId(), desc);
+                //todo 推送消息给审批人
+                wechatMessageService.pushPendingMessage(process, sysUser.getId(), task.getId());
             }
-
             if(auditIds.length() > 0) {
                 process.setCurrentAuditorId(auditIds.substring(0, auditIds.length() - 1));
                 process.setDescription("等待" + auditNames.substring(0, auditNames.length() - 1) + "审批");
@@ -341,7 +340,10 @@ public class ProcessServiceImpl
                 process.setDescription("审批完成(驳回)");
             }
             // 将当前审批人置空
-            process.setCurrentAuditorId("");
+            //process.setCurrentAuditorId("");
+
+            //todo 流程结束，推送消息给流程发起人，告知结果
+            wechatMessageService.pushProcessedMessage(process, process.getUserId(), desc);
         }
         super.updateById(process);
     }

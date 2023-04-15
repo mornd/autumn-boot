@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mornd.process.entity.Process;
 import com.mornd.process.entity.ProcessTemplate;
-import com.mornd.process.service.ProcessService;
 import com.mornd.process.service.ProcessTemplateService;
 import com.mornd.process.service.WechatMessageService;
 import com.mornd.system.config.AutumnConfig;
@@ -33,7 +32,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class WechatMessageServiceImpl implements WechatMessageService {
-//    @Lazy 该注解可以解决与 processService 之间的循环依赖，但不推荐
+//    @Lazy 该注解可以解决与 processService 之间的循环依赖，不推荐
 //    @Resource
 //    private ProcessService processService;
     @Resource
@@ -55,7 +54,9 @@ public class WechatMessageServiceImpl implements WechatMessageService {
         // 要推送的用户 openId
         String openId = user.getOpenId();
         if(!StringUtils.hasText(openId)) {
-            throw new AutumnException("用户openId为空，无法推送消息");
+            //todo 做记录
+            log.error("用户{}的openId为空，无法推送公众号消息", user.getRealName());
+            //throw new AutumnException("用户" + user.getRealName() + "的openId为空，无法推送公众号消息");
         }
 
         // 流程提交人/发起人
@@ -64,13 +65,14 @@ public class WechatMessageServiceImpl implements WechatMessageService {
         WxMpTemplateMessage template = WxMpTemplateMessage.builder()
                 .toUser(openId)
                 // 模板id wx开发文档获取
-                .templateId("AM5ycpby2SFVfLGDko9F3BjXp_TRle6-y11qtk-mi1E")
+                .templateId("AVUxHqV6zinuDb3IbkcEyUhLDUaI7jVK5yPx6kG8ESY")
                 // 用户点击模板后要访问的地址
                 .url(autumnConfig.getOaUiBaseUrl() + "/#/show/" + process.getId() + "/" + taskId)
                 .build();
 
         JSONObject form = JSON.parseObject(process.getFormValues());
-        JSONObject formShowData = form.getJSONObject("formData");
+        // formData 是表单v-model 英文值，formShowData是表单 label 中文值
+        JSONObject formShowData = form.getJSONObject("formShowData");
         StringBuilder content = new StringBuilder();
         for (Map.Entry<String, Object> entry : formShowData.entrySet()) {
             content.append(entry.getKey()).append("：")
@@ -81,7 +83,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
         // 填充模板消息内容
         template.addData(
                 new WxMpTemplateData("first",
-                        submitUser.getRealName() + "提交了" + processTemplate.getName() + "审批申请，请注意查看。", color));
+                        user.getRealName() + "，你好！\n" + submitUser.getRealName() + "提交了\"" + processTemplate.getName() + "\"审批申请，请注意查看。", color));
         template.addData(
                 new WxMpTemplateData("keyword1",
                         process.getProcessCode(), color));
@@ -115,19 +117,20 @@ public class WechatMessageServiceImpl implements WechatMessageService {
         // 要推送的用户 openId
         String openId = submitUser.getOpenId();
         if(!StringUtils.hasText(openId)) {
-            throw new AutumnException("用户openId为空，无法推送消息");
+            log.error("用户{}的openId为空，无法推送公众号消息", submitUser.getRealName());
+            //throw new AutumnException("用户" + submitUser.getRealName() + "的openId为空，无法推送公众号消息");
         }
 
         WxMpTemplateMessage template = WxMpTemplateMessage.builder()
                 .toUser(openId)
                 // 模板id wx开发文档获取
-                .templateId("rbfATKbJkocOc339lZKwPJlJvBW4rvn8SGP-KenhPiA")
+                .templateId("dn_yVajNYxUzWHn-ekofwgDmyDHLYnQ983j3i3edMB8")
                 // 用户点击模板后要访问的地址 参数0只是为了占位
                 .url(autumnConfig.getOaUiBaseUrl() + "/#/show/" + process.getId() + "/0")
                 .build();
 
         JSONObject form = JSON.parseObject(process.getFormValues());
-        JSONObject formShowData = form.getJSONObject("formData");
+        JSONObject formShowData = form.getJSONObject("formShowData");
         StringBuilder content = new StringBuilder();
         for (Map.Entry<String, Object> entry : formShowData.entrySet()) {
             content.append(entry.getKey()).append("：")
@@ -138,7 +141,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
         // 填充模板消息内容
         template.addData(
                 new WxMpTemplateData("first",
-                        "你发起的" + processTemplate.getName() + "审批申请已经被处理了，请注意查看。", color));
+                        submitUser.getRealName() + "，你好！\n" + "你发起的\"" + processTemplate.getName() + "\"审批申请已经被处理了，请注意查看。", color));
         template.addData(
                 new WxMpTemplateData("keyword1",
                         process.getProcessCode(), color));

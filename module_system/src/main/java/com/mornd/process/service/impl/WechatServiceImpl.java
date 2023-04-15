@@ -19,7 +19,6 @@ import com.mornd.system.entity.dto.AuthUser;
 import com.mornd.system.entity.po.SysLoginInfor;
 import com.mornd.system.entity.po.SysUser;
 import com.mornd.system.exception.AutumnException;
-import com.mornd.system.exception.BadRequestException;
 import com.mornd.system.service.AuthService;
 import com.mornd.system.service.UserService;
 import com.mornd.system.utils.SecurityUtil;
@@ -182,6 +181,12 @@ public class WechatServiceImpl implements WechatService {
      */
     @Override
     public String authorize(String backUrl) {
+        // 如果url中包含了token值先截掉
+        int index = backUrl.indexOf("token");
+        if(index > -1) {
+            backUrl = backUrl.substring(0, index - 1);
+        }
+
         // http://localhost:9002/#/list/0
         log.info("开始微信授权，ui回调地址为：{}", backUrl);
         String redirectUrl = wxMpService.getOAuth2Service()
@@ -215,17 +220,20 @@ public class WechatServiceImpl implements WechatService {
             LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery(SysUser.class);
             qw.eq(SysUser::getOpenId, openId);
             SysUser sysUser = userService.getOne(qw);
+            String token = "";
             if(sysUser != null) {
                 // 执行登录逻辑
-                String token = authService.genericLogin(new AuthUser(sysUser));
+                token = authService.genericLogin(new AuthUser(sysUser));
                 // 记录登录日志
                 AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(sysUser.getId(), sysUser.getLoginName(), SysLoginInfor.Type.WECHAT, SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
-                String symbol = state.contains("?") ? "&" : "?";
-                String uiHomeUrl = String.format("%s%stoken=%s&openId=%s", state, symbol, token, openId);
-                //http://localhost:9002/#/list/0?token=xxx&openId=xxx
-                log.info("回调前端页面url====>{}", uiHomeUrl);
-                return "redirect:" + uiHomeUrl;
             }
+
+            String symbol = state.contains("?") ? "&" : "?";
+            //http://localhost:9002/#/list/0?token=xxx&openId=xxx
+            String uiHomeUrl = String.format("%s%stoken=%s&openId=%s", state, symbol, token, openId);
+            log.info("回调前端页面url====>{}", uiHomeUrl);
+            // 如果用户openId未绑定，则token的返回值为空
+            return "redirect:" + uiHomeUrl;
         } catch (WxErrorException e) {
             log.info("获取微信用户信息失败：{}", e.getMessage());
         }
@@ -245,7 +253,7 @@ public class WechatServiceImpl implements WechatService {
         SysUser sysUser = userService.getOne(qw);
         if(sysUser != null) {
             if(DISABLED.equals(sysUser.getStatus())) {
-                throw new BadRequestException("该账号已被禁用");
+                throw new AutumnException("该账号已被禁用");
             }
             LambdaUpdateWrapper<SysUser> uw = Wrappers.lambdaUpdate(SysUser.class);
             uw.set(SysUser::getOpenId, vo.getOpenId());
@@ -258,7 +266,7 @@ public class WechatServiceImpl implements WechatService {
             AsyncManager.me().execute(AsyncFactory.recordSysLoginInfor(sysUser.getId(), sysUser.getLoginName(), SysLoginInfor.Type.WECHAT, SysLoginInfor.Status.SUCCESS, SysLoginInfor.Msg.SUCCESS.getMsg()));
             return token;
         } else {
-            throw new AutumnException("手机号绑定失败");
+            throw new AutumnException("绑定失败，该手机号码不属于本系统");
         }
     }
 

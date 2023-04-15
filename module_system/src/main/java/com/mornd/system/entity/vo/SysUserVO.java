@@ -9,7 +9,6 @@ import com.mornd.system.utils.EasyExcelConverter;
 import com.mornd.system.validation.SelectValidGroup;
 import com.mornd.system.validation.UpdateValidGroup;
 import com.mornd.system.validation.ValidGroupA;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
