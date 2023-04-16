@@ -53,7 +53,8 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/db_autumn?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      # &nullCatalogMeansCurrent=true mysql使用schema标识库名而不是catalog，因此mysql会扫描所有的库来找表，如果其他库中有相同名称的表，activiti就以为找到了，本质上这个表在当前数据库中并不存在
+      url: jdbc:mysql://localhost:3306/db_autumn?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true
       username: root
       password: 123456
       # 初始化大小，最小空闲连接数，最大连接池数量
@@ -224,7 +225,7 @@ spring:
 
   # 流程引擎配置
   activiti:
-    # true：对所有表进行更新，表不存在，自动创建（开发使用）
+    # true：对所有表进行更新，表不存在，自动创建（开发使用）如果改为true，还是不能创建表，可能是其它库中已存在了act_表，需要在连接url后加上 &nullCatalogMeansCurrent=true 表示搜索当前链接库
     # false：数据库表不变，但版本不对或表缺失会抛出异常（默认值，生产使用）
     # create_drop：启动时创建表，关闭时删除表（必须手动关闭引擎，才能删除表，测试使用）
     # drop-create：启动时先删除旧表，然后再创建新表（不需要手动关闭引擎）使用这个参数删除所有流程表时，第一次会报表约束的错，再启动一次就可以了

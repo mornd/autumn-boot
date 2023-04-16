@@ -33,8 +33,7 @@ import java.util.Set;
 public class PermissionController {
     @Resource
     private PermissionService permissionService;
-
-    @LogStar(value = "获取左侧菜单树", businessType = LogType.SELECT)
+    //@LogStar(value = "获取左侧菜单树", businessType = LogType.SELECT)
     @ApiOperation("获取当前登录用户左侧菜单树(包含启用、禁用状态)")
     @GetMapping("/leftTree")
     public JsonResult getLeftTree(){

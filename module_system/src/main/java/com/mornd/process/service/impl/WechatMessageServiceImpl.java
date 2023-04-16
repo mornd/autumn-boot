@@ -56,6 +56,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
         if(!StringUtils.hasText(openId)) {
             //todo 做记录
             log.error("用户{}的openId为空，无法推送公众号消息", user.getRealName());
+            return;
             //throw new AutumnException("用户" + user.getRealName() + "的openId为空，无法推送公众号消息");
         }
 
@@ -118,6 +119,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
         String openId = submitUser.getOpenId();
         if(!StringUtils.hasText(openId)) {
             log.error("用户{}的openId为空，无法推送公众号消息", submitUser.getRealName());
+            return;
             //throw new AutumnException("用户" + submitUser.getRealName() + "的openId为空，无法推送公众号消息");
         }
 

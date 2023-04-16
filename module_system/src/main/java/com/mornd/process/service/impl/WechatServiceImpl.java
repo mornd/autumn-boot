@@ -219,6 +219,7 @@ public class WechatServiceImpl implements WechatService {
             // 根据 openId 查询数据库
             LambdaQueryWrapper<SysUser> qw = Wrappers.lambdaQuery(SysUser.class);
             qw.eq(SysUser::getOpenId, openId);
+            qw.last("LIMIT 1");
             SysUser sysUser = userService.getOne(qw);
             String token = "";
             if(sysUser != null) {
