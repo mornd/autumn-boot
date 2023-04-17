@@ -19,7 +19,6 @@ public interface ProcessTemplateService extends IService<ProcessTemplate> {
     void updateAndUploadProcessDefinition(ProcessTemplate processTemplate, MultipartFile file) throws IOException;
 
     boolean checkName(String name, Long id);
-    boolean checkFileName(String filename, Long id);
 
-    boolean publish(Long id);
+    boolean checkFileName(String filename, Long id);
 }

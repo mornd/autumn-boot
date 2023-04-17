@@ -75,6 +75,12 @@ public class ProcessTemplate extends ProcessBaseEntity {
     @NotNull(message = "updateFile属性不能为空", groups = UpdateValidGroup.class)
     private Boolean updateFile;
 
+    /**
+     * 是否添加完流程模板自动发布
+     */
+    @TableField(exist = false)
+    private Boolean publish;
+
     @Getter
     @AllArgsConstructor
     public enum Status {

@@ -14,7 +14,6 @@ import com.mornd.system.exception.AutumnException;
 import com.mornd.process.entity.ProcessTemplate;
 import com.mornd.process.entity.ProcessType;
 import com.mornd.system.utils.SecurityUtil;
-import org.activiti.engine.repository.Deployment;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 import static com.mornd.process.constant.ProcessConst.PROCESS_FILE_SUFFIX;
 import static com.mornd.process.entity.ProcessTemplate.Status.PUBLISHED;
@@ -209,26 +207,6 @@ public class ProcessTemplateServiceImpl
         boolean row = super.removeById(id);
         if(row) {
             return deleteResourceFile(entity.getProcessDefinitionFileName());
-        }
-        return false;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public boolean publish(Long id) {
-        ProcessTemplate entity = super.getById(id);
-        if(!entity.getStatus().equals(UNPUBLISHED.ordinal())) {
-            throw new RuntimeException("该数据状态错误");
-        }
-        entity.setStatus(PUBLISHED.ordinal());
-        boolean row = super.updateById(entity);
-        if(row) {
-            if(StringUtils.hasText(entity.getProcessDefinitionFileName())) {
-                // 发布流程
-                Deployment deployment =
-                        processService.deployByZip(entity.getProcessDefinitionFileName());
-                return Objects.nonNull(deployment);
-            }
         }
         return false;
     }

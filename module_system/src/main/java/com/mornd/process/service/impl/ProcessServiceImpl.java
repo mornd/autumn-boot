@@ -47,10 +47,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 
 import static com.mornd.process.constant.ProcessConst.PROCESS_DIR_NAME;
@@ -59,6 +56,8 @@ import static com.mornd.process.entity.Process.ApproveStatus.AGREE;
 import static com.mornd.process.entity.Process.ApproveStatus.REJECT;
 import static com.mornd.process.entity.Process.Status.COMPLETED;
 import static com.mornd.process.entity.Process.Status.PROGRESSING;
+import static com.mornd.process.entity.ProcessTemplate.Status.PUBLISHED;
+import static com.mornd.process.entity.ProcessTemplate.Status.UNPUBLISHED;
 
 /**
  * @author: mornd
@@ -129,6 +128,26 @@ public class ProcessServiceImpl
         return new File(ResourceUtils.getURL("classpath:")
                 .getPath(), PROCESS_DIR_NAME)
                 .getAbsolutePath();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean publish(Long processTemplateId) {
+        ProcessTemplate entity = processTemplateService.getById(processTemplateId);
+        if(!entity.getStatus().equals(UNPUBLISHED.ordinal())) {
+            throw new RuntimeException("该数据状态错误");
+        }
+        entity.setStatus(PUBLISHED.ordinal());
+        boolean row = processTemplateService.updateById(entity);
+        if(row) {
+            if(StringUtils.hasText(entity.getProcessDefinitionFileName())) {
+                // 发布流程
+                Deployment deployment =
+                        this.deployByZip(entity.getProcessDefinitionFileName());
+                return Objects.nonNull(deployment);
+            }
+        }
+        return false;
     }
 
     /**

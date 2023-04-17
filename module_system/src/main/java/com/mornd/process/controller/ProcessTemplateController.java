@@ -69,8 +69,11 @@ public class ProcessTemplateController extends BaseController {
         checkFile(file);
         checkFileName(file.getOriginalFilename());
 
-        processTemplateService
-                .insertAndUploadProcessDefinition(processTemplate, file);
+        processTemplateService.insertAndUploadProcessDefinition(processTemplate, file);
+        // 发布
+        if(processTemplate.getPublish() != null && processTemplate.getPublish()) {
+            processService.publish(processTemplate.getId());
+        }
         return success();
     }
 
@@ -149,7 +152,7 @@ public class ProcessTemplateController extends BaseController {
     @LogStar(title = "发布流程模板", businessType = LogType.PUBLISH)
     @PutMapping("/publish/{id}")
     public JsonResult publish(@PathVariable Long id) {
-        boolean result = processTemplateService.publish(id);
+        boolean result = processService.publish(id);
         return result ? JsonResult.success("发布成功") : JsonResult.failure("发布失败");
     }
 

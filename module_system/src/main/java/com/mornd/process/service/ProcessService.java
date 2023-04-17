@@ -17,6 +17,11 @@ import java.util.Map;
  */
 public interface ProcessService extends IService<Process> {
 
+    /**
+     * 查询流程实例列表
+     * @param vo
+     * @return
+     */
     IPage<ProcessVo> pageList(ProcessVo vo);
 
     /**
@@ -26,22 +31,56 @@ public interface ProcessService extends IService<Process> {
     String getProcessFilePath() throws FileNotFoundException;
 
     /**
+     * 发布流程
+     * @param processTemplateId
+     * @return
+     */
+    boolean publish(Long processTemplateId);
+
+    /**
      * 流程部署
      * @param filename
      * @return
      */
     Deployment deployByZip(String filename);
 
+    /**
+     * 启动流程
+     * @param vo
+     */
     void startup(ProcessFormVo vo);
 
+    /**
+     * 流程审批
+     * @param vo
+     */
     void approve(ApprovalVo vo);
 
+    /**
+     * 查看某个审批详情
+     * @param id
+     * @return
+     */
     Map<String, Object> show(Long id);
 
+    /**
+     * 查询我的待审批列表
+     * @param process
+     * @return
+     */
     IPage<Process> findPending(Process process);
 
+    /**
+     * 查询我已处理的审批列表
+     * @param process
+     * @return
+     */
     IPage<Process> findProcessed(Process process);
 
-
+    /**
+     * 查询我发起的审批列表
+     * @param process
+     * @return
+     */
     IPage<Process> findStarted(Process process);
 }
