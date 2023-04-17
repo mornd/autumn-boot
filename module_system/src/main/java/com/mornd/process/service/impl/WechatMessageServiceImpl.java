@@ -24,6 +24,8 @@ import javax.annotation.Resource;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+import static com.mornd.process.entity.Process.ApproveStatus.AGREE;
+
 /**
  * @author: mornd
  * @dateTime: 2023/4/12 - 23:57
@@ -106,7 +108,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
     }
 
     @Override
-    public void pushProcessedMessage(Process process, String userId, String status) {
+    public void pushProcessedMessage(Process process, String userId, Integer status, String reason) {
         // 流程模板信息
         ProcessTemplate processTemplate = processTemplateService.getById(process.getProcessTemplateId());
         // 提交人
@@ -153,9 +155,12 @@ public class WechatMessageServiceImpl implements WechatMessageService {
         template.addData(
                 new WxMpTemplateData("keyword3",
                         currentUser.getRealName(), color));
+
+        // 驳回给出原因
+        String result = AGREE.getCode().equals(status) ? "通过" : "驳回\n驳回原因：" + reason;
         template.addData(
                 new WxMpTemplateData("keyword4",
-                        status, color));
+                        result, color));
         template.addData(
                 new WxMpTemplateData("content",
                         content.toString(), color));

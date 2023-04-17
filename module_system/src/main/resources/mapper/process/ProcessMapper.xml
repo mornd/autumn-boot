@@ -17,6 +17,7 @@
             a.process_instance_id,
             a.current_auditor_id,
             a.description,
+            a.reason,
             a.create_id,
             a.create_time,
             a.update_id,

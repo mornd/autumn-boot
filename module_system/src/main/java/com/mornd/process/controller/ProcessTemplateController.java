@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.mornd.process.service.ProcessService;
 import com.mornd.process.service.ProcessTemplateService;
 import com.mornd.system.annotation.LogStar;
+import com.mornd.system.annotation.RepeatSubmit;
 import com.mornd.system.constant.enums.LogType;
 import com.mornd.system.controller.base.BaseController;
 import com.mornd.system.entity.result.JsonResult;
@@ -144,6 +145,7 @@ public class ProcessTemplateController extends BaseController {
         }
     }
 
+    @RepeatSubmit
     @LogStar(title = "发布流程模板", businessType = LogType.PUBLISH)
     @PutMapping("/publish/{id}")
     public JsonResult publish(@PathVariable Long id) {

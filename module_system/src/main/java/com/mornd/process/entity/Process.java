@@ -61,6 +61,11 @@ public class Process extends ProcessBaseEntity {
     private String currentAuditorId;
 
     /**
+     * 拒绝理由
+     */
+    private String reason;
+
+    /**
      * 描述
      */
     private String description;

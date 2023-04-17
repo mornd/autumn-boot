@@ -50,6 +50,7 @@ public class SysUserVO implements Serializable {
     @DateTimeFormat("yyyy-MM-dd")
     private Date birthday;
 
+    @Pattern(regexp = RegexpConstant.PHONE2, message = "手机号码格式不正确")
     @ExcelProperty(value = "手机号码")
     private String phone;
 

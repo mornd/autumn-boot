@@ -22,6 +22,7 @@ public interface WechatMessageService {
      * @param process 流程对象
      * @param userId 推送消息的用户 id
      * @param status 状态(通过或拒绝)
+     * @param reason 拒绝理由
      */
-    void pushProcessedMessage(Process process, String userId, String status);
+    void pushProcessedMessage(Process process, String userId, Integer status, String reason);
 }

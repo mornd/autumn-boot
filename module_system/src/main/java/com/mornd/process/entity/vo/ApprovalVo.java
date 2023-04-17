@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * @author: mornd
@@ -22,5 +23,9 @@ public class ApprovalVo {
     @NotNull(message = "状态不能为空")
     private Integer status;
 
-    private String description;
+    /**
+     * 拒绝原因
+     */
+    @Size(max = 500, message = "原因过长")
+    private String reason;
 }

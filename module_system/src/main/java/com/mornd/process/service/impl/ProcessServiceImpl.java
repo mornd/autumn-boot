@@ -289,7 +289,7 @@ public class ProcessServiceImpl
         Map<String, Object> variables = taskService.getVariables(taskId);
 
         if(AGREE.getCode().equals(vo.getStatus())) {
-            desc = "已通过";
+            desc = "通过";
             // 可继续添加流程变量
             Map<String,Object> map = new HashMap<String, Object>();
             // 完成
@@ -338,12 +338,14 @@ public class ProcessServiceImpl
             } else {
                 process.setStatus(REJECT.getCode());
                 process.setDescription("审批完成(驳回)");
+                // 拒绝理由
+                process.setReason(vo.getReason());
             }
             // 将当前审批人置空
             //process.setCurrentAuditorId("");
 
             //todo 流程结束，推送消息给流程发起人，告知结果
-            wechatMessageService.pushProcessedMessage(process, process.getUserId(), desc);
+            wechatMessageService.pushProcessedMessage(process, process.getUserId(), vo.getStatus(), vo.getReason());
         }
         super.updateById(process);
     }
@@ -367,8 +369,7 @@ public class ProcessServiceImpl
         // 判断当前用户是否可以审批(比较task集合中是否存在当前登录的用户)
         String loginUsername = SecurityUtil.getLoginUsername();
         List<Task> taskList = this.getCurrentTaskList(process.getProcessInstanceId());
-        boolean isApprove = taskList
-                .stream()
+        boolean isApprove = taskList.stream()
                 .anyMatch(i -> loginUsername.equals(i.getAssignee()));
 
         // 返回结果
