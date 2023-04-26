@@ -69,7 +69,7 @@ public class ChatConnectController {
      */
     private void sendFailure(TransmissionChatMessage chatMessage, String message) {
         chatMessage.setSuccess(false);
-        chatMessage.setContent(message);
+        chatMessage.setFailureMsg(message);
         simpMessagingTemplate.convertAndSendToUser(chatMessage.getFrom(),
                 WebSocketConst.CHAT_DESTINATION_PREFIXE + "/chat",
                 chatMessage);

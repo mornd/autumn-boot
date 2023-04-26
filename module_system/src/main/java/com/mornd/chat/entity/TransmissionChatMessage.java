@@ -30,5 +30,7 @@ public class TransmissionChatMessage {
 
     private LocalDateTime date;
 
+    private String  failureMsg;
+
     private boolean success = true;
 }
