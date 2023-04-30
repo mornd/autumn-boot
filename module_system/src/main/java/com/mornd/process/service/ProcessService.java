@@ -68,14 +68,14 @@ public interface ProcessService extends IService<Process> {
      * @param process
      * @return
      */
-    IPage<Process> findPending(Process process);
+    IPage<ProcessVo> findPending(Process process);
 
     /**
      * 查询我已处理的审批列表
      * @param process
      * @return
      */
-    IPage<Process> findProcessed(Process process);
+    IPage<ProcessVo> findProcessed(Process process);
 
     /**
      * 查询我发起的审批列表

@@ -37,6 +37,7 @@ import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
@@ -360,6 +361,8 @@ public class ProcessServiceImpl
                 // 拒绝理由
                 process.setReason(vo.getReason());
             }
+            // 处理时间
+            process.setHandleTime(LocalDateTime.now());
             // 将当前审批人置空
             //process.setCurrentAuditorId("");
 
@@ -406,7 +409,7 @@ public class ProcessServiceImpl
      * @return
      */
     @Override
-    public IPage<Process> findPending(Process process) {
+    public IPage<ProcessVo> findPending(Process process) {
         TaskQuery taskQuery =
                 // 根据当前的用户登录名查询
                 taskService.createTaskQuery().taskAssignee(SecurityUtil.getLoginUsername())
@@ -425,7 +428,7 @@ public class ProcessServiceImpl
         List<Task> tasks = taskQuery.listPage(pageNo, pageSize);
 
         // 返回结果
-        List<Process> processList = new ArrayList<>();
+        List<ProcessVo> processList = new ArrayList<>();
 
         for (Task task : tasks) {
             // 获取流程实例id
@@ -439,11 +442,20 @@ public class ProcessServiceImpl
             Process dbProcess = super.getById(Long.valueOf(businessKey));
             // 添加任务id，用于审批同意或拒绝时携带
             dbProcess.setTaskId(task.getId());
-            processList.add(dbProcess);
+
+            ProcessVo vo = new ProcessVo();
+            BeanUtils.copyProperties(dbProcess, vo);
+            // 获取申请人
+            SysUser user = userService.getById(dbProcess.getUserId());
+            if(user != null) {
+                vo.setUserName(user.getLoginName());
+                vo.setUserRealName(user.getRealName());
+            }
+            processList.add(vo);
         }
 
         // 封装返回 mp 的 IPage 对象
-        IPage<Process> page = new Page<>(process.getPageNo(), process.getPageSize(), count);
+        IPage<ProcessVo> page = new Page<>(process.getPageNo(), process.getPageSize(), count);
         page.setRecords(processList);
         return page;
     }
@@ -454,12 +466,15 @@ public class ProcessServiceImpl
      * @return
      */
     @Override
-    public IPage<Process> findProcessed(Process process) {
+    public IPage<ProcessVo> findProcessed(Process process) {
         // 封装查询条件
         HistoricTaskInstanceQuery instanceQuery =
                 historyService.createHistoricTaskInstanceQuery()
                 .taskAssignee(SecurityUtil.getLoginUsername())
-                .finished().orderByTaskCreateTime().desc();
+                .finished()
+                //.orderByTaskCreateTime()
+                .orderByHistoricTaskInstanceEndTime()
+                .desc();
 
         long count = instanceQuery.count();
         if(count <= 0) {
@@ -471,7 +486,7 @@ public class ProcessServiceImpl
         int pageSize = (int) process.getPageSize().longValue();
         List<HistoricTaskInstance> historicList = instanceQuery.listPage(pageNo, pageSize);
 
-        List<Process> processList = new ArrayList<>();
+        List<ProcessVo> processList = new ArrayList<>();
         for (HistoricTaskInstance historic : historicList) {
             // 获取流程实例id
             String processInstanceId = historic.getProcessInstanceId();
@@ -479,11 +494,20 @@ public class ProcessServiceImpl
             LambdaQueryWrapper<Process> qw = Wrappers.lambdaQuery(Process.class);
             qw.eq(Process::getProcessInstanceId, processInstanceId);
             Process dbProcess = super.getOne(qw);
-            processList.add(dbProcess);
+
+            ProcessVo vo = new ProcessVo();
+            BeanUtils.copyProperties(dbProcess, vo);
+            // 获取申请人
+            SysUser user = userService.getById(vo.getUserId());
+            if(user != null) {
+                vo.setUserName(user.getLoginName());
+                vo.setUserRealName(user.getRealName());
+            }
+            processList.add(vo);
         }
 
         // 封装返回 mp 的 IPage 对象
-        IPage<Process> page = new Page<>(process.getPageNo(), process.getPageSize(), count);
+        IPage<ProcessVo> page = new Page<>(process.getPageNo(), process.getPageSize(), count);
         page.setRecords(processList);
         return page;
     }

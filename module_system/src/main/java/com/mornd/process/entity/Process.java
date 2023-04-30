@@ -2,9 +2,12 @@ package com.mornd.process.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 /**
  * @author: mornd
@@ -69,6 +72,12 @@ public class Process extends ProcessBaseEntity {
      * 描述
      */
     private String description;
+
+    /**
+     * 处理时间（流程结束时间）
+     */
+    @JsonFormat(pattern = "yyy-MM-dd HH:mm:ss")
+    private LocalDateTime handleTime;
 
     /**
      * 任务id(用于同意或拒绝流程时携带)

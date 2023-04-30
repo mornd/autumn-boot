@@ -18,6 +18,7 @@
             a.current_auditor_id,
             a.description,
             a.reason,
+            a.handle_time,
             a.create_id,
             a.create_time,
             a.update_id,

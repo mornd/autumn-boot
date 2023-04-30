@@ -50,14 +50,14 @@ public class ProcessController extends BaseController {
     @GetMapping("/findPending")
     @LogStar(title = "用户查询当前待处理流程", businessType = LogType.SELECT)
     public JsonResult findPending(Process process) {
-        IPage<Process> page = processService.findPending(process);
+        IPage<ProcessVo> page = processService.findPending(process);
         return JsonResult.successData(page);
     }
 
     @GetMapping("/findProcessed")
     @LogStar(title = "用户查询当前已处理流程", businessType = LogType.SELECT)
     public JsonResult findProcessed(Process process) {
-        IPage<Process> page = processService.findProcessed(process);
+        IPage<ProcessVo> page = processService.findProcessed(process);
         return JsonResult.successData(page);
     }
 
