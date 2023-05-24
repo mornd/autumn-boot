@@ -34,7 +34,7 @@ import static com.mornd.process.entity.Process.ApproveStatus.AGREE;
 @Slf4j
 @Service
 public class WechatMessageServiceImpl implements WechatMessageService {
-//    @Lazy 该注解可以解决与 processService 之间的循环依赖，不推荐
+//    @Lazy // 该注解可以解决与 processService 之间的循环依赖，不推荐，推荐 ObjectFactory<?>
 //    @Resource
 //    private ProcessService processService;
     @Resource

@@ -1,5 +1,6 @@
 package com.mornd.system.entity.result;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mornd.system.constant.JsonResultCode;
 import com.mornd.system.constant.ResultMessage;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonResult<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 

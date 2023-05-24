@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * 四种阻塞队列：
  * 1、SynchronousQueue ------- 直接提交队列（直接就提交，没有队列进行等待）
  * 2、ArrayBlockingQueue -------有界任务队列（不能及时执行的任务，放到自定义的队列中等待执行）
- * 3、LinkedBlockingDeque -----无界任务队列（等待队列的大小是无界，理论上大小取决于内存大小）
+ * 3、LinkedBlockingDeque -----无界任务队列（等待队列的大小是无界(int最大值)，理论上大小取决于内存大小）
  * 4、PriorityBlockingQueue ----优先任务队列（这是一种特殊的无界任务队列，可以按照优先级来执行任务）
  **/
 @Configuration
@@ -67,7 +67,7 @@ public class ThreadPoolConfig
          * 1、AbortPolicy-------(默认策略) 让调用者抛出RejectedExecutionException异常
          * 2、CallerRunsPolicy------- 让调用者运行任务(比如主线程提交，就用主线程自己去执行该任务)
          * 3、DiscardPolicy------- 放弃本次任务，直接不处理
-         * 4、DiscardOldestPolicy------- 放弃队列中最早的任务，本任务取而代之。
+         * 4、DiscardOldestPolicy------- 放弃队列中最早的任务，添加本次任务
          */
 
         /**

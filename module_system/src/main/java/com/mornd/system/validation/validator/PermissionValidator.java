@@ -16,7 +16,14 @@ import javax.validation.ConstraintValidatorContext;
 public class PermissionValidator implements ConstraintValidator<PermissionValidated, SysPermission> {
 
     @Override
-    public boolean isValid(SysPermission sysPermission, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(SysPermission sysPermission, ConstraintValidatorContext context) {
+        // 获取默认的提示信息（注解中的message值）
+        String messageTemplate = context.getDefaultConstraintMessageTemplate();
+        // 禁用默认提示信息
+        context.disableDefaultConstraintViolation();
+        // 设置新的提示语
+        context.buildConstraintViolationWithTemplate("权限类型对应所需的参数校验错误!").addConstraintViolation();
+
         Integer menuType = sysPermission.getMenuType();
         if(menuType == null) return false;
         //验证菜单类型是否合法
