@@ -2,12 +2,14 @@ package com.mornd.system.exception;
 
 import com.mornd.system.constant.JsonResultCode;
 
+import java.io.Serializable;
+
 /**
  * @author: mornd
  * @dateTime: 2022/12/11 - 22:51
  * @description:
  */
-public class AutumnException extends RuntimeException {
+public class AutumnException extends RuntimeException implements Serializable {
     private static final long serialVersionUID = 14543434L;
 
     /**

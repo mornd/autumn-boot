@@ -2,6 +2,7 @@ package com.mornd.system.exception;
 
 import org.springframework.http.HttpStatus;
 
+import java.io.Serializable;
 import java.util.StringJoiner;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -11,7 +12,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
  * @dateTime 2022/5/2 - 20:44
  * 自定义异常处理
  */
-public class BadRequestException extends RuntimeException {
+public class BadRequestException extends RuntimeException implements Serializable {
     private static final long serialVersionUID = 645437658L;
 
     /**
